@@ -1,0 +1,10 @@
+header.masthead style=("background-image: url('#{asset_path("for_blog.jpeg")}')")
+  .overlay
+  .container
+    .row
+      .col-lg-8.col-md-10.mx-auto
+        .page-heading
+          h1 
+            = post.try(:title) || 'BLOGGER IS YOU'
+          span.subheading 
+            = post.try(:description) || '教你寫網站的網站，非常後設'
