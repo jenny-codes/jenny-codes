@@ -1,0 +1,28 @@
+.container
+  .row
+    .col-lg-8.col-md-10.mx-auto
+      = render 'posts/posts_preview', posts: @posts
+
+      /! Pager
+      .clearfix
+        a.btn.btn-info.float-right href="#"  More Posts &rarr;
+
+  button.open-button onclick="openForm()" Chat
+
+  #myForm.chat-popup
+    form.form-container action="/" 
+      h1 Chat
+      label for="msg" 
+        b Message
+      textarea name="msg" placeholder=("Type message..")        
+      button.btn type="submit"  Send
+      button.btn.cancel onclick="closeForm()" type="button"  Close
+
+javascript:
+  function openForm() {
+    document.getElementById("myForm").style.display = "block";
+  }
+
+  function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+  }
