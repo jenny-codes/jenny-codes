@@ -1,7 +1,10 @@
 Rails.application.routes.draw do
   root 'posts#index'
 
-  resources :posts
+  resources :posts, only: [:index, :show]
+  scope '/admin' do
+    resources :posts, except: [:index, :show]
+  end
 
   # unchanged content 
   get 'about', to: 'statics#about'

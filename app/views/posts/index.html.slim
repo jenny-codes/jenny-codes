@@ -4,25 +4,26 @@
       = render 'posts/posts_preview', posts: @posts
 
       /! Pager
-      .clearfix
-        a.btn.btn-info.float-right href="#"  More Posts &rarr;
+      - if @post && @post.count > 5 
+        .clearfix
+          a.btn.btn-info.float-right href="#"  More Posts &rarr;
 
-  button.open-button onclick="openForm()" Chat
 
-  #myForm.chat-popup
-    form.form-container action="/" 
-      h1 Chat
-      label for="msg" 
-        b Message
-      textarea name="msg" placeholder=("Type message..")        
-      button.btn type="submit"  Send
-      button.btn.cancel onclick="closeForm()" type="button"  Close
+/   酷炫 chatbox 功能
+/   button.open-button onclick="openForm()" Chat
 
-javascript:
-  function openForm() {
-    document.getElementById("myForm").style.display = "block";
-  }
+/   #chatForm.chat-popup
+/     form.form-container action="/" 
+/       h4 想跟我說什麼嗎
+/       textarea name="msg" placeholder=("...")        
+/       button.btn.btn-warning type="submit"  Send
+/       button.btn.btn-default onclick="closeForm()" type="button"  Close
 
-  function closeForm() {
-    document.getElementById("myForm").style.display = "none";
-  }
+/ javascript:
+/   function openForm() {
+/     document.getElementById("chatForm").style.display = "block";
+/   }
+
+/   function closeForm() {
+/     document.getElementById("chatForm").style.display = "none";
+/   }

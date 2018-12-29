@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
-
+  before_action :authenticate, except: [:index, :show]
+  USERS = { ENV["admin_username"] => ENV["admin_password"] }  # https://braavos.me/blog/2014/08/05/rails-env/
   # GET /posts
   # GET /posts.json
   def index
@@ -70,5 +71,11 @@ class PostsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
       params.require(:post).permit(:title, :body, :status, :description)
+    end
+
+    def authenticate
+      authenticate_or_request_with_http_digest do |username|
+        USERS[username]
+      end
     end
 end

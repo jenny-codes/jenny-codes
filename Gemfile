@@ -70,7 +70,8 @@ gem 'jquery-rails'
 gem 'awesome_print'
 gem 'awesome_rails_console'
 
-
+# authentication
+gem "figaro"
 
 
 
