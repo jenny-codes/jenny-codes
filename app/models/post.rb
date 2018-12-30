@@ -3,7 +3,7 @@ class Post < ApplicationRecord
   before_save :init_attributes
   validates_presence_of :title
 
-  scope :published, -> { where( status: 'public' ) }
+  scope :published, -> { where( status: 'published' ) }
 
   private
   def init_attributes
