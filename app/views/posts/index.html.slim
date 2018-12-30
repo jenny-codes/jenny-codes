@@ -1,12 +1,11 @@
-.container
-  .row
-    .col-lg-8.col-md-10.mx-auto
-      = render 'posts/posts_preview', posts: @posts
+.row
+  .col-lg-8.col-md-10.mx-auto
+    = render 'posts/posts_preview', posts: @posts
 
-      /! Pager
-      - if @post && @post.count > 5 
-        .clearfix
-          a.btn.btn-info.float-right href="#"  More Posts &rarr;
+    /! Pager
+    - if @post && @post.count > 5 
+      .clearfix
+        a.btn.btn-info.float-right href="#"  More Posts &rarr;
 
 
 /   酷炫 chatbox 功能

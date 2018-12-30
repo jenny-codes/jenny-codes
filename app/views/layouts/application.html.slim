@@ -16,6 +16,7 @@ html
     = render 'shared/header', post: @post
     = render 'shared/navbar'
     main
-      = yield
+      .container
+        = yield
       = render '/shared/footer' 
     / = render '/shared/gotop_button'

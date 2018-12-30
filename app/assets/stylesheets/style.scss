@@ -1,3 +1,6 @@
+@import "variables.scss";
+@import "mixins.scss";
+@import "bootstrap-overrides.scss";
 @import "bootstrap";
 @import "clean-blog";
 @import "summernote-bs4";
@@ -5,4 +8,15 @@
 
 .page-heading {
   width: max-content;
+}
+
+.btn-fit {
+  font-size: 14px;
+  font-weight: 800;
+  padding: 9px 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 0;
+  border: 0px;
+  @include sans-serif-font;
 }

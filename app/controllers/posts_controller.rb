@@ -37,10 +37,10 @@ class PostsController < ApplicationController
     
     if @post.save
       flash[:notice] = "Yet another article towards greateness is created. Now get yor ass up and write another post. Hurry!"
-      redirect_to posts_path(@post.id)
+      redirect_to posts_list_path
     else 
       flash[:eror] = "Post not created. Did you forget something?"
-      redirect_to posts_path 
+      redirect_to posts_list_path 
     end
   end
 

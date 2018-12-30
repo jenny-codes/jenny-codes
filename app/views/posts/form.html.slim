@@ -1,27 +1,26 @@
-.container
-  .row
-    .col-md-12
-      = form_with model: @post do |f|
-        .form-row.justify-content-between
-          .form-group.col-md-6
-            = f.label :title
-            = f.text_field :title, required: true, class: 'form-control'
-            / = f.text_field :tags,  class: "form-control"
-          .form-group.col-md-4.align-right
-            h4 references
-            pre.pre-scrollable
-              | h2.section-heading <br>
-              | blockquote.blockquote <br>
-              | img.img-fluid <br>
-              | span.caption.text-muted <br>
-        .form-group
-          = f.label :description
-          = f.text_area :description, class: 'form-control'
-        .form-group
-          = f.label :body
-          = f.text_area :body, 'data-provider': :summernote, required: true
-        .form-row
-          .form-group.col-md-1
-            = f.select :status, @status_list, class: 'form-control'
-          .form-group.col-md-3
-            = submit_tag 'Hooray!', class: 'btn btn-warning', role: 'button'
+.row
+  .col-md-12
+    = form_with model: @post do |f|
+      .form-row.justify-content-between
+        .form-group.col-md-6
+          = f.label :title
+          = f.text_field :title, required: true, class: 'form-control'
+          / = f.text_field :tags,  class: "form-control"
+        .form-group.col-md-4.align-right
+          h4 references
+          pre.pre-scrollable
+            | h2.section-heading <br>
+            | blockquote.blockquote <br>
+            | img.img-fluid <br>
+            | span.caption.text-muted <br>
+      .form-group
+        = f.label :description
+        = f.text_area :description, class: 'form-control'
+      .form-group
+        = f.label :body
+        = f.text_area :body, 'data-provider': :summernote, required: true
+      .form-row
+        .form-group.col-md-1
+          = f.select :status, @status_list, class: 'form-control'
+        .form-group.col-md-3
+          = submit_tag 'Hooray!', class: 'btn btn-warning', role: 'button'
