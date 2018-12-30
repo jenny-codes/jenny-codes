@@ -1,4 +1,4 @@
-header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
+header.masthead
   .overlay
   .container
     .row
@@ -7,4 +7,8 @@ header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
           h1 
             = post.try(:title) || '網頁開發見習生'
           span.subheading 
-            = post.try(:description) || 'Ruby on Rails, Python on Django, 一點點 Javascript'
+            = post.try(:description) || 'skills << "Ruby on Rails"'
+
+
+
+/ header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"

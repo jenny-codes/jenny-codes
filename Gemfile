@@ -73,6 +73,6 @@ gem 'awesome_rails_console'
 # authentication
 gem "figaro"
 
-
+gem 'summernote-rails', '~> 0.8.10.0'
 
 

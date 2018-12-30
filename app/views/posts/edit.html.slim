@@ -1,0 +1,40 @@
+.container
+  .row
+    .col-md-12
+      h1.jumbotron.text-center
+        | i ran out of lame placeholders. <br>
+        | this is post's edit page.
+
+  form 
+    = form_tag console_post_path @post.id, role: 'form', method: :POST do
+      .form-row.justify-content-between
+        .form-group.col-md-6
+          = label_tag 'title'
+          = text_field_tag 'post[]title', @post.title, class: "form-control"
+        .form-group.col-md-4.align-right
+          h4 references
+          pre.pre-scrollable
+            | h2.section-heading <br>
+            | blockquote.blockquote <br>
+            | img.img-fluid <br>
+            | span.caption.text-muted <br>
+
+      .form-group
+        = label_tag 'description'
+        = text_area_tag 'post[]description', @post.description, class: "form-control"
+      .form-group
+        = label_tag 'body'
+        = text_area_tag 'post[]body', @post.body
+        javascript:
+          $(document).ready(function() {
+            $('#post_body').summernote({
+              height: 500,
+              placeholder: '你準備好了',
+              codemirror: {
+                theme: 'monokai'
+              }
+            });
+          });
+
+      .form-group
+        = submit_tag 'Save the Edit!', class: 'btn btn-warning', role: 'button'

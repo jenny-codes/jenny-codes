@@ -5,6 +5,10 @@ class PostsController < ApplicationController
   # GET /posts
   # GET /posts.json
   def index
+    @posts = Post.published
+  end
+
+  def list
     @posts = Post.all
   end
 
@@ -26,15 +30,13 @@ class PostsController < ApplicationController
   # POST /posts.json
   def create
     @post = Post.new(post_params)
-
-    respond_to do |format|
-      if @post.save
-        format.html { redirect_to @post, notice: 'Post was successfully created.' }
-        format.json { render :show, status: :created, location: @post }
-      else
-        format.html { render :new }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
-      end
+    
+    if @post.save
+      flash[:notice] = "Yet another article towards greateness is created. Now get yor ass up and write another post. Hurry!"
+      redirect_to posts_path @post.id
+    else 
+      flash[:eror] = "Post not created. Did you forget something?"
+      redirect_to posts_path 
     end
   end
 

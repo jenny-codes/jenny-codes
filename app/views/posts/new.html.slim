@@ -1,0 +1,48 @@
+.container
+  .row
+    .col-md-12
+      = form_with model: @post do |f|
+        .form-row.justify-content-between
+          .form-group.col-md-6
+            = f.label :title
+            = f.text_field :title, class: "form-control"
+            / = f.text_field :tags,  class: "form-control"
+          .form-group.col-md-4.align-right
+            h4 references
+            pre.pre-scrollable
+              | h2.section-heading <br>
+              | blockquote.blockquote <br>
+              | img.img-fluid <br>
+              | span.caption.text-muted <br>
+        .form-group
+          = f.label :description
+          = f.text_area :description, class: "form-control"
+        .form-group
+          = f.label :body
+          = f.text_area :body, 'data-provider': :summernote
+        .form-group
+          = submit_tag 'Hooray!', class: 'btn btn-warning', role: 'button'
+
+
+        
+  // $(document).ready(function() {
+  //   $('#post_body').summernote({
+  //     height: 500,
+  //     placeholder: '你準備好了',
+  //     codemirror: {
+  //       theme: 'monokai'
+  //     },
+  //     toolbar: [
+  //         ['style', ['style']],
+  //         ['font', ['bold', 'italic', 'underline', 'clear']],
+  //         ['fontname', ['fontname']],
+  //         ['color', ['color']],
+  //         ['para', ['ul', 'ol', 'paragraph']],
+  //         ['height', ['height']],
+  //         ['table', ['table']],
+  //         ['insert', ['link', 'picture', 'hr']],
+  //         ['view', ['fullscreen', 'codeview']],
+  //         ['help', ['help']]
+  //       ],
+  //   });
+  // });

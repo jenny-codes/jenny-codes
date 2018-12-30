@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :posts, only: [:index, :show]
   scope '/admin' do
     resources :posts, except: [:index, :show]
+    get 'posts/list', to: 'posts#list'
   end
 
   # unchanged content 
