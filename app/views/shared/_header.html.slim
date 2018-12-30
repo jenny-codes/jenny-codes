@@ -1,8 +1,8 @@
-header.masthead
+header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
   .overlay
   .container
     .row
-      .col-lg-8.col-md-10.mx-auto
+      .col-lg-8.col-md-10.mx-auto.d-flex.justify-content-center
         .page-heading
           h1 
             = post.try(:title) || '網頁開發見習生'
@@ -11,4 +11,3 @@ header.masthead
 
 
 
-/ header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
