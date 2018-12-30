@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
   root 'posts#index'
 
-  resources :posts, only: [:index, :show]
+  resources :posts
+  
   scope '/admin' do
-    resources :posts, except: [:index, :show]
-    get 'posts/list', to: 'posts#list'
+    get 'posts/', to: 'posts#list', as: 'posts/list'
+    patch 'toggle_status', to: 'posts#toggle_status', as: 'posts/toggle_status'
   end
 
   # unchanged content 

@@ -33,7 +33,7 @@ class PostsController < ApplicationController
     
     if @post.save
       flash[:notice] = "Yet another article towards greateness is created. Now get yor ass up and write another post. Hurry!"
-      redirect_to posts_path @post.id
+      redirect_to posts_path(@post.id)
     else 
       flash[:eror] = "Post not created. Did you forget something?"
       redirect_to posts_path 
@@ -43,15 +43,15 @@ class PostsController < ApplicationController
   # PATCH/PUT /posts/1
   # PATCH/PUT /posts/1.json
   def update
-    respond_to do |format|
-      if @post.update(post_params)
-        format.html { redirect_to @post, notice: 'Post was successfully updated.' }
-        format.json { render :show, status: :ok, location: @post }
-      else
-        format.html { render :edit }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
-      end
+    if @post.update(post_params)
+      redirect_to @post, notice: 'Post was successfully updated.'
+    else
+      render :edit 
     end
+  end
+
+  def puhlish
+
   end
 
   # DELETE /posts/1
@@ -67,12 +67,16 @@ class PostsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_post
-      @post = Post.find(params[:id])
+      @post = Post.find_by(id: params[:id]) || Post.new
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
-      params.require(:post).permit(:title, :body, :status, :description)
+      if params[:post]
+        params.require(:post).permit(:title, :body, :status, :description)
+      elsif params[:status]
+        params.permit(:status)
+      end
     end
 
     def authenticate

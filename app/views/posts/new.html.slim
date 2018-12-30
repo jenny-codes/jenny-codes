@@ -5,7 +5,7 @@
         .form-row.justify-content-between
           .form-group.col-md-6
             = f.label :title
-            = f.text_field :title, class: "form-control"
+            = f.text_field :title, required: true, class: "form-control"
             / = f.text_field :tags,  class: "form-control"
           .form-group.col-md-4.align-right
             h4 references
@@ -19,30 +19,6 @@
           = f.text_area :description, class: "form-control"
         .form-group
           = f.label :body
-          = f.text_area :body, 'data-provider': :summernote
+          = f.text_area :body, 'data-provider': :summernote, required: true
         .form-group
           = submit_tag 'Hooray!', class: 'btn btn-warning', role: 'button'
-
-
-        
-  // $(document).ready(function() {
-  //   $('#post_body').summernote({
-  //     height: 500,
-  //     placeholder: '你準備好了',
-  //     codemirror: {
-  //       theme: 'monokai'
-  //     },
-  //     toolbar: [
-  //         ['style', ['style']],
-  //         ['font', ['bold', 'italic', 'underline', 'clear']],
-  //         ['fontname', ['fontname']],
-  //         ['color', ['color']],
-  //         ['para', ['ul', 'ol', 'paragraph']],
-  //         ['height', ['height']],
-  //         ['table', ['table']],
-  //         ['insert', ['link', 'picture', 'hr']],
-  //         ['view', ['fullscreen', 'codeview']],
-  //         ['help', ['help']]
-  //       ],
-  //   });
-  // });
