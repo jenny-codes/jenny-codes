@@ -1,6 +1,8 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :build_selection, only: [:new, :edit]
   before_action :authenticate, except: [:index, :show]
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
+
   USERS = { ENV["admin_username"] => ENV["admin_password"] }  # https://braavos.me/blog/2014/08/05/rails-env/
   # GET /posts
   # GET /posts.json
@@ -20,10 +22,12 @@ class PostsController < ApplicationController
   # GET /posts/new
   def new
     @post = Post.new
+    render template: 'posts/form'
   end
 
   # GET /posts/1/edit
   def edit
+    render template: 'posts/form'
   end
 
   # POST /posts
@@ -48,10 +52,6 @@ class PostsController < ApplicationController
     else
       render :edit 
     end
-  end
-
-  def puhlish
-
   end
 
   # DELETE /posts/1
@@ -83,5 +83,9 @@ class PostsController < ApplicationController
       authenticate_or_request_with_http_digest do |username|
         USERS[username]
       end
+    end
+
+    def build_selection
+      @status_list = [['草稿', 'draft'], ['發佈', 'published']]
     end
 end

@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   
   scope '/admin' do
     get 'posts/', to: 'posts#list', as: 'posts/list'
-    patch 'toggle_status', to: 'posts#toggle_status', as: 'posts/toggle_status'
   end
 
   # unchanged content 

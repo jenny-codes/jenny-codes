@@ -12,11 +12,11 @@
 //
 //= require jquery
 //= require rails-ujs
-//= require turbolinks
 //= require popper 
-//= require bootstrap-sprockets
-//= require activestorage
+//= require bootstrap
 //= require summernote
 //= require summernote/lang/summernote-zh-TW
 //= require summernote-init
+//= require activestorage
+//= require turbolinks
 //= require clean-blog
