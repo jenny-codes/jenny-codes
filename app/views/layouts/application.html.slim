@@ -13,7 +13,7 @@ html
 
   body
     / = flash_messages
-    = render 'shared/header', post: @post
+    = render 'shared/header', object: @post || @page
     = render 'shared/navbar'
     main
       .container
