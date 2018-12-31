@@ -1,33 +1,11 @@
 .row
   .col-lg-8.col-md-10.mx-auto
-    h3  預計會寫的題目，順序不一定，歡迎投稿！
+    h3 style='padding-left: 18px;'  預計會寫的題目，順序不一定，歡迎投稿！
     .list-group.list-group-flush
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 Rails 中的神奇指令們
-        p.my-1 讓你用一行指令就莫名其妙完成所有事情
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 「用 Ruby on Rails 開發一個網頁程式」系列
-        p.my-1 就用這個網站當例子，大概會至少有三篇吧
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 Ruby 的「syntax sugar」
-        p.my-1 Ruby 語言中白吃的午餐
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 如何在 Rails 中匯入 Bootstrap Theme
-        p.my-1 給像我一樣的前端苦手
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 Rails 的 Model 繼承關係
-        p.my-1 如今才暸解資料庫的學問真的不能小覷
-        / http://kimix.name/rails-polymorphic-associations/
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 Rails 的 MVC 架構
-        p.my-1 Model, View, Controller 
-      .list-group-item.list-group-item-action.flex-column.align-items-start 
-        .d-flex.w-100.justify-content-between
-          h5.mb-1 Rails on Heroku
-        p.my-1 把寫好的程式推上線（部署到雲端）的眉眉角角
+      - @to_write.each do |post|
+        .list-group-item.list-group-item-action.flex-column.align-items-start 
+          .d-flex.w-100.justify-content-between
+            h5.mb-1.text-dark 
+              = post[0]
+          p.my-1 
+            = post[1]

@@ -1,6 +1,9 @@
 class MessagesController < ApplicationController
   def new
     @message = Message.new
+    @page = {
+      description: 'CONTACT'
+    }
   end
 
   def create
