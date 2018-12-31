@@ -75,4 +75,4 @@ gem "figaro"
 
 gem 'summernote-rails', '~> 0.8.10.0'
 
-
+gem 'mailgun-ruby', '~>1.1.6'

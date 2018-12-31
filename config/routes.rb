@@ -10,5 +10,9 @@ Rails.application.routes.draw do
   # unchanged content 
   get 'about', to: 'statics#about'
   get 'resources', to: 'statics#resources'
-  get 'contact', to: 'statics#contact'
+
+  # messaging
+  get 'contact', to: 'messages#new'
+  post 'contact', to: 'messages#create'
 end
+
