@@ -1,0 +1,19 @@
+.row
+  .col-lg-8.col-md-10.mx-auto
+    = form_with model: @message, url: contact_path do |f|
+      .control-group
+        .form-group.floating-label-form-group.controls
+          = f.label :name
+          = f.text_field :name, required: true, class: 'form-control', placeholder: 'Name'
+      .control-group
+        .form-group.floating-label-form-group.controls
+          = f.label :email
+          = f.email_field :email, required: true, class: 'form-control', placeholder: 'Email Address'
+      .control-group
+        .form-group.floating-label-form-group.controls
+          = f.label :body
+          = f.text_area :body, required: true, class: 'form-control', placeholder: 'Message', rows: 5
+      br/
+      #success
+      .form-group
+        button#sendMessageButton.btn.btn-primary type="submit"  Send

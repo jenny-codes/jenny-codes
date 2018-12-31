@@ -10,10 +10,4 @@ class StaticsController < ApplicationController
       description: 'RESOURCES'
     }
   end
-
-  def contact
-    @page = {
-      description: 'CONTACT'
-    }
-  end
 end
