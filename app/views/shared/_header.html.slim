@@ -5,9 +5,9 @@ header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
       .col-lg-8.col-md-10.mx-auto.d-flex.justify-content-center
         .page-heading
           h1 
-            = object[:title] || '網頁開發見習生'
+            = object && object[:title].present? ? object[:title] : '網頁開發見習生'
           span.subheading 
-            = object[:description] || 'skills << "Ruby on Rails"'
+            = object ? object[:description] : 'skills << "Ruby on Rails"'
 
 
 
