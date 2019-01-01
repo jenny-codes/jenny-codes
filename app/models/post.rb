@@ -1,12 +1,13 @@
 class Post < ApplicationRecord
+  extend FriendlyId
+  friendly_id :title, use: :slugged
+
   enum status: [:draft, :published]
-  before_save :init_attributes
   validates_presence_of :title
 
-  scope :published, -> { where( status: 'published' ) }
-
-  private
-  def init_attributes
-    self.status ||= Post.statuses[:draft]
+  def normalize_friendly_id(input)
+    input.to_s.to_slug.normalize.to_s
   end
 end
+
+  

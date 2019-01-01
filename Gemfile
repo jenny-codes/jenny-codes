@@ -77,3 +77,7 @@ gem 'summernote-rails', '~> 0.8.10.0'
 
 gem 'mailgun-ruby', '~>1.1.6'
 
+# use slug for post url
+gem 'friendly_id', '~> 5.2.4'
+gem "babosa"
+
