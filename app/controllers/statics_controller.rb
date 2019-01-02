@@ -11,7 +11,9 @@ class StaticsController < ApplicationController
       ['Rails 的 Model 繼承關係',                   '如今才暸解資料庫的學問真的不能小覷'],
       ['Rails 的 MVC 架構',                         'Model, View, Controller '],
       ['Rails on Heroku',                          '把寫好的程式推上線（部署到雲端）的眉眉角角'],
-      ['Django 的 MTV vs Rails 的 MVC',             'Rails 與 Django 在架構上的差異'],
+      ['Django 架站實錄',                            '記錄一下用 Django 邊學邊實作一個網站的過程'],
+      ['Django 的 MTV vs Rails 的 MVC',              'Rails 與 Django 在架構上的差異'],
+      ['Rails 的 ActiveSupport::Concern',            '善用它讓你的程式碼變得很優雅！還有 Ruby 的 include, extend 與 prepend'],     
     ]
   end
 
