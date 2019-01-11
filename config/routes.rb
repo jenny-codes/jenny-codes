@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   
   scope '/admin' do
     get 'posts/', to: 'posts#list', as: 'posts/list'
+    # get 'posts/idea', to: 'posts#idea', as 'posts/idea'
   end
 
   # unchanged content 

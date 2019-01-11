@@ -1,4 +1,9 @@
 .row
+  .col-lg-12
+    - flash.each do |key, value|
+      .alert.alert-warning
+        = value
+.row
   .col-lg-8.col-md-10.mx-auto
     = form_with model: @message, url: contact_path do |f|
       .control-group
