@@ -1,11 +1,11 @@
 class PostsController < ApplicationController
   before_action :build_selection, only: [:new, :edit]
-  before_action :authenticate, except: [:index, :show]
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate,    except: [:index, :show]
+  before_action :build_post,      only: [:new, :create]
+  before_action :set_post,        only: [:show, :edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
-  # GET /posts
-  # GET /posts.json
+
   def index
     @posts = Post.published.order('created_at DESC')
   end
@@ -14,34 +14,25 @@ class PostsController < ApplicationController
     @posts = Post.all
   end
 
-  def show
-  end
-
   def new
-    @post = Post.new
     render template: 'posts/form'
   end
 
-  # GET /posts/1/edit
   def edit
     render template: 'posts/form'
   end
 
-  def create
-    @post = Post.new(post_params)
-    
+  def create    
     if @post.save
-      flash[:notice] = "Yet another article towards greateness is created. Now get yor ass up and write another post. Hurry!"
-      redirect_to posts_list_path
+      redirect_to posts_list_path, notice: '檢查錯字了嗎'
     else 
-      flash[:eror] = "Post not created. Did you forget something?"
-      redirect_to posts_list_path 
+      redirect_to posts_list_path, error: '你做了什麼'
     end
   end
 
   def update
     if @post.update(post_params)
-      redirect_to @post, notice: 'Post was successfully updated.'
+      redirect_to @post, notice: '更新好ㄌ'
     else
       render :edit 
     end
@@ -49,13 +40,18 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    respond_to do |format|
-      format.html { redirect_to posts_url, notice: 'Post was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    redirect_to posts_url, notice: '成功毀滅了'
+  end
+
+  def idea
+    @ideas = Post.idea
   end
 
   private
+
+    def build_post
+      @post = Post.new(post_params)
+    end
 
     def set_post
       @post = Post.friendly.find(params[:id])
@@ -67,6 +63,8 @@ class PostsController < ApplicationController
         params.require(:post).permit(:title, :body, :status, :description)
       elsif params[:status]
         params.permit(:status)
+      else
+        Hash.new
       end
     end
 
