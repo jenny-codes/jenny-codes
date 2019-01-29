@@ -12,11 +12,10 @@ html
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
 
   body
-    / = flash_messages
     = render 'shared/header', object: @post || @page
     = render 'shared/navbar'
     main
-      .container
+      .container-fluid
         = yield
       = render '/shared/footer' 
     / = render '/shared/gotop_button'
