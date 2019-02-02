@@ -7,6 +7,7 @@ class PostsController < ApplicationController
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
 
   def index
+    Medium.new('jinghua.shih').synchronize_last_post
     @posts = Post.published.order('created_at DESC')
   end
 
