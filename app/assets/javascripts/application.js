@@ -14,9 +14,6 @@
 //= require rails-ujs
 //= require popper 
 //= require bootstrap
-//= require summernote
-//= require summernote/lang/summernote-zh-TW
-//= require summernote-init
 //= require activestorage
 //= require turbolinks
 //= require clean-blog
