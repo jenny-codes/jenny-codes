@@ -15,6 +15,7 @@
 //= require popper 
 //= require bootstrap
 //= require activestorage
+//= require jquery-lazy
 //= require turbolinks
 //= require clean-blog
 

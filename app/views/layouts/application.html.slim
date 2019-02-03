@@ -10,7 +10,7 @@ html
     = stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
 
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload', async: Rails.env.production?
-    = javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js'
+    /= javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js'
 
   body
     = render 'shared/header', object: @post || @page
