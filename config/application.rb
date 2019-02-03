@@ -18,5 +18,7 @@ module Jennycodes
     # FIX: not working but don't know why
     # config.autoload_paths += Dir["#{Rails.root}/lib/"]
     config.time_zone = "Taipei"
+
+    config.assets.precompile += %w(.jpeg .jpg)
   end
 end

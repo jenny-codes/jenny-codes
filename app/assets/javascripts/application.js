@@ -18,8 +18,8 @@
 //= require turbolinks
 //= require clean-blog
 
-
-$(document).on('turbolinks:load', function() {
+// $(document).on('turbolinks:load', function() {
+$(document).on('ready', function() {
   window.lazyLoadInit();
 });
 
@@ -32,3 +32,4 @@ window.lazyLoadInit = function(){
     delay: 1
   });
 };
+
