@@ -17,3 +17,18 @@
 //= require activestorage
 //= require turbolinks
 //= require clean-blog
+
+
+$(document).on('turbolinks:load', function() {
+  window.lazyLoadInit();
+});
+
+
+window.lazyLoadInit = function(){
+  $('.lazy').Lazy({
+    effect: "fadeIn",
+    effectTime: 1000,
+    threshold: 50,
+    delay: 1
+  });
+};
