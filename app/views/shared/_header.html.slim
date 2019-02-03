@@ -1,7 +1,8 @@
 /header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
-/header.masthead.lazy data-src="#{image_path("for_blog.jpeg")}"
-header.masthead.lazy 
-  = image_tag "for_blog.jpg", class: 'overlay'
+/header.masthead.lazy 
+  = image_tag "for_blog.jpg", class: 'overlay lazy'
+header.masthead.lazy data-src="#{image_path("for_blog.jpg")}"
+  .overlay
   .container
     .row
       .col-lg-8.col-md-10.mx-auto.d-flex.justify-content-center
