@@ -5,9 +5,9 @@ class PostsController < ApplicationController
   before_action :set_post,        only: [:show, :edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
+  MEDIUM_ACCOUNT = 'jinghua.shih'
 
   def index
-    Medium.new('jinghua.shih').synchronize_last_post
     @posts = Post.published.order('created_at DESC')
   end
 
@@ -46,6 +46,18 @@ class PostsController < ApplicationController
 
   def idea
     @ideas = Post.idea
+  end
+
+  def synchronize_with_medium
+    last_post = Medium.new(MEDIUM_ACCOUNT).last_post
+    return if Post.last.title == last_post[:title]
+
+    Post.create(
+            title: last_post[:title],
+      description: last_post[:subtitle],
+             body: last_post[:body],
+           status: :published
+    )
   end
 
   private

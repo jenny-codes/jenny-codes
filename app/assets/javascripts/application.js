@@ -16,8 +16,8 @@
 //= require bootstrap
 //= require activestorage
 //= require jquery-lazy
-// require turbolinks
 //= require clean-blog
+// require turbolinks
 
 // $(document).on('turbolinks:load', function() {
 $(document).on('ready', function() {
