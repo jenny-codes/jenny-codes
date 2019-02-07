@@ -50,14 +50,15 @@ class PostsController < ApplicationController
 
   def synchronize_with_medium
     last_post = Medium.new(MEDIUM_ACCOUNT).last_post
-    return if Post.last.title == last_post[:title]
-
-    Post.create(
-            title: last_post[:title],
-      description: last_post[:subtitle],
-             body: last_post[:body],
-           status: :published
-    )
+    if Post.last.title != last_post[:title]
+      Post.create(
+              title: last_post[:title],
+        description: last_post[:subtitle],
+               body: last_post[:body],
+             status: :published
+      )
+    end
+    redirect_to posts_url
   end
 
   private

@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   
   scope '/admin' do
     get 'posts/', to: 'posts#list', as: 'posts/list'
+    get 'sync/', to: 'posts#synchronize_with_medium', as: 'posts/sync'
     # get 'posts/idea', to: 'posts#idea', as 'posts/idea'
   end
 
