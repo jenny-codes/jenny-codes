@@ -41,7 +41,7 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_url, notice: '成功毀滅了'
+    redirect_to posts_list_url, notice: '成功毀滅了'
   end
 
   def idea
