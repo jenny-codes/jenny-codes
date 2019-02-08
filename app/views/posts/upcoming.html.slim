@@ -1,6 +1,6 @@
 .row
   .col-lg-8.col-md-10.mx-auto
-    h3 style='padding-left: 18px;'  預計會寫/正在寫的題目，順序不一定，歡迎投稿！
+    h4 style='padding-left: 18px;'  預計會寫/正在寫的題目，順序不一定，歡迎投稿！
     .list-group.list-group-flush
       - @draft.each do |post|
         .list-group-item.list-group-item-action.flex-column.align-items-start 
@@ -8,4 +8,4 @@
             h5.mb-1.text-dark 
               = post.title
           p.my-1 
-            = post.description
+            = post.description.html_safe
