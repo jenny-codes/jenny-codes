@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
   before_action :build_selection, only: [:new, :edit]
   before_action :authenticate,    except: [:index, :show, :upcoming]
+  before_action :build_posts,     only: [:index, :list, :upcoming]
   before_action :build_post,      only: [:new, :create]
   before_action :set_post,        only: [:show, :edit, :update, :destroy]
 
@@ -8,11 +9,9 @@ class PostsController < ApplicationController
   MEDIUM_ACCOUNT = 'jinghua.shih'
 
   def index
-    @posts = Post.published
   end
 
   def list
-    @posts = Post.all
   end
 
   def new
@@ -48,7 +47,6 @@ class PostsController < ApplicationController
   end
 
   def upcoming
-    @draft = Post.draft
   end
 
   def sync_with_medium
@@ -68,6 +66,11 @@ class PostsController < ApplicationController
 
     def build_post
       @post = Post.new(post_params)
+    end
+
+    def build_posts
+      @posts = Post.published
+      @draft = Post.draft
     end
 
     def set_post
