@@ -1,6 +1,6 @@
 class PostsController < ApplicationController
   before_action :build_selection, only: [:new, :edit]
-  before_action :authenticate,    except: [:index, :show]
+  before_action :authenticate,    except: [:index, :show, :upcoming]
   before_action :build_post,      only: [:new, :create]
   before_action :set_post,        only: [:show, :edit, :update, :destroy]
 
@@ -24,24 +24,26 @@ class PostsController < ApplicationController
   end
 
   def create    
-    if @post.save
-      redirect_to list_posts_path, notice: '檢查錯字了嗎'
-    else 
-      redirect_to list_posts_path, error: '你做了什麼'
-    end
+    @post.save!
+    redirect_to list_posts_path, notice: 'Attagirl'
+  rescue StandardError => e
+    flash[:error] = "Oops! #{e}"
+    redirect_to list_posts_path
   end
 
   def update
-    if @post.update(post_params)
+    @post.update!(post_params)
       redirect_to @post, notice: '更新好ㄌ'
-    else
-      render :edit 
-    end
+  rescue StandardError => e
+    flash[:error] = "Oops! #{e}"
+    redirect_to edit_post_path(@post.id)
   end
 
   def destroy
     @post.destroy
-    redirect_to list_posts_path, notice: '成功毀滅了'
+  rescue StandardError => e
+    flash[:error] = "Oops! #{e}"
+    redirect_to list_posts_path
   end
 
   def upcoming
