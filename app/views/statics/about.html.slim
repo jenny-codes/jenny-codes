@@ -1,11 +1,11 @@
+- content_for :head do 
+  link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"
+
 .row
-  .col-lg-8.col-md-10.mx-auto
-    h3 style='padding-left: 18px;'  預計會寫的題目，順序不一定，歡迎投稿！
-    .list-group.list-group-flush
-      - @to_write.each do |post|
-        .list-group-item.list-group-item-action.flex-column.align-items-start 
-          .d-flex.w-100.justify-content-between
-            h5.mb-1.text-dark 
-              = post[0]
-          p.my-1 
-            = post[1]
+  .col-lg-8.col-md-10.mx-auto style='text-align: center;'
+    p 我是一個很強的後端工程師。
+    p （自我實現預言）
+    = link_to 'https://github.com/jing-jenny-shih' do 
+      .fab.fa-github.fa-2x.icon-list
+    = link_to contact_path do 
+      .far.fa-envelope.fa-2x.icon-list
