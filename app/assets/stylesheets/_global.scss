@@ -19,8 +19,20 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 800;
+  font-weight: 700;
   @include sans-serif-font;
+}
+
+h3 {
+  font-weight: 500;
+  font-size: 36px;
+  margin-top: 60px;
+}
+
+h4 {
+  font-weight: 500;
+  font-size: 30px;
+  margin-top: 30px;
 }
 
 a {
@@ -37,11 +49,6 @@ blockquote {
   color: $gray-600;
 }
 
-.section-heading {
-  font-size: 36px;
-  font-weight: 700;
-  margin-top: 60px;
-}
 
 .caption {
   font-size: 14px;
