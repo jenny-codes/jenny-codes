@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     collection do 
       get 'list'
       get 'sync', to: 'posts#sync_with_medium'
+      get 'upcoming'
     end
   end
 

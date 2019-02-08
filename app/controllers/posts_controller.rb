@@ -44,8 +44,8 @@ class PostsController < ApplicationController
     redirect_to list_posts_path, notice: '成功毀滅了'
   end
 
-  def idea
-    @ideas = Post.idea
+  def upcoming
+    @draft = Post.draft
   end
 
   def sync_with_medium
