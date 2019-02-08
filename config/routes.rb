@@ -1,12 +1,11 @@
 Rails.application.routes.draw do
   root 'posts#index'
 
-  resources :posts
-  
-  scope '/admin' do
-    get 'posts/', to: 'posts#list', as: 'posts/list'
-    get 'sync/', to: 'posts#synchronize_with_medium', as: 'posts/sync'
-    # get 'posts/idea', to: 'posts#idea', as 'posts/idea'
+  resources :posts do 
+    collection do 
+      get 'list'
+      get 'sync', to: 'posts#sync_with_medium'
+    end
   end
 
   # unchanged content 

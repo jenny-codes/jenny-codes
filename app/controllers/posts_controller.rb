@@ -8,7 +8,7 @@ class PostsController < ApplicationController
   MEDIUM_ACCOUNT = 'jinghua.shih'
 
   def index
-    @posts = Post.published.order('created_at DESC')
+    @posts = Post.published
   end
 
   def list
@@ -25,9 +25,9 @@ class PostsController < ApplicationController
 
   def create    
     if @post.save
-      redirect_to posts_list_path, notice: '檢查錯字了嗎'
+      redirect_to list_posts_path, notice: '檢查錯字了嗎'
     else 
-      redirect_to posts_list_path, error: '你做了什麼'
+      redirect_to list_posts_path, error: '你做了什麼'
     end
   end
 
@@ -48,13 +48,13 @@ class PostsController < ApplicationController
     @ideas = Post.idea
   end
 
-  def synchronize_with_medium
-    last_post = Medium.new(MEDIUM_ACCOUNT).last_post
-    if Post.last.title != last_post[:title]
+  def sync_with_medium
+    last_medium_post = Medium.new(MEDIUM_ACCOUNT).last_post
+    if Post.last.title != last_medium_post[:title]
       Post.create(
-              title: last_post[:title],
-        description: last_post[:subtitle],
-               body: last_post[:body],
+              title: last_medium_post[:title],
+        description: last_medium_post[:subtitle],
+               body: last_medium_post[:body],
              status: :published
       )
     end
