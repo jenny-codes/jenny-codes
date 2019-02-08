@@ -27,7 +27,4 @@
             td.form-inline 
               = link_to 'edit', edit_post_path(post.id), class: 'btn-fit btn-primary'
               | ｜
-              - if post.status == 'published'
-                = button_to 'hide', post_path(post.id), method: 'patch', params: { status: 'draft' } , data: { confirm: 'Are you sure?'}, class: 'btn-fit btn-danger'
-                | ｜
               = button_to 'delete', post_path(post.id), method: 'delete', class: 'btn-fit btn-danger'

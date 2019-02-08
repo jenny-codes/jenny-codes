@@ -41,6 +41,7 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
+    redirect_to list_posts_path
   rescue StandardError => e
     flash[:error] = "Oops! #{e}"
     redirect_to list_posts_path
