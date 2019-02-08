@@ -18,3 +18,15 @@
   border: 0px;
   @include sans-serif-font;
 }
+
+figcaption {
+  font-size: 16px;
+  position: relative;
+  left: 0;
+  width: 100%;
+  top: 0;
+  margin-top: 10px;
+  color: rgba(0,0,0,.68);
+  outline: 0;
+  text-align: center;
+}
