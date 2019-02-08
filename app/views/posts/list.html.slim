@@ -1,9 +1,8 @@
 .row
-  .col-md-2.form-inline
-    = link_to '新增文章', new_post_path, class: 'btn-fit btn-warning'
-  .col-md-3.form-inline
-    = link_to 'Sync with Medium', posts_sync_path, class: 'btn-fit btn-info'
-  .col-md-7
+  .col-md-4.form-inline
+    = link_to '新增文章', new_post_path, class: 'btn-fit btn-primary'
+    = link_to 'Sync with Medium', posts_sync_path, class: 'btn-fit btn-warning'
+  .col-md-8
     = form_tag posts_path, role: 'form', class: 'form-inline', method: :GET, style: 'float:right;' do
       = text_field_tag 'search', '', class: 'form-control'
       = submit_tag 'search', class: 'btn-fit btn-info'
@@ -33,4 +32,4 @@
               - else
                 = button_to 'publish', post_path(post.id), method: 'patch', params: { status: 'published' } , data: { confirm: 'All set?'}, class: 'btn-fit btn-danger'
               | ｜
-              = button_to 'delete', post_path(post.id), method: 'destroy'
+              = button_to 'delete', post_path(post.id), method: 'delete', class: 'btn-fit btn-danger'
