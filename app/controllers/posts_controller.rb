@@ -41,7 +41,7 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_list_url, notice: '成功毀滅了'
+    redirect_to list_posts_path, notice: '成功毀滅了'
   end
 
   def idea
@@ -83,8 +83,10 @@ class PostsController < ApplicationController
     end
 
     def authenticate
-      authenticate_or_request_with_http_digest do |username|
-        USERS[username]
+      if Rails.env.development?
+        authenticate_or_request_with_http_digest do |username|
+          USERS[username]
+        end
       end
     end
 
