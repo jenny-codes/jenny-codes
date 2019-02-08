@@ -18,7 +18,7 @@
         = f.text_area :description, class: 'form-control'
       .form-group
         = f.label :body
-        = f.text_area :body, 'data-provider': :summernote, required: true
+        = f.text_area :body, required: true, class: 'form-control', style: 'height: 500px'
       .form-row
         .form-group.col-md-1
           = f.select :status, @status_list, class: 'form-control'
