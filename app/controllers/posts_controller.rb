@@ -83,7 +83,7 @@ class PostsController < ApplicationController
     end
 
     def authenticate
-      if Rails.env.development?
+      if Rails.env.production?
         authenticate_or_request_with_http_digest do |username|
           USERS[username]
         end
