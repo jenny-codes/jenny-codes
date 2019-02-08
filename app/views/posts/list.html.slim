@@ -29,7 +29,5 @@
               | ｜
               - if post.status == 'published'
                 = button_to 'hide', post_path(post.id), method: 'patch', params: { status: 'draft' } , data: { confirm: 'Are you sure?'}, class: 'btn-fit btn-danger'
-              - else
-                = button_to 'publish', post_path(post.id), method: 'patch', params: { status: 'published' } , data: { confirm: 'All set?'}, class: 'btn-fit btn-danger'
-              | ｜
+                | ｜
               = button_to 'delete', post_path(post.id), method: 'delete', class: 'btn-fit btn-danger'
