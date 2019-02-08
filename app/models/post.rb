@@ -4,6 +4,8 @@ class Post < ApplicationRecord
   validates :title, presence: true
   enum status: [:draft, :published, :idea]
 
+  default_scope -> { order(created_at: :desc) }
+
   def normalize_friendly_id(input)
     input.to_s.to_slug.normalize.to_s
   end
