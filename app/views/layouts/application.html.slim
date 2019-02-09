@@ -16,5 +16,6 @@ html
     = render 'shared/navbar'
     main
       .container
+        = flash_messages
         = yield
       /= render '/shared/footer' 
