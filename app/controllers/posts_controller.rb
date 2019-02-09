@@ -22,27 +22,20 @@ class PostsController < ApplicationController
     render template: 'posts/form'
   end
 
-  def create    
+  def create
+    raise RuntimeError    
     @post.save!
-    redirect_to list_posts_path, notice: 'Attagirl'
-  rescue StandardError => e
-    flash[:error] = "Oops! #{e}"
     redirect_to list_posts_path
+    return
   end
 
   def update
     @post.update!(post_params)
-      redirect_to @post, notice: '更新好ㄌ'
-  rescue StandardError => e
-    flash[:error] = "Oops! #{e}"
-    redirect_to edit_post_path(@post.id)
+    redirect_to @post, notice: 'You are good to go!'
   end
 
   def destroy
     @post.destroy
-    redirect_to list_posts_path
-  rescue StandardError => e
-    flash[:error] = "Oops! #{e}"
     redirect_to list_posts_path
   end
 
@@ -51,15 +44,12 @@ class PostsController < ApplicationController
 
   def sync_with_medium
     last_medium_post = Medium.new(MEDIUM_ACCOUNT).last_post
-    if Post.last.title != last_medium_post[:title]
-      Post.create(
-              title: last_medium_post[:title],
-        description: last_medium_post[:subtitle],
-               body: last_medium_post[:body],
-             status: :published
-      )
+    if Post.last.title == last_medium_post[:title]
+      Post.last.update!(last_medium_post)
+    else
+      Post.create(last_medium_post.merge(status: :published))
     end
-    redirect_to posts_url
+    redirect_to posts_path
   end
 
   private
