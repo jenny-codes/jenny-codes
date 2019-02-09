@@ -3,7 +3,7 @@ class PostsController < ApplicationController
   before_action :authenticate,    except: [:index, :show, :upcoming]
   before_action :build_posts,     only: [:index, :list, :upcoming]
   before_action :build_post,      only: [:new, :create]
-  before_action :set_post,        only: [:show, :edit, :update, :destroy]
+  before_action :find_post,       only: [:show, :edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   MEDIUM_ACCOUNT = 'jinghua.shih'
@@ -41,11 +41,13 @@ class PostsController < ApplicationController
   end
 
   def sync_with_medium
-    last_medium_post = Medium.new(MEDIUM_ACCOUNT).last_post
-    if Post.last.title == last_medium_post[:title]
-      Post.last.update!(last_medium_post)
-    else
-      Post.create(last_medium_post.merge(status: :published))
+    medium_post = Medium.new(MEDIUM_ACCOUNT).last_post
+    Post.find_or_initialize_by(title: medium_post[:title]).tap do |post|
+      post.description = medium_post[:description]
+      post.medium_url  = medium_post[:url]
+      post.status      = :published
+      post.body        = medium_post[:body]
+      post.save!
     end
     redirect_to posts_path
   end
@@ -61,7 +63,7 @@ class PostsController < ApplicationController
       @draft = Post.draft
     end
 
-    def set_post
+    def find_post
       @post = Post.friendly.find(params[:id])
     end
 
