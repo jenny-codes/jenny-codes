@@ -11,7 +11,7 @@ module Error
     private
 
     def standard_error(_e)
-      flash[:error] = "Oops! #{_e}"
+      flash[:danger] = "Oops! #{_e}"
       redirect_to list_posts_path
     end
   end
