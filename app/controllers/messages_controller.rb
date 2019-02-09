@@ -12,9 +12,9 @@ class MessagesController < ApplicationController
     if @message.valid?
       MessageMailer.contact(@message).deliver_now
       redirect_to contact_url
-      flash[:notice] = '收到!'
+      flash[:warning] = '收到!'
     else
-      flash[:notice] = '出了點問題的樣子。再試一次？'
+      flash[:danger] = '出了點問題的樣子。再試一次？'
       render :new
     end
   end

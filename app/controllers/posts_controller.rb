@@ -29,7 +29,7 @@ class PostsController < ApplicationController
 
   def update
     @post.update!(post_params)
-    redirect_to @post, notice: 'You are good to go!'
+    redirect_to @post, info: 'You are good to go!'
   end
 
   def destroy
