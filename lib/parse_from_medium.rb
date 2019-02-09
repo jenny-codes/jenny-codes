@@ -1,19 +1,33 @@
 require 'open-uri'
 
 class Medium 
-  def initialize(account)
-    @homepage = Nokogiri::HTML(open("https://medium.com/@#{account}/"))
+
+  # return a list of post-urls for a given account
+  def all_posts_by(account)
+    urls = []
+    homepage = Nokogiri::HTML(open("https://medium.com/@#{account}/"))
+    homepage.search('a h1:first-of-type').each do |title|
+      urls << clean_url(title.ancestors('a')[0]['href'])
+    end
+    urls
   end
 
-  def last_post
-    last_post = {
-        url: clean_url(@homepage.search('div.h a')[2].attribute('href').value),
-      title: @homepage.xpath("//h1")[1].content
-    }
+  def last_post_by(account)
+    parse_url(all_posts_by(account)[0])
+  end
 
-    last_post[:body] = normalize(Nokogiri::HTML(open(last_post[:url])).search('div.section-inner'))
-    last_post[:description] = last_post[:body].search('p').first.content  
-    last_post  
+  def parse_url(url)
+    content     = Nokogiri::HTML(open(url)).search('div.section-inner')
+    title       = content.search('h1').text
+    body        = normalize(content)
+    description = body.search('p').first.content 
+
+    {
+            title: title,   
+       medium_url: url,          
+      description: description,
+             body: body
+    }
   end
 
   private

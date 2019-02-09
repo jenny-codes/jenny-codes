@@ -8,6 +8,11 @@ class PostsController < ApplicationController
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   MEDIUM_ACCOUNT = 'jinghua.shih'
 
+  def initialize
+    @medium_cli = Medium.new
+    super
+  end
+
   def index
   end
 
@@ -41,13 +46,10 @@ class PostsController < ApplicationController
   end
 
   def sync_with_medium
-    medium_post = Medium.new(MEDIUM_ACCOUNT).last_post
-    Post.find_or_initialize_by(title: medium_post[:title]).tap do |post|
-      post.description = medium_post[:description]
-      post.medium_url  = medium_post[:url]
-      post.status      = :published
-      post.body        = medium_post[:body]
-      post.save!
+    if request.method == 'POST'
+      create_or_update(@medium_cli.parse_url(params[:medium_url]))
+    else
+      create_or_update(@medium_cli.last_post_by(MEDIUM_ACCOUNT))
     end
     redirect_to posts_path
   end
@@ -88,5 +90,15 @@ class PostsController < ApplicationController
 
     def build_selection
       @status_list = [['草稿', 'draft'], ['發佈', 'published']]
+    end
+
+    def create_or_update(medium_post)
+      Post.find_or_initialize_by(title: medium_post[:title]).tap do |post|
+        post.description = medium_post[:description]
+        post.medium_url  = medium_post[:medium_url]
+        post.status      = :published
+        post.body        = medium_post[:body]
+        post.save!
+      end
     end
 end

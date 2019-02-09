@@ -4,8 +4,8 @@ Rails.application.routes.draw do
   resources :posts do 
     collection do 
       get 'list'
-      get 'sync', to: 'posts#sync_with_medium'
       get 'upcoming'
+      match 'sync', to: 'posts#sync_with_medium', via: [:get, :post]
     end
   end
 
