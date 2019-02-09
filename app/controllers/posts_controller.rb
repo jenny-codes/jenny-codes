@@ -22,11 +22,9 @@ class PostsController < ApplicationController
     render template: 'posts/form'
   end
 
-  def create
-    raise RuntimeError    
+  def create 
     @post.save!
     redirect_to list_posts_path
-    return
   end
 
   def update

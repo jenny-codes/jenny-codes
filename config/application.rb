@@ -15,10 +15,8 @@ module Jennycodes
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
     
-    # FIX: not working but don't know why
-    # config.autoload_paths += Dir["#{Rails.root}/lib/"]
     config.time_zone = "Taipei"
-
+    config.autoload_paths += %W(#{config.root}/lib)
     config.assets.precompile += %w(.jpeg .jpg)
   end
 end
