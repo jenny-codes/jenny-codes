@@ -1,7 +1,7 @@
-/header.masthead style="background-image: url('#{image_path("for_blog.jpeg")}')"
+/header.masthead.lazy data-src="#{image_path("jennycodes-bg.jpg")}"
 /header.masthead.lazy 
-  = image_tag "jennycodes-bg.jpg", class: 'overlay lazy', data: {src: "jennycodes-bg.jpg"}
-header.masthead.lazy data-src="#{image_path("jennycodes-bg.jpg")}"
+header.masthead 
+  = image_tag "jennycodes-bg.jpg", class: 'overlay'
   .overlay
   .container
     .row
