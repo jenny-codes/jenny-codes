@@ -33,10 +33,17 @@ class Medium
   private
     def normalize post
       post.children[0..1].remove
-      segments = post.children
-      segments.search('figure').each { |fig| clean_img_block(fig) }
-      segments.search('a em').remove
-      segments
+      post.children.each do |seg|
+        seg.remove_attribute('name')
+        seg.remove_attribute('id')
+        seg.remove_attribute('class')
+        if seg.name == 'figure'
+          clean_img_block(seg)
+        elsif seg.name == 'div'
+          clean_ref_block(seg)
+        end
+      end
+      post.children
     end
 
     def clean_img_block figure
@@ -45,6 +52,10 @@ class Medium
       # img['data-src'] = img['src']
       # img.remove_attribute('src')
       figure.first_element_child.swap(img)
+    end
+
+    def clean_ref_block div
+      div.search('a em').remove
     end
 
     def clean_url url

@@ -34,3 +34,13 @@ figcaption {
 i {
   padding: 0 10px;
 }
+
+// reference block
+.post-container > div {
+  &:before {
+    content: "– ";
+  }
+  strong {
+    text-transform: uppercase;
+  }
+}
