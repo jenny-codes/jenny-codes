@@ -24,7 +24,7 @@
             - @posts.each do |post|
               tr
                 td = post.id
-                td = link_to post.title.truncate(50), post_path(post.id)
+                td = link_to post.title.truncate(15), post_path(post.id)
                 td = link_to *medium_url(post)
                 td = post.updated_at.strftime('%F')
                 td.form-inline 
