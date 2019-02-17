@@ -20,7 +20,9 @@ class Medium
     content     = Nokogiri::HTML(open(url)).search('div.section-inner')
     title       = content.search('h1').text
     body        = normalize(content)
-    description = body.search('p').first.content 
+    description = body.children.first.content 
+
+    body.children.first.remove
 
     {
             title: title,   
