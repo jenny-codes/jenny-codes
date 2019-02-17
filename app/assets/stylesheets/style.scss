@@ -37,9 +37,8 @@ i {
 
 // reference block
 .post-container > div {
-  &:before {
-    content: "– ";
-  }
+  margin-bottom: 15px;
+
   strong {
     text-transform: uppercase;
   }
