@@ -21,6 +21,7 @@ class Medium
     title       = content.search('h1').text
     body        = normalize(content)
     description = body.children.first.content 
+    footer      = '<p>文章同步發表於 <a href="https://medium.com/@jinghua.shih">Medium</a>。'
 
     body.children.first.remove
 
@@ -28,7 +29,7 @@ class Medium
             title: title,   
        medium_url: url,          
       description: description,
-             body: body
+             body: body.to_s + footer
     }
   end
 
