@@ -54,7 +54,9 @@ class Medium
       # img['class'] = 'lazy'
       # img['data-src'] = img['src']
       # img.remove_attribute('src')
-      figure.first_element_child.swap(img)
+      if img
+        figure.first_element_child.swap(img)
+      end
     end
 
     def clean_ref_block div
