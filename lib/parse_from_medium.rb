@@ -35,13 +35,19 @@ class Medium
 
   private
     def normalize post
+
       post.children[0..1].remove
       post.children.each do |seg|
-        seg.remove_attribute('name')
         seg.remove_attribute('id')
+        seg.remove_attribute('name')
         seg.remove_attribute('class')
+
         if seg.name == 'figure'
-          clean_img_block(seg)
+          if seg.search('img').empty?
+            clean_gist_block(seg)
+          else 
+            clean_img_block(seg)
+          end
         elsif seg.name == 'div'
           clean_ref_block(seg)
         end
@@ -50,13 +56,21 @@ class Medium
     end
 
     def clean_img_block figure
+      figure.add_class('text-center')
       img = figure.first_element_child.children.search('img')[0]
-      # img['class'] = 'lazy'
-      # img['data-src'] = img['src']
-      # img.remove_attribute('src')
-      if img
-        figure.first_element_child.swap(img)
-      end
+      img.remove_attribute('class')
+      img.remove_attribute('data-width')
+      img.remove_attribute('data-height')
+      img.remove_attribute('data-image-id')
+      img.remove_attribute('data-is-featured')
+      figure.first_element_child.swap(img)
+    end
+
+    def clean_gist_block figure
+      figure.add_class('text-center')
+      url = figure.search('a').attr('href').content + '.js'
+      embed = figure.add_next_sibling("<script src=#{url}></script>")
+      figure.first_element_child.swap(embed)
     end
 
     def clean_ref_block div
