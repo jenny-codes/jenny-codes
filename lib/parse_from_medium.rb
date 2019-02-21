@@ -58,11 +58,16 @@ class Medium
     def clean_img_block figure
       figure.add_class('text-center')
       img = figure.first_element_child.children.search('img')[0]
-      img.remove_attribute('class')
+      # img.remove_attribute('class')
       img.remove_attribute('data-width')
       img.remove_attribute('data-height')
       img.remove_attribute('data-image-id')
       img.remove_attribute('data-is-featured')
+
+      img['class'] = 'lazy'
+      img['data-src'] = img['src']
+      img.remove_attribute('src')
+
       figure.first_element_child.swap(img)
     end
 
