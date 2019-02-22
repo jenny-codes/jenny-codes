@@ -43,8 +43,12 @@ a {
 }
 
 blockquote {
-  font-style: italic;
-  color: $gray-600;
+  // font-style: italic;
+  // color: $gray-600;
+  color: #717171;
+  margin: 0 5px;
+  border-left: #6f6f6f 0.3em solid;
+  padding: 0 0 0 2em;
 }
 
 
