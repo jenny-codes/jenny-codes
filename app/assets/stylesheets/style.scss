@@ -48,7 +48,7 @@ code {
   color: #212529;
   word-break: break-word;
   background: rgba(0,0,0,.05);
-  padding: 4px 5px;
+  padding: 4px 6px;
   margin: 0 2px;
   font-family: monospace;
 }
@@ -60,4 +60,34 @@ code {
   strong {
     text-transform: uppercase;
   }
+}
+
+.tags-container {
+  text-align: center;
+  a:hover {
+    text-decoration: none;
+  }
+  span {
+    color: #212529;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 4px 10px;
+    margin: 0 2px;
+    border-radius: 5px;
+
+    &:hover {
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12) inset;
+    }
+  }
+}
+
+.dropdown-menu {
+  left: 60%;
+  text-transform: uppercase;
+  margin: 0;
+  font-size: 12px;
+
+/*  a.dropdown-item {
+    padding: 10px 0;
+    text-align: center;
+  }*/
 }

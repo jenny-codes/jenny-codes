@@ -5,14 +5,18 @@
         .form-group.col-md-6
           = f.label :title
           = f.text_field :title, required: true, class: 'form-control'
-          / = f.text_field :tags,  class: "form-control"
-        .form-group.col-md-4.align-right
-          h4 references
-          pre.pre-scrollable
-            | h2.section-heading <br>
-            | blockquote.blockquote <br>
-            | img.img-fluid <br>
-            | span.caption.text-muted <br>
+          = f.label :medium_url, class: 'mt-4'
+          = f.text_field :medium_url, class: 'form-control'
+        .form-group.col-md-5.offset-1
+          = label_tag :tags
+          - @tags.each do |tag|
+            .form-check
+              = check_box_tag 'tags[]', tag.id, @post.tags.include?(tag), class: 'form-check-input'
+              = label_tag :tag, tag.text, class: 'form-check-label'
+          #add-tags.mt-1 
+            = text_field_tag 'new_tags[]', nil, class: 'form-control', style: 'width: 40%;'
+          span.btn.btn-warning.mt-1#add Add Tags
+ 
       .form-group
         = f.label :description
         = f.text_area :description, class: 'form-control'
@@ -24,3 +28,12 @@
           = f.select :status, @status_list, class: 'form-control'
         .form-group.col-md-3
           = submit_tag 'Hooray!', class: 'btn btn-warning', role: 'button'
+
+javascript:
+  var counter = 0
+  $( "#add" ).click(function() {
+    counter += 1;
+    var clone = $( "#add-tags" ).children().first().clone();
+    clone.attr('id', 'new_tags_id_' + counter);
+    clone.appendTo( '#add-tags' );
+  });

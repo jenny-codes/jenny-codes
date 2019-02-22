@@ -84,3 +84,7 @@ img::-moz-selection {
   color: $white;
   background: transparent;
 }
+
+hr {
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+}

@@ -4,10 +4,9 @@
       = link_to post.title, post_path(post)
     h3.post-subtitle
       = post.description
-    / p.post-meta
-    /   - post.try(:tags).each do |tag|
-    /     = link_to tag.name, posts_path(tag_id: tag.id)
-    /     | , 
     p.post-meta
+      - post.try(:tags).each do |tag|
+        = link_to "##{tag.text}", posts_path(tag: tag.text)
+      br/
       = post.created_at.strftime('%B %-d, %Y')
-  hr/
+  hr

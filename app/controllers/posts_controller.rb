@@ -4,6 +4,7 @@ class PostsController < ApplicationController
   before_action :build_posts,     only: [:index, :list, :upcoming]
   before_action :build_post,      only: [:new, :create]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
+  before_action :build_tags,      only: [:create, :update]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   MEDIUM_ACCOUNT = 'jinghua.shih'
@@ -14,6 +15,9 @@ class PostsController < ApplicationController
   end
 
   def index
+    if params[:tag]
+      @posts = Post.joins(:tags).where(tags: {text: params[:tag]})
+    end
   end
 
   def list
@@ -34,7 +38,7 @@ class PostsController < ApplicationController
 
   def update
     @post.update!(post_params)
-    redirect_to @post, info: 'You are good to go!'
+    redirect_to post_path, info: 'You are good to go!'
   end
 
   def destroy
@@ -72,7 +76,7 @@ class PostsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
       if params[:post]
-        params.require(:post).permit(:title, :body, :status, :description)
+        params.require(:post).permit(:title, :body, :status, :description, :medium_url)
       elsif params[:status]
         params.permit(:status)
       else
@@ -89,6 +93,7 @@ class PostsController < ApplicationController
     end
 
     def build_selection
+      @tags = Tag.all
       @status_list = [['草稿', 'draft'], ['發佈', 'published']]
     end
 
@@ -99,6 +104,33 @@ class PostsController < ApplicationController
         post.status      = :published
         post.body        = medium_post[:body]
         post.save!
+      end
+    end
+
+    def build_tags
+      if params[:tags]
+        # clear un-select tags first
+        @post.tags.each do |tag|
+          unless params[:tags].include?(tag.id.to_s)
+            Tagging.find_by(post_id: @post.id, tag_id: tag.id).delete
+          end
+        end
+
+        # then add new tags
+        params[:tags].map(&:to_i).each do |checkbox_tag_id|
+          tag_id_set = @post.tags.pluck(:id)
+          unless tag_id_set.include?(checkbox_tag_id)
+            Tagging.create(post_id: @post.id, tag_id: checkbox_tag_id)
+          end
+        end
+      end
+
+      # the newly typed tags
+      if params[:new_tags]
+        params[:new_tags].each do |new_tag|
+          next if new_tag.blank?
+          @post.tags.create(text: new_tag)
+        end
       end
     end
 end

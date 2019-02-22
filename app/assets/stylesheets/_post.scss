@@ -18,17 +18,18 @@
     margin: 0 0 10px;
     font-size: 20px;
   }
-  > .post-meta {
+  .post-meta {
     font-size: 18px;
-    font-style: italic;
-    margin-top: 0;
+    // font-style: italic;
+    margin-top: 15px;
     color: $gray-600;
     > a {
+      margin: 0 15px 0 0;
       text-decoration: none;
-      color: $gray-900;
+      color: $gray-600;
       &:focus,
       &:hover {
-        text-decoration: underline;
+        text-decoration: none;
         color: $primary;
       }
     }
