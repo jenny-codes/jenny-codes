@@ -6,11 +6,13 @@ html
     = csp_meta_tag
 
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Noto+Serif:400,400i,700|Open+Sans:400,700'
+
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload', async: Rails.env.production?
 
     /Global site tag (gtag.js) - Google Analytics
-    script async src="https://www.googletagmanager.com/gtag/js?id=UA-134659049-1"
-    javascript:
+    /script async src="https://www.googletagmanager.com/gtag/js?id=UA-134659049-1"
+    /javascript:
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
