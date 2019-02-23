@@ -98,11 +98,11 @@ class PostsController < ApplicationController
     end
 
     def create_or_update(medium_post)
-      Post.find_or_initialize_by(title: medium_post[:title]).tap do |post|
-        post.description = medium_post[:description]
-        post.medium_url  = medium_post[:medium_url]
-        post.status      = :published
+      Post.find_or_initialize_by(medium_url: medium_post[:medium_url]).tap do |post|
+        post.title       = medium_post[:title]
         post.body        = medium_post[:body]
+        post.status      = :published
+        post.description = medium_post[:description]
         post.save!
       end
     end
