@@ -1,24 +1,5 @@
-# README
+<h3> Features </h3>
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+<p> 1. Good taste. </p>
+<p> 2. Built in Meidum post sync functions. </p>
+<p> 3. Everything is kept as simple & necessary as possible. I hate redundancy. </p>
