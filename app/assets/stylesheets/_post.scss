@@ -23,7 +23,8 @@
     // font-style: italic;
     margin-top: 15px;
     color: $gray-600;
-    > a {
+    a {
+      display: inline;
       margin: 0 15px 0 0;
       text-decoration: none;
       color: $gray-600;
@@ -40,5 +41,17 @@
       > a {
       }
     }
+  }
+}
+
+.post-container {
+  h3 {
+    color: $gray-900;
+    margin-top: 60px;
+  }
+
+  h4 {
+    color: $gray-900;
+    margin-top: 30px;
   }
 }

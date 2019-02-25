@@ -1,6 +1,6 @@
 // Mixins
 // Bootstrap Button Variant
-@mixin button-variant($color, $background, $border) {
+/*@mixin button-variant($color, $background, $border) {
   color: $color;
   border-color: $border;
   background-color: $background;
@@ -48,7 +48,7 @@
     color: $background;
     background-color: $color;
   }
-}
+}*/
 @mixin transition-all() {
   -webkit-transition: all 0.2s;
   -moz-transition: all 0.2s;

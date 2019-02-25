@@ -67,7 +67,11 @@ code {
   a:hover {
     text-decoration: none;
   }
-  span {
+  h2 {
+    @include serif-font;
+    font-weight: 400;
+    font-size: 18px;
+    display: inline;
     color: #212529;
     background: rgba(0, 0, 0, 0.05);
     padding: 4px 10px;
@@ -76,6 +80,7 @@ code {
 
     &:hover {
       box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12) inset;
+      color: $yellow;
     }
   }
 }
