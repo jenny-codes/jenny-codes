@@ -11,6 +11,8 @@ module Error
     private
 
     def standard_error(_e)
+      Rails.logger.error _e.message
+      Rails.logger.error _e.backtrace.join("\n")
       flash[:danger] = "Oops! #{_e}"
       redirect_back fallback_location: root_path
     end

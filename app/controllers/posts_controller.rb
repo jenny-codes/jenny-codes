@@ -50,8 +50,11 @@ class PostsController < ApplicationController
   end
 
   def sync_with_medium
+
+    # if there's a specific link 
     if params[:commit] == 'import'
       create_or_update(@medium_cli.parse_url(params[:medium_url]))
+    # update from lastest post
     else
       create_or_update(@medium_cli.last_post_by(MEDIUM_ACCOUNT))
     end
