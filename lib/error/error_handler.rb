@@ -12,7 +12,7 @@ module Error
 
     def standard_error(_e)
       flash[:danger] = "Oops! #{_e}"
-      redirect_to list_posts_path
+      redirect_back fallback_location: root_path
     end
   end
 end
