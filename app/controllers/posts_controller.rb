@@ -24,7 +24,7 @@ class PostsController < ApplicationController
     end
 
     # pagination
-    posts_with_page = raw_posts.in_groups_of(2, false)
+    posts_with_page = raw_posts.in_groups_of(7, false)
 
     @posts = {
       total_pages: posts_with_page.count,
