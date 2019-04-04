@@ -8,6 +8,7 @@ class PostsController < ApplicationController
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   MEDIUM_ACCOUNT = 'jinghua.shih'
+  POSTS_PER_PAGE = 5
 
   def initialize
     @medium_cli = Medium.new
@@ -24,7 +25,7 @@ class PostsController < ApplicationController
     end
 
     # pagination
-    posts_with_page = raw_posts.in_groups_of(7, false)
+    posts_with_page = raw_posts.in_groups_of(POSTS_PER_PAGE, false)
 
     @posts = {
       total_pages: posts_with_page.count,
