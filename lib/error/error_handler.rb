@@ -1,10 +1,13 @@
 # Error module to Handle errors globally
 # include Error::ErrorHandler in application_controller.rb
+# Only rescue errors on production.
 module Error
   module ErrorHandler
     def self.included(clazz)
       clazz.class_eval do
-        rescue_from StandardError, with: :standard_error
+        if Rails.env.production?
+          rescue_from StandardError, with: :standard_error
+        end
       end
     end
 
