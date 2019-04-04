@@ -1,11 +1,14 @@
 - content_for :head do 
   meta name="turbolinks-visit-control" content="reload"
 
+/ Navigation
 - content_for :container do
   = link_to post_path(@prev_post.friendly_id), class: 'post-navigation post-nav-left' do
     i.fas.fa-chevron-left
+    p.navigation-text = @prev_post.title.truncate(33)
   = link_to post_path(@next_post.friendly_id), class: 'post-navigation post-nav-right' do
     i.fas.fa-chevron-right
+    p.navigation-text = @next_post.title.truncate(33)
 
 .row
   .col-lg-8.col-md-10.mx-auto.post-container
