@@ -1,6 +1,12 @@
 - content_for :head do 
   meta name="turbolinks-visit-control" content="reload"
-  
+
+- content_for :container do
+  = link_to post_path(@prev_post.friendly_id), class: 'post-navigation post-nav-left' do
+    i.fas.fa-chevron-left
+  = link_to post_path(@next_post.friendly_id), class: 'post-navigation post-nav-right' do
+    i.fas.fa-chevron-right
+
 .row
   .col-lg-8.col-md-10.mx-auto.post-container
     .tags-container

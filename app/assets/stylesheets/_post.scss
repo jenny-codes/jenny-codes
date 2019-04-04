@@ -55,3 +55,31 @@
     margin-top: 30px;
   }
 }
+
+.post-navigation {
+  position: fixed;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  max-width: 150px;
+  min-width: 90px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  font-size: 40px;
+  color: #ccc;
+  text-align: center;
+  -webkit-transition: all 350ms ease;
+  -moz-transition: all 350ms ease;
+  -o-transition: all 350ms ease;
+  transition: all 350ms ease;
+}
+
+.post-nav-left {
+  left: 50px;
+}
+
+.post-nav-right {
+  right: 50px;
+}

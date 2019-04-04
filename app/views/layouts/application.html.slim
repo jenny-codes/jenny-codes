@@ -24,6 +24,8 @@ html
     = render 'shared/navbar'
     main
       .container
+        - if content_for?(:container)
+          = yield(:container)
         = flash_messages
         = yield
       /= render '/shared/footer' 

@@ -14,6 +14,14 @@ class Post < ApplicationRecord
   def normalize_friendly_id(input)
     input.to_s.to_slug.normalize.to_s
   end
+
+  def next
+    Post.where("id > ?", id).order("id ASC").first || Post.last
+  end
+
+  def previous
+    Post.where("id < ?", id).order("id DESC").first || Post.first
+  end
 end
 
   

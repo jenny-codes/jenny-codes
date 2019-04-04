@@ -59,7 +59,9 @@ class PostsController < ApplicationController
     redirect_to list_posts_path
   end
 
-  def upcoming
+  def show
+    @prev_post = @post.previous
+    @next_post = @post.next
   end
 
   def sync_with_medium
