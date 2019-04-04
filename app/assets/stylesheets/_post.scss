@@ -4,14 +4,6 @@
     font-size: 30px;
     margin-top: 30px;
     margin-bottom: 10px;
-    > a {
-      color: $gray-900;
-      &:focus,
-      &:hover {
-        text-decoration: none;
-        color: $primary;
-      }
-    }
   }
   > .post-subtitle {
     font-weight: 300;
