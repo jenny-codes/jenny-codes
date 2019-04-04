@@ -31,7 +31,7 @@ class PostsController < ApplicationController
       total_pages: posts_with_page.count,
       curr_page: params[:page].try(:to_i) || 1,
     }
-    @posts[:content] = posts_with_page[@posts[:curr_page]]
+    @posts[:content] = posts_with_page[@posts[:curr_page] - 1]
   end
 
   def list
