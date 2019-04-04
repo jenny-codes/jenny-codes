@@ -8,9 +8,13 @@ html
     = render 'shared/google_analytics'
 
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload', async: Rails.env.production?
+
+    / Google Fonts: Noto Serif & Open Sans
     = stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Noto+Serif:400,400i,700|Open+Sans:400,700|Noto+Serif+TC&amp;subset=chinese-traditional'
 
-    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload', async: Rails.env.production?
+    / Font Awesome
+    link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"
     
     - if content_for?(:head)
       = yield(:head)

@@ -1,12 +1,17 @@
 .row
   .col-lg-8.col-md-10.mx-auto
-    = render 'posts/posts_preview', posts: @posts
+    = render 'posts/posts_preview', posts: @posts[:content]
 
-    /! Pager
-    /- if @post && @post.count > 5 
-      .clearfix
-        a.btn.btn-info.float-right href="#"  More Posts &rarr;
-
+    /Pager
+    .clearfix
+      - if @posts[:curr_page] > 1
+        = link_to root_path(page: @posts[:curr_page] - 1), class: 'float-left' do
+          i.fas.fa-chevron-left 
+          span.btn Previous
+      - if @posts[:curr_page] < @posts[:total_pages]
+        = link_to root_path(page: @posts[:curr_page] + 1), class: 'float-right' do
+          span.btn Next
+          i.fas.fa-chevron-right
 
 /   酷炫 chatbox 功能
 /   button.open-button onclick="openForm()" Chat

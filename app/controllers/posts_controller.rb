@@ -1,7 +1,7 @@
 class PostsController < ApplicationController
   before_action :build_selection, only: [:new, :edit]
   before_action :authenticate,    except: [:index, :show, :upcoming]
-  before_action :build_posts,     only: [:index, :list, :upcoming]
+  before_action :build_posts,     only: [:list, :upcoming]
   before_action :build_post,      only: [:new, :create]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
   before_action :build_tags,      only: [:create, :update]
@@ -15,9 +15,22 @@ class PostsController < ApplicationController
   end
 
   def index
-    if params[:tag]
-      @posts = Post.joins(:tags).where(tags: {text: params[:tag]})
+    # if a tag is selected, render only the posts with that tag
+    # else render all published posts
+    raw_posts = if params[:tag]
+      Post.joins(:tags).where(tags: {text: params[:tag]})
+    else
+      Post.published
     end
+
+    # pagination
+    posts_with_page = raw_posts.in_groups_of(2, false)
+
+    @posts = {
+      total_pages: posts_with_page.count,
+      curr_page: params[:page].try(:to_i) || 1,
+    }
+    @posts[:content] = posts_with_page[@posts[:curr_page]]
   end
 
   def list
