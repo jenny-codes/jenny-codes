@@ -9,18 +9,18 @@ class Post < ApplicationRecord
 
   accepts_nested_attributes_for :tags, reject_if: proc { |tag| tag['text'].blank? }
 
-  default_scope -> { order(created_at: :desc) }
+  scope :recent, -> { order(created_at: :desc) }
 
   def normalize_friendly_id(input)
     input.to_s.to_slug.normalize.to_s
   end
 
   def next
-    Post.where("id > ?", id).order("id ASC").first || Post.last
+    Post.published.where("id > ?", id).order("id ASC").first || Post.first
   end
 
   def previous
-    Post.where("id < ?", id).order("id DESC").first || Post.first
+    Post.published.where("id < ?", id).order("id DESC").first || Post.last
   end
 end
 

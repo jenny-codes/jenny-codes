@@ -19,9 +19,9 @@ class PostsController < ApplicationController
     # if a tag is selected, render only the posts with that tag
     # else render all published posts
     raw_posts = if params[:tag]
-      Post.joins(:tags).where(tags: {text: params[:tag]})
+      Post.joins(:tags).where(tags: {text: params[:tag]}).recent
     else
-      Post.published
+      Post.published.recent
     end
 
     # pagination
@@ -84,7 +84,7 @@ class PostsController < ApplicationController
     end
 
     def build_posts
-      @posts = Post.published
+      @posts = Post.published.recent
       @draft = Post.draft
     end
 
