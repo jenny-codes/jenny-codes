@@ -10,7 +10,7 @@ header.masthead
           h1
             = post.try(:title) || '網頁開發見習生'
           span.subheading 
-            = post.try(:title) || render_subheading('關關難過關關過')
+            = post.try(:description) || render_subheading('關關難過關關過')
 
 
 
