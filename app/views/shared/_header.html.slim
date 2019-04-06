@@ -7,10 +7,10 @@ header.masthead
     .row
       .col-lg-8.col-md-10.mx-auto.d-flex.justify-content-center
         .page-heading
-          h1 
-            = object && object[:title].present? ? object[:title] : '網頁開發見習生'
+          h1
+            = post.try(:title) || '網頁開發見習生'
           span.subheading 
-            = object ? object[:description] : '關關難過關關過'
+            = post.try(:title) || render_subheading('關關難過關關過')
 
 
 

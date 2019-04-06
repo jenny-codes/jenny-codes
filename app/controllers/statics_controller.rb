@@ -1,13 +1,4 @@
 class StaticsController < ApplicationController
-  def about
-    @page = {
-      description: 'ABOUT'
-    }
-  end
-
-  def resources
-    @page = {
-      description: 'RESOURCES'
-    }
-  end
+  def about; end
+  def resources; end
 end

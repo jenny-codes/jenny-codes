@@ -10,4 +10,9 @@ module PostsHelper
       ["NO DATA"]
     end
   end
+
+  def render_subheading(default)
+    path =  /[^\/]*$/.match(request.path)[0].upcase
+    path.blank? ? default : path 
+  end
 end

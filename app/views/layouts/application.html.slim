@@ -20,7 +20,7 @@ html
       = yield(:head)
 
   body
-    = render 'shared/header', object: @post || @page
+    = render 'shared/header', post: @post
     = render 'shared/navbar'
     main
       .container
