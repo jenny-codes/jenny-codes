@@ -15,4 +15,13 @@ module PostsHelper
     path =  /[^\/]*$/.match(request.path)[0].upcase
     path.blank? ? default : path 
   end
+
+  # def title_with_line_break(title)
+  #   return unless title
+
+  #   break_pos = title.index(']')
+  #   return title unless break_pos
+
+  #   title.insert(break_pos + 2, "\n").html_safe
+  # end
 end
