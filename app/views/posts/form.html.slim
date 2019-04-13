@@ -7,6 +7,8 @@
           = f.text_field :title, required: true, class: 'form-control'
           = f.label :medium_url, class: 'mt-4'
           = f.text_field :medium_url, class: 'form-control'
+          = f.label :slug, class: 'mt-4'
+          = f.text_field :slug, class: 'form-control'
         .form-group.col-md-5.offset-1
           = label_tag :tags
           - @tags.each do |tag|
