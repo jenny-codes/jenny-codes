@@ -61,10 +61,12 @@ class Medium
       # img.remove_attribute('class')
       img.remove_attribute('data-width')
       img.remove_attribute('data-height')
+      img.remove_attribute('data-action')
       img.remove_attribute('data-image-id')
       img.remove_attribute('data-is-featured')
+      img.remove_attribute('data-action-value')
 
-      img['class'] = 'lazy'
+      img['class'] = 'lazy img-fluid'
       img['data-src'] = img['src']
       img.remove_attribute('src')
 
