@@ -38,10 +38,13 @@ i {
 pre {
   background-color: #eaeaea;
   padding: 15px 20px;
-  //box-shadow: 0 1px 1px rgba(0, 0, 0, 0.175);
   border-radius: 2px;
   margin: 0;
   font-family: monospace;
+
+  code {
+    background: none;
+  }
 }
 
 code {
