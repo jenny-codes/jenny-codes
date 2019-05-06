@@ -12,10 +12,10 @@
   }
   .post-meta {
     font-size: 18px;
-    // font-style: italic;
     margin-top: 15px;
     color: $gray-600;
     a {
+      @include sans-serif-font;
       display: inline;
       margin: 0 15px 0 0;
       text-decoration: none;
@@ -30,8 +30,6 @@
   @media only screen and (min-width: 768px) {
     > .post-title {
       font-size: 36px;
-      > a {
-      }
     }
   }
 }

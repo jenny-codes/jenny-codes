@@ -71,7 +71,7 @@ code {
     text-decoration: none;
   }
   h2 {
-    @include serif-font;
+    @include sans-serif-font;
     font-weight: 400;
     font-size: 18px;
     display: inline;
