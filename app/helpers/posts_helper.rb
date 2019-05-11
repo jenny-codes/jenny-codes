@@ -13,6 +13,6 @@ module PostsHelper
 
   def render_section_subheading
     p = /[^\/]*$/.match(request.path)[0].upcase
-    p.present? ? path : nil
+    p.present? ? p : nil
   end
 end
