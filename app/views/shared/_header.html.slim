@@ -1,16 +1,15 @@
 /header.masthead.lazy data-src="#{image_path("jennycodes-bg.jpg")}"
 /header.masthead.lazy 
 header.masthead 
-  = image_tag "jennycodes-bg.jpg", class: 'overlay'
-  .overlay
+  = image_tag "frame.jpeg", class: 'overlay'
   .container
     .row
-      .col-lg-8.col-md-10.mx-auto.d-flex.justify-content-center
+      .col-md-10.mx-auto.d-flex.justify-content-center
         .page-heading
-          h1
-            = post.try(:title) || '網頁開發見習生'
+          h1.py-3
+            = post.try(:title) || 'Web Development Notebook'
           span.subheading 
-            = post.try(:description) || render_subheading('關關難過關關過')
+            = post.try(:description) || render_section_subheading || '關關難過關關過'
 
 
 

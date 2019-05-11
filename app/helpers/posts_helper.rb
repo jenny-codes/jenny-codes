@@ -11,17 +11,8 @@ module PostsHelper
     end
   end
 
-  def render_subheading(default)
-    path =  /[^\/]*$/.match(request.path)[0].upcase
-    path.blank? ? default : path 
+  def render_section_subheading
+    p = /[^\/]*$/.match(request.path)[0].upcase
+    p.present? ? path : nil
   end
-
-  # def title_with_line_break(title)
-  #   return unless title
-
-  #   break_pos = title.index(']')
-  #   return title unless break_pos
-
-  #   title.insert(break_pos + 2, "\n").html_safe
-  # end
 end
