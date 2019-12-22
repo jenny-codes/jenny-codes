@@ -1,7 +1,6 @@
 class PostsController < ApplicationController
-  before_action :build_selection, only: [:new, :edit]
-  before_action :authenticate,    except: [:index, :show, :upcoming]
-  before_action :build_posts,     only: [:list, :upcoming]
+  before_action :authenticate,    except: [:index, :show]
+
   before_action :build_post,      only: [:new, :create]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
   before_action :build_tags,      only: [:create, :update]
@@ -29,13 +28,17 @@ class PostsController < ApplicationController
   end
 
   def list
+    @posts = Post.published.recent
+    @draft = Post.draft
   end
 
   def new
+    build_selection_for_form
     render template: 'posts/form'
   end
 
   def edit
+    build_selection_for_form
     render template: 'posts/form'
   end
 
@@ -65,11 +68,6 @@ class PostsController < ApplicationController
       @post = Post.new(post_params)
     end
 
-    def build_posts
-      @posts = Post.published.recent
-      @draft = Post.draft
-    end
-
     def find_post
       @post = Post.friendly.find(params[:id])
     end
@@ -93,7 +91,7 @@ class PostsController < ApplicationController
       end
     end
 
-    def build_selection
+    def build_selection_for_form
       @tags = Tag.all
       @status_list = [['草稿', 'draft'], ['發佈', 'published']]
     end
