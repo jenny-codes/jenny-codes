@@ -1,11 +1,7 @@
 .row
   .col-md-4.form-inline
     = link_to '新增文章', new_post_path, class: 'btn-fit btn-info'
-    = link_to 'Sync with Medium', sync_posts_path, class: 'btn-fit btn-warning'
-  .col-md-8
-    = form_tag sync_posts_path, role: 'form', class: 'form-inline', method: :GET, style: 'float:right;' do
-      = text_field_tag 'medium_url', '', placeholder: 'MEDIUM URL', class: 'form-control', style: 'width: 600px;'
-      = submit_tag 'import', class: 'btn-fit btn-info'
+
 .row
   .col-md-12
     .card
