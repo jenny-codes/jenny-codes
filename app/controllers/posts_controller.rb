@@ -7,13 +7,7 @@ class PostsController < ApplicationController
   before_action :build_tags,      only: [:create, :update]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
-  MEDIUM_ACCOUNT = 'jinghua.shih'
   POSTS_PER_PAGE = 5
-
-  def initialize
-    @medium_cli = Medium.new
-    super
-  end
 
   def index
     # if a tag is selected, render only the posts with that tag
@@ -65,18 +59,6 @@ class PostsController < ApplicationController
     @next_post = @post.next
   end
 
-  def sync_with_medium
-
-    # if there's a specific link 
-    if params[:commit] == 'import'
-      create_or_update(@medium_cli.parse_url(params[:medium_url]))
-    # update from lastest post
-    else
-      create_or_update(@medium_cli.last_post_by(MEDIUM_ACCOUNT))
-    end
-    redirect_to posts_path
-  end
-
   private
 
     def build_post
@@ -114,16 +96,6 @@ class PostsController < ApplicationController
     def build_selection
       @tags = Tag.all
       @status_list = [['草稿', 'draft'], ['發佈', 'published']]
-    end
-
-    def create_or_update(medium_post)
-      Post.find_or_initialize_by(medium_url: medium_post[:medium_url]).tap do |post|
-        post.title       = medium_post[:title]
-        post.body        = medium_post[:body]
-        post.status      = :published
-        post.description = medium_post[:description]
-        post.save!
-      end
     end
 
     def build_tags
