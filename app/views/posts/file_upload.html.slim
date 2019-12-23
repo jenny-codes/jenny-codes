@@ -1,0 +1,11 @@
+= form_with url: parse_uploaded_file_posts_path do |f|
+  .row
+    .form-group.custom-file
+      = f.file_field :file, class: 'custom-file-input'
+      = f.label :file, class: 'custom-file-label'
+    .form-group.form-inline
+      = f.label :id, 'Enter post ID if updating existing post:'
+      = f.text_field :id, class: 'form-control'
+  .row
+    .form-group
+      = f.submit :upload, class: 'btn btn-warning'

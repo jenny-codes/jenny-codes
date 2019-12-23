@@ -62,6 +62,21 @@ class PostsController < ApplicationController
     @next_post = @post.next
   end
 
+  def parse_uploaded_file
+    params.permit(:file, :id)
+    params[:file].open do |f|
+      post_attrs = post_attrs_from_md_file(f.read)
+      
+      if params[:id].present?
+        Post.find(params[:id].to_i).update!(post_attrs)
+      else
+        Post.create!(post_attrs)
+      end
+    end
+
+    redirect_to list_posts_path
+  end
+
   private
 
     def build_post
@@ -121,5 +136,21 @@ class PostsController < ApplicationController
           @post.tags.create(text: new_tag)
         end
       end
+    end
+
+    def post_attrs_from_md_file(file)
+      data = Redcarpet::Markdown.new(Redcarpet::Render::HTML, fenced_code_blocks: true).render(file)
+      html = Nokogiri::HTML(data)
+      html.search('img').each do |img|
+        img['class'] = 'lazy img-fluid'
+        img['data-src'] = img['src']
+        img.remove_attribute('src')
+      end
+
+      {
+        title: html.search('h1').text,
+        body: html.search('body').children[1..-1],
+        status: :draft
+      }
     end
 end

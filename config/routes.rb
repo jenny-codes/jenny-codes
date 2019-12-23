@@ -5,6 +5,8 @@ Rails.application.routes.draw do
     collection do 
       get 'list'
       get 'upcoming'
+      get 'file_upload'
+      post 'parse_uploaded_file'
     end
   end
 

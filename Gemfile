@@ -79,3 +79,5 @@ gem 'mailgun-ruby', '~>1.1.6'
 gem 'friendly_id', '~> 5.2.4'
 gem "babosa"
 
+# Markdown to HTML converter
+gem 'redcarpet'
