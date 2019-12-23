@@ -66,7 +66,7 @@ class PostsController < ApplicationController
     params.permit(:file, :id)
     params[:file].open do |f|
       post_attrs = post_attrs_from_md_file(f.read)
-      
+      puts post_attrs
       if params[:id].present?
         Post.find(params[:id].to_i).update!(post_attrs)
       else
