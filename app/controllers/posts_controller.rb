@@ -63,15 +63,14 @@ class PostsController < ApplicationController
   end
 
   def parse_uploaded_file
-    params.permit(:file, :id)
-    params[:file].open do |f|
-      post_attrs = post_attrs_from_md_file(f.read)
-      puts post_attrs
-      if params[:id].present?
-        Post.find(params[:id].to_i).update!(post_attrs)
-      else
-        Post.create!(post_attrs)
-      end
+    pars = params.permit(:file, :id)
+    post_attrs = post_attrs_from_md_file(pars['file'].open.read)
+    pars['file'].close
+
+    if params[:id].present?
+      Post.find(pars[:id].to_i).update!(post_attrs)
+    else
+      Post.create!(post_attrs)
     end
 
     redirect_to list_posts_path
