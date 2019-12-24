@@ -13,7 +13,7 @@
           = label_tag :tags
           - @tags.each do |tag|
             .form-check
-              = check_box_tag 'tags[]', tag.id, @post.tags.include?(tag), class: 'form-check-input'
+              = check_box_tag 'tags[]', tag.text, @post.tags.include?(tag), class: 'form-check-input'
               = label_tag :tag, tag.text, class: 'form-check-label'
           #add-tags.mt-1 
             = text_field_tag 'new_tags[]', nil, class: 'form-control', style: 'width: 40%;'

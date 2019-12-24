@@ -1,9 +1,6 @@
 class PostsController < ApplicationController
   before_action :authenticate,    except: [:index, :show]
-
-  before_action :build_post,      only: [:new, :create]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
-  before_action :build_tags,      only: [:create, :update]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   POSTS_PER_PAGE = 5
@@ -33,6 +30,7 @@ class PostsController < ApplicationController
   end
 
   def new
+    @post = Post.new
     build_selection_for_form
     render template: 'posts/form'
   end
@@ -43,13 +41,13 @@ class PostsController < ApplicationController
   end
 
   def create 
-    @post.save!
-    redirect_to list_posts_path
+    Post.create!(post_params)
+    redirect_to list_posts_path, info: 'Created successfully :)'
   end
 
   def update
     @post.update!(post_params)
-    redirect_to post_path, info: 'You are good to go!'
+    redirect_to post_path, info: 'Updated successfully :)'
   end
 
   def destroy
@@ -88,23 +86,26 @@ class PostsController < ApplicationController
 
   private
 
-    def build_post
-      @post = Post.new(post_params)
-    end
-
     def find_post
       @post = Post.friendly.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
-      if params[:post]
-        params.require(:post).permit(:title, :body, :status, :description, :medium_url)
-      elsif params[:status]
-        params.permit(:status)
-      else
-        Hash.new
-      end
+      return params[:status] if params[:status]
+
+      post_params = params.require(:post).permit(:title, :body, :status, :description, :medium_url, :slug)
+      
+      tags = tag_params
+      post_params.merge!(tags: tags) if tags
+
+      post_params
+    end
+
+    def tag_params
+      tag_names = params[:tags] | params[:new_tags]
+      return if tag_names.blank?
+
+      Tag.from_array_of_names(tag_names).compact
     end
 
     def authenticate
@@ -118,32 +119,5 @@ class PostsController < ApplicationController
     def build_selection_for_form
       @tags = Tag.all
       @status_list = [['草稿', 'draft'], ['發佈', 'published']]
-    end
-
-    def build_tags
-      if params[:tags]
-        # clear un-select tags first
-        @post.tags.each do |tag|
-          unless params[:tags].include?(tag.id.to_s)
-            Tagging.find_by(post_id: @post.id, tag_id: tag.id).delete
-          end
-        end
-
-        # then add new tags
-        params[:tags].map(&:to_i).each do |checkbox_tag_id|
-          tag_id_set = @post.tags.pluck(:id)
-          unless tag_id_set.include?(checkbox_tag_id)
-            Tagging.create(post_id: @post.id, tag_id: checkbox_tag_id)
-          end
-        end
-      end
-
-      # the newly typed tags
-      if params[:new_tags]
-        params[:new_tags].each do |new_tag|
-          next if new_tag.blank?
-          @post.tags.create(text: new_tag)
-        end
-      end
     end
 end

@@ -6,6 +6,8 @@ class Tag < ApplicationRecord
 
   def self.from_array_of_names(tag_names)
     tag_names.map do |name|
+      next if name.blank?
+
       Tag.find_or_create_by(text: name)
     end
   end
