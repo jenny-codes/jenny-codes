@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title Jenny codes.
+    title = @post&.title || 'Web Development Notebook'
     = csrf_meta_tags
     = csp_meta_tag
 
