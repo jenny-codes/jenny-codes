@@ -64,10 +64,20 @@ class PostsController < ApplicationController
 
   def parse_uploaded_file
     pars = params.permit(:file, :id)
-    post_attrs = post_attrs_from_md_file(pars['file'].open.read)
+    pars['file'].open
+    html = MarkdownPostProcessor.get_html_from_md(pars['file'].read)
     pars['file'].close
 
-    if params[:id].present?
+    tag_names = MarkdownPostProcessor.post_tag_names_for(html)
+    post_attrs = {
+      title:       MarkdownPostProcessor.post_title_for(html),
+      description: MarkdownPostProcessor.post_description_for(html),
+      body:        MarkdownPostProcessor.post_body_for(html),
+      tags:        Tag.from_array_of_names(tag_names),
+      status:      :draft,
+    }
+
+    if pars[:id].present?
       Post.find(pars[:id].to_i).update!(post_attrs)
     else
       Post.create!(post_attrs)
@@ -135,21 +145,5 @@ class PostsController < ApplicationController
           @post.tags.create(text: new_tag)
         end
       end
-    end
-
-    def post_attrs_from_md_file(file)
-      data = Redcarpet::Markdown.new(Redcarpet::Render::HTML, fenced_code_blocks: true).render(file)
-      html = Nokogiri::HTML(data)
-      html.search('img').each do |img|
-        img['class'] = 'lazy img-fluid'
-        img['data-src'] = img['src']
-        img.remove_attribute('src')
-      end
-
-      {
-        title: html.search('h1').text,
-        body: html.search('body').children[1..-1],
-        status: :draft
-      }
     end
 end
