@@ -4,7 +4,6 @@ Rails.application.routes.draw do
   resources :posts do 
     collection do 
       get 'list'
-      get 'upcoming'
       get 'file_upload'
       post 'parse_uploaded_file'
     end
