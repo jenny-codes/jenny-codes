@@ -13,4 +13,8 @@ module PostsHelper
     p = /[^\/]*$/.match(request.path)[0].upcase
     p.present? ? p : nil
   end
+
+  def id_for(post)
+    post.friendly_id.presence || post.id
+  end
 end
