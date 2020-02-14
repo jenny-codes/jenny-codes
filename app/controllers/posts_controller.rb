@@ -40,12 +40,26 @@ class PostsController < ApplicationController
     render template: 'posts/form'
   end
 
-  def create 
+  def create
+    post_params = if params[:post][:file]
+                    post_params_from_file
+                  else
+                    post_params_from_form
+                  end
+
     Post.create!(post_params)
     redirect_to list_posts_path, info: 'Created successfully :)'
   end
 
   def update
+    post_params = if params[:status]
+                    params[:status]
+                  elsif params[:post][:file]
+                    post_params_from_file
+                  else
+                    post_params_from_form
+                  end
+   
     @post.update!(post_params)
     redirect_to post_path, info: 'Updated successfully :)'
   end
@@ -60,39 +74,30 @@ class PostsController < ApplicationController
     @next_post = @post.next
   end
 
-  def parse_uploaded_file
-    pars = params.permit(:file, :id)
-    pars['file'].open
-    html = MarkdownPostProcessor.get_html_from_md(pars['file'].read)
-    pars['file'].close
-
-    tag_names = MarkdownPostProcessor.post_tag_names_for(html)
-    post_attrs = {
-      title:       MarkdownPostProcessor.post_title_for(html),
-      description: MarkdownPostProcessor.post_description_for(html),
-      body:        MarkdownPostProcessor.post_body_for(html),
-      tags:        Tag.from_array_of_names(tag_names),
-      status:      :draft,
-    }
-
-    if pars[:id].present?
-      Post.find(pars[:id].to_i).update!(post_attrs)
-    else
-      Post.create!(post_attrs)
-    end
-
-    redirect_to list_posts_path
-  end
-
   private
 
     def find_post
       @post = Post.friendly.find(params[:id])
     end
 
-    def post_params
-      return params[:status] if params[:status]
+    def post_params_from_file
+      file = params.require(:post).permit(:file)[:file]
+      file.open
+      html = MarkdownPostProcessor.get_html_from_md(file.read)
+      file.close
 
+      tag_names = MarkdownPostProcessor.post_tag_names_for(html)
+
+      {
+        title:       MarkdownPostProcessor.post_title_for(html),
+        description: MarkdownPostProcessor.post_description_for(html),
+        body:        MarkdownPostProcessor.post_body_for(html),
+        tags:        Tag.from_array_of_names(tag_names),
+        status:      :draft,
+      }
+    end
+
+    def post_params_from_form
       post_params = params.require(:post).permit(:title, :body, :status, :description, :medium_url, :slug)
       
       tags = tag_params
