@@ -83,15 +83,15 @@ class PostsController < ApplicationController
     def post_params_from_file
       file = params.require(:post).permit(:file)[:file]
       file.open
-      html = MarkdownPostProcessor.get_html_from_md(file.read)
+      html = ::MarkdownPostProcessor.get_html_from_md(file.read)
       file.close
 
-      tag_names = MarkdownPostProcessor.post_tag_names_for(html)
+      tag_names = ::MarkdownPostProcessor.post_tag_names_for(html)
 
       {
-        title:       MarkdownPostProcessor.post_title_for(html),
-        description: MarkdownPostProcessor.post_description_for(html),
-        body:        MarkdownPostProcessor.post_body_for(html),
+        title:       ::MarkdownPostProcessor.post_title_for(html),
+        description: ::MarkdownPostProcessor.post_description_for(html),
+        body:        ::MarkdownPostProcessor.post_body_for(html),
         tags:        Tag.from_array_of_names(tag_names),
         status:      :draft,
       }
