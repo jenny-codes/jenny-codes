@@ -1,3 +1,7 @@
+# Force loading markdown_post_processor because there seems to be a problem
+# on production when trying to access the constant.
+require 'markdown_post_processor'
+
 class PostsController < ApplicationController
   before_action :authenticate,    except: [:index, :show]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
@@ -86,12 +90,12 @@ class PostsController < ApplicationController
       html = ::MarkdownPostProcessor.get_html_from_md(file.read)
       file.close
 
-      tag_names = ::MarkdownPostProcessor.post_tag_names_for(html)
+      tag_names = MarkdownPostProcessor.post_tag_names_for(html)
 
       {
-        title:       ::MarkdownPostProcessor.post_title_for(html),
-        description: ::MarkdownPostProcessor.post_description_for(html),
-        body:        ::MarkdownPostProcessor.post_body_for(html),
+        title:       MarkdownPostProcessor.post_title_for(html),
+        description: MarkdownPostProcessor.post_description_for(html),
+        body:        MarkdownPostProcessor.post_body_for(html),
         tags:        Tag.from_array_of_names(tag_names),
         status:      :draft,
       }
