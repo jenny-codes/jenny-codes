@@ -28,6 +28,10 @@ class PostsController < ApplicationController
     @posts[:content] = posts_with_page[@posts[:curr_page] - 1]
   end
 
+  def all
+    @posts = Post.published.recent
+  end
+
   def list
     @posts = Post.published.recent
     @draft = Post.draft

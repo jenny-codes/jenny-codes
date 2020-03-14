@@ -1,0 +1,11 @@
+.row	
+  .col-lg-8.col-md-10.mx-auto	
+    .list-group.list-group-flush	
+      - @posts.each do |post|
+        = link_to post_path(post) do
+          .list-group-item.list-group-item-action.flex-column.align-items-start 	
+            .d-flex.w-100.justify-content-between	
+              h5.mb-1.text-dark 	
+                = post.title	
+            p.my-1 	
+              = post.description.html_safe 
