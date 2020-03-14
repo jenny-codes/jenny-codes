@@ -10,31 +10,39 @@ class PostsController < ApplicationController
   POSTS_PER_PAGE = 5
 
   def index
-    # if a tag is selected, render only the posts with that tag
-    # else render all published posts
-    raw_posts = if params[:tag]
-      Post.includes(:tags).where(tags: {text: params[:tag]}).recent
-    else
-      Post.includes(:tags).published.recent
+    posts_in_pages, last_updated_at = cache('post_index',
+                                            tag: params[:tag] || 'none') do
+      # if a tag is selected, render only the posts with that tag
+      # else render all published posts
+      selected_posts = if params[:tag]
+        Post.includes(:tags).where(tags: { text: params[:tag] }).recent
+      else
+        Post.includes(:tags).published.recent
+      end
+
+      [
+        selected_posts.in_groups_of(POSTS_PER_PAGE, false),
+        selected_posts.maximum(:updated_at),
+      ]
     end
 
-    # cache
-    fresh_when last_modified: raw_posts.maximum(:updated_at), public: true
-
     # pagination
-    posts_with_page = raw_posts.in_groups_of(POSTS_PER_PAGE, false)
-
     @posts = {
-      total_pages: posts_with_page.count,
+      total_pages: posts_in_pages.count,
       curr_page: params[:page].try(:to_i) || 1,
     }
-    @posts[:content] = posts_with_page[@posts[:curr_page] - 1]
+    @posts[:content] = posts_in_pages[@posts[:curr_page] - 1]
+
+    fresh_when last_modified: last_updated_at, public: true
   end
 
   def all
-    @posts = Post.published.recent
+    @posts, last_post_updated_at = cache('post_all') do
+      all = Post.published.recent
+      [all.to_a, all.maximum(:updated_at)]
+    end
 
-    fresh_when last_modified: @posts.maximum(:updated_at), public: true
+    fresh_when @posts, last_modified: last_post_updated_at, public: true
   end
 
   def list
@@ -130,6 +138,15 @@ class PostsController < ApplicationController
         authenticate_or_request_with_http_digest do |username|
           USERS[username]
         end
+      end
+    end
+
+    def cache(name, **args, &block)
+      key = "#{name}|#{args.map { |k, v| "#{k}:#{v}" }.join('|') }"
+      Rails.cache.fetch(key,
+                        expires_in: 7.days,
+                        race_condition_ttl: 10.seconds) do
+        block.call
       end
     end
 

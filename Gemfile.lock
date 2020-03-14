@@ -89,6 +89,7 @@ GEM
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.4)
     crass (1.0.5)
+    dalli (2.7.9)
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
     erubi (1.8.0)
@@ -286,6 +287,7 @@ DEPENDENCIES
   capybara (>= 2.15)
   chromedriver-helper
   coffee-rails (~> 4.2)
+  dalli
   figaro
   friendly_id (~> 5.2.4)
   jbuilder (~> 2.5)
