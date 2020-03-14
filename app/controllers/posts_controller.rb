@@ -18,6 +18,9 @@ class PostsController < ApplicationController
       Post.includes(:tags).published.recent
     end
 
+    # cache
+    fresh_when last_modified: raw_posts.maximum(:updated_at), public: true
+
     # pagination
     posts_with_page = raw_posts.in_groups_of(POSTS_PER_PAGE, false)
 
@@ -30,6 +33,8 @@ class PostsController < ApplicationController
 
   def all
     @posts = Post.published.recent
+
+    fresh_when last_modified: @posts.maximum(:updated_at), public: true
   end
 
   def list
@@ -80,6 +85,8 @@ class PostsController < ApplicationController
   def show
     @prev_post = @post.previous
     @next_post = @post.next
+
+    fresh_when @post, public: true
   end
 
   private
