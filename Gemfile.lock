@@ -88,6 +88,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.4)
+    connection_pool (2.2.2)
     crass (1.0.5)
     dalli (2.7.9)
     domain_name (0.5.20180417)
@@ -287,6 +288,7 @@ DEPENDENCIES
   capybara (>= 2.15)
   chromedriver-helper
   coffee-rails (~> 4.2)
+  connection_pool
   dalli
   figaro
   friendly_id (~> 5.2.4)
