@@ -3,7 +3,7 @@
 require 'markdown_post_processor'
 
 class PostsController < ApplicationController
-  before_action :authenticate,    except: [:index, :show]
+  before_action :authenticate,    except: [:index, :all, :show]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
