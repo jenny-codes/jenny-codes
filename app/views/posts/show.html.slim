@@ -3,12 +3,12 @@
 
 / Navigation
 - content_for :container do
-  = link_to post_path(id_for(@next_post)), class: 'post-navigation post-nav-left' do
+  = link_to post_path(id_for(@post.next)), class: 'post-navigation post-nav-left' do
     i.fas.fa-chevron-left
-    p.navigation-text = @next_post.title.truncate(33)
-  = link_to post_path(id_for(@prev_post)), class: 'post-navigation post-nav-right' do
+    p.navigation-text = @post.next.title.truncate(33)
+  = link_to post_path(id_for(@post.previous)), class: 'post-navigation post-nav-right' do
     i.fas.fa-chevron-right
-    p.navigation-text = @prev_post.title.truncate(33)
+    p.navigation-text = @post.previous.title.truncate(33)
 
 .row
   .col-lg-8.col-md-10.mx-auto.post-container

@@ -83,9 +83,6 @@ class PostsController < ApplicationController
   end
 
   def show
-    @prev_post = @post.previous
-    @next_post = @post.next
-
     fresh_when @post, public: true
   end
 
