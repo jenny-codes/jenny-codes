@@ -10,28 +10,19 @@ class PostsController < ApplicationController
   POSTS_PER_PAGE = 5
 
   def index
-    posts_in_pages, last_updated_at = cache('post_index',
+    @posts_in_pages, last_updated_at = cache('post_index',
                                             tag: params[:tag] || 'none') do
-      # if a tag is selected, render only the posts with that tag
-      # else render all published posts
-      selected_posts = if params[:tag]
-        Post.includes(:tags).where(tags: { text: params[:tag] }).recent
-      else
-        Post.includes(:tags).published.recent
-      end
 
-      [
-        selected_posts.in_groups_of(POSTS_PER_PAGE, false),
-        selected_posts.maximum(:updated_at),
-      ]
+      posts_rel = Post.includes(:tags).published.recent
+      posts_rel = posts_rel.where(tags: { text: params[:tag] }) if params[:tag]
+
+      [posts_rel.in_groups_of(POSTS_PER_PAGE, false), posts_rel.maximum(:updated_at)]
     end
 
-    # pagination
-    @posts = {
-      total_pages: posts_in_pages.count,
+    @pagination = {
       curr_page: params[:page].try(:to_i) || 1,
+      total_pages: @posts_in_pages.count,
     }
-    @posts[:content] = posts_in_pages[@posts[:curr_page] - 1]
 
     fresh_when last_modified: last_updated_at, public: true
   end

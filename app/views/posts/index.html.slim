@@ -1,14 +1,14 @@
 .row
   .col-lg-8.col-md-10.mx-auto
-    = render 'posts/posts_preview', posts: @posts[:content]
+    = render 'posts/posts_preview', posts: @posts_in_pages[@pagination[:curr_page] - 1]
 
     /Pager
     .clearfix
-      - if @posts[:curr_page] > 1
-        = link_to root_path(page: @posts[:curr_page] - 1), class: 'float-left' do
+      - if @pagination[:curr_page] > 1
+        = link_to root_path(page: @pagination[:curr_page] - 1), class: 'float-left' do
           i.fas.fa-chevron-left 
           span.btn Previous
-      - if @posts[:curr_page] < @posts[:total_pages]
-        = link_to root_path(page: @posts[:curr_page] + 1), class: 'float-right' do
+      - if @pagination[:curr_page] < @pagination[:total_pages]
+        = link_to root_path(page: @pagination[:curr_page] + 1), class: 'float-right' do
           span.btn Next
           i.fas.fa-chevron-right
