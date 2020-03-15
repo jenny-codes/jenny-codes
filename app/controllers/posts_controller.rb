@@ -9,6 +9,8 @@ class PostsController < ApplicationController
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   POSTS_PER_PAGE = 5
 
+  include Caching
+
   def index
     @posts_in_pages, last_updated_at = cache('post_index',
                                               tag: params[:tag] || 'none') do
@@ -132,15 +134,6 @@ class PostsController < ApplicationController
         authenticate_or_request_with_http_digest do |username|
           USERS[username]
         end
-      end
-    end
-
-    def cache(name, **args, &block)
-      key = "#{name}|#{args.map { |k, v| "#{k}:#{v}" }.join('|') }"
-      Rails.cache.fetch(key,
-                        expires_in: 7.days,
-                        race_condition_ttl: 10.seconds) do
-        block.call
       end
     end
 
