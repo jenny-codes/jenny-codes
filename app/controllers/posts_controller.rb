@@ -84,9 +84,13 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = cache('post_show', id: params[:id]) do
-      Post.friendly.find(params[:id])
+    @post, @adjacent_posts = cache('post_show', id: params[:id]) do
+      current_post = Post.includes(:tags).friendly.find(params[:id])
+      next_post    = current_post.next
+      prev_post    = current_post.previous
+      [current_post, { next: next_post, prev: prev_post }]
     end
+
     fresh_when @post, public: true
   end
 
