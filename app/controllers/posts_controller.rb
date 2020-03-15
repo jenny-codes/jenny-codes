@@ -11,7 +11,7 @@ class PostsController < ApplicationController
 
   def index
     @posts_in_pages, last_updated_at = cache('post_index',
-                                            tag: params[:tag] || 'none') do
+                                              tag: params[:tag] || 'none') do
 
       posts_rel = Post.includes(:tags).published.recent
       posts_rel = posts_rel.where(tags: { text: params[:tag] }) if params[:tag]
