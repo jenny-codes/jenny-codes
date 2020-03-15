@@ -5,6 +5,10 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     @post = posts(:one)
   end
 
+  teardown do
+    Rails.cache.clear
+  end
+
   test "should get index" do
     get posts_url
     assert_response :success
@@ -20,7 +24,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
       post posts_url, params: { post: { body: @post.body, description: @post.description, status: @post.status, title: @post.title } }
     end
 
-    assert_redirected_to post_url(Post.last)
+    assert_redirected_to list_posts_url
   end
 
   test "should show post" do
@@ -43,6 +47,36 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
       delete post_url(@post)
     end
 
-    assert_redirected_to posts_url
+    assert_redirected_to list_posts_url
+  end
+
+  test 'cache works for index' do
+    get posts_url
+
+    assert_db_queries(0) do
+      assert_cache_queries(1) do
+        get posts_url
+      end
+    end
+  end
+
+  test 'cache works for post_all' do
+    get all_posts_url
+
+    assert_db_queries(0) do
+      assert_cache_queries(1) do
+        get all_posts_url
+      end
+    end
+  end
+
+  test 'cache works for post_show' do
+    get post_url(@post)
+
+    assert_db_queries(0) do
+      assert_cache_queries(1) do
+        get post_url(@post)
+      end
+    end
   end
 end
