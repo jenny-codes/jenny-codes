@@ -16,7 +16,8 @@ module Jennycodes
     # the framework and any gems in your application.
     
     config.time_zone = "Taipei"
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('lib')
     config.assets.precompile += %w(.jpeg .jpg)
   end
 end

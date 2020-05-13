@@ -1,7 +1,3 @@
-# Force loading markdown_post_processor because there seems to be a problem
-# on production when trying to access the constant.
-require 'markdown_post_processor'
-
 class PostsController < ApplicationController
   before_action :authenticate,    except: [:index, :show]
   before_action :find_post,       only: [:show, :edit, :update, :destroy]
