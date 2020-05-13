@@ -1,27 +1,37 @@
 class PostsController < ApplicationController
-  before_action :authenticate,    except: [:index, :show]
-  before_action :find_post,       only: [:show, :edit, :update, :destroy]
+  before_action :authenticate,    except: [:index, :all, :show]
+  before_action :find_post,       only: [:edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
   POSTS_PER_PAGE = 5
 
+  include Caching
+
   def index
-    # if a tag is selected, render only the posts with that tag
-    # else render all published posts
-    raw_posts = if params[:tag]
-      Post.includes(:tags).where(tags: {text: params[:tag]}).recent
-    else
-      Post.includes(:tags).published.recent
+    @posts_in_pages, last_updated_at = cache('post_index',
+                                              tag: params[:tag] || 'none') do
+
+      posts_rel = Post.includes(:tags).published.recent
+      posts_rel = posts_rel.where(tags: { text: params[:tag] }) if params[:tag]
+
+      [posts_rel.in_groups_of(POSTS_PER_PAGE, false), posts_rel.maximum(:updated_at)]
     end
 
-    # pagination
-    posts_with_page = raw_posts.in_groups_of(POSTS_PER_PAGE, false)
-
-    @posts = {
-      total_pages: posts_with_page.count,
+    @pagination = {
       curr_page: params[:page].try(:to_i) || 1,
+      total_pages: @posts_in_pages.count,
     }
-    @posts[:content] = posts_with_page[@posts[:curr_page] - 1]
+
+    fresh_when last_modified: last_updated_at, public: true
+  end
+
+  def all
+    @posts, last_post_updated_at = cache('post_all') do
+      all = Post.published.recent
+      [all.to_a, all.maximum(:updated_at)]
+    end
+
+    fresh_when @posts, last_modified: last_post_updated_at, public: true
   end
 
   def list
@@ -70,8 +80,14 @@ class PostsController < ApplicationController
   end
 
   def show
-    @prev_post = @post.previous
-    @next_post = @post.next
+    @post, @adjacent_posts = cache('post_show', id: params[:id]) do
+      current_post = Post.includes(:tags).friendly.find(params[:id])
+      next_post    = current_post.next
+      prev_post    = current_post.previous
+      [current_post, { next: next_post, prev: prev_post }]
+    end
+
+    fresh_when @post, public: true
   end
 
   private
