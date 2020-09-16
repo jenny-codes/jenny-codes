@@ -18,6 +18,7 @@ module Jennycodes
     config.time_zone = "Taipei"
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
-    config.assets.precompile += %w(.jpeg .jpg)
+    config.assets.paths << Rails.root.join('vendor', 'assets', 'fonts')
+    config.assets.precompile += %w(.jpeg .jpg .ttc)
   end
 end
