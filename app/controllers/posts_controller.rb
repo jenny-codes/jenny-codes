@@ -3,7 +3,7 @@ class PostsController < ApplicationController
   before_action :find_post,       only: [:edit, :update, :destroy]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }
-  POSTS_PER_PAGE = 5
+  POSTS_PER_PAGE = 10
 
   include Caching
 
