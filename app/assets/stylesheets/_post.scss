@@ -18,13 +18,6 @@
     a {
       display: inline;
       margin: 0 15px 0 0;
-      text-decoration: none;
-      color: $gray-600;
-      &:focus,
-      &:hover {
-        text-decoration: none;
-        color: $primary;
-      }
     }
   }
   @media only screen and (min-width: 768px) {

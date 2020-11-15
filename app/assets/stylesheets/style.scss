@@ -81,21 +81,21 @@ code {
   a:hover {
     text-decoration: none;
   }
-  h2 {
-    @include sans-serif-font;
-    font-weight: 400;
-    font-size: 18px;
-    display: inline;
-    color: #212529;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 4px 10px;
-    margin: 0 2px;
-    border-radius: 5px;
+}
 
-    &:hover {
-      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12) inset;
-      color: $yellow;
-    }
+.tag {
+  @include sans-serif-font;
+  font-weight: 400;
+  font-size: 18px;
+  display: inline;
+  color: #212529;
+  background: #edf5f7;
+  padding: 4px 10px;
+  margin: 0 2px;
+  border-radius: 5px;
+
+  &:hover {
+    color: $yellow;
   }
 }
 

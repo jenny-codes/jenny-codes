@@ -1,0 +1,4 @@
+.tags-container
+  - tags.each do |tag|
+    = link_to posts_path(tag: tag.text) do
+      h2.tag ##{tag.text}

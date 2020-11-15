@@ -12,10 +12,8 @@
 
 .row
   .col-lg-8.col-md-10.mx-auto.post-container
-    .tags-container
-      - @post.tags.each do |tag|
-        = link_to posts_path(tag: tag.text) do
-          h2 ##{tag.text}
+    = render 'tags_display', tags: @post.tags
     = @post.body.html_safe
+    = render 'tags_display', tags: @post.tags
 
 = render '/shared/footer'
