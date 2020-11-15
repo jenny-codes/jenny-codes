@@ -1,23 +1,24 @@
+hr
 .row
   .col-lg-8.col-md-10.mx-auto
-    p.copyright.text-muted Copyright &copy; Of All The Jin Joints 2019
-
-/ .row
-/   .col-lg-8.col-md-10.mx-auto
-/     ul.list-inline.text-center
-/       li.list-inline-item
-/         a href="#" 
-/           span.fa-stack.fa-lg
-/             i.fas.fa-circle.fa-stack-2x
-/             i.fab.fa-twitter.fa-stack-1x.fa-inverse
-/       li.list-inline-item
-/         a href="#" 
-/           span.fa-stack.fa-lg
-/             i.fas.fa-circle.fa-stack-2x
-/             i.fab.fa-facebook-f.fa-stack-1x.fa-inverse
-/       li.list-inline-item
-/         a href="#" 
-/           span.fa-stack.fa-lg
-/             i.fas.fa-circle.fa-stack-2x
-/             i.fab.fa-github.fa-stack-1x.fa-inverse
-/     p.copyright.text-muted Copyright &copy; Of All The Jin Joints 2018
+    p.copyright.text-muted.text-center 
+      = "Published on #{@post.created_at.strftime('%B %-d, %Y')}"
+      
+    ul.list-inline.text-center
+      li.list-inline-item
+        span.text-muted Find me at
+      li.list-inline-item
+        = link_to 'https://github.com/jenny-codes' do
+          span.fa-stack.fa-lg
+            i.fas.fa-circle.fa-stack-2x
+            i.fab.fa-github.fa-stack-1x.fa-inverse style="padding: 1px 3px 0px 9px"
+      li.list-inline-item
+        = link_to contact_path do 
+          span.fa-stack.fa-lg
+            i.fas.fa-circle.fa-stack-2x
+            i.far.fa-envelope.fa-stack-1x.fa-inverse  style="padding: 1px 3px 0px 9px"
+      li.list-inline-item
+        = link_to 'https://medium.com/@jinghua.shih' do
+          span.fa-stack.fa-lg
+            i.fas.fa-circle.fa-stack-2x
+            i.fab.fa-medium-m.fa-stack-1x.fa-inverse style="padding: 1px 3px 0px 9px"

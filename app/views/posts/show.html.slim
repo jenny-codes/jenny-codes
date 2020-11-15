@@ -17,3 +17,5 @@
         = link_to posts_path(tag: tag.text) do
           h2 ##{tag.text}
     = @post.body.html_safe
+
+= render '/shared/footer'
