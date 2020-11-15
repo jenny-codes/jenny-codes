@@ -7,13 +7,7 @@ nav(class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav")
     #navbarResponsive.collapse.navbar-collapse
       ul.navbar-nav.ml-auto
         li.nav-item
-          a.nav-link.dropdown-toggle href="#" id="postDropdown" role="botton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" Posts
-          .dropdown-menu aria-labelledby="postDropdown" 
-            = link_to "All Posts", all_posts_path, class: "dropdown-item"
-            .dropdown-divider
-            = link_to "Ruby on Rails", posts_path(tag: 'Ruby on Rails'), class: "dropdown-item"
-            = link_to "Web Concepts", posts_path(tag: 'Web Concepts'), class: "dropdown-item"
-            = link_to "Web Technology", posts_path(tag: 'Web Technology'), class: "dropdown-item"
+          = link_to "Posts", all_posts_path, class: "nav-link"
         li.nav-item
           a.nav-link href="/about"  About
         /li.nav-item
