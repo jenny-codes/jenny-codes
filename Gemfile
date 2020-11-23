@@ -87,3 +87,6 @@ gem "babosa"
 
 # Markdown to HTML converter
 gem 'redcarpet'
+
+# Monitoring
+gem 'newrelic_rpm'
