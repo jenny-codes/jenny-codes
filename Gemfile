@@ -90,3 +90,7 @@ gem 'redcarpet'
 
 # Monitoring
 gem 'newrelic_rpm'
+
+# Search
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
