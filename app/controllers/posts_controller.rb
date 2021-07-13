@@ -21,8 +21,6 @@ class PostsController < ApplicationController
       curr_page: params[:page].try(:to_i) || 1,
       total_pages: @posts_in_pages.count,
     }
-
-    fresh_when last_modified: last_updated_at, public: true
   end
 
   def all
@@ -30,8 +28,6 @@ class PostsController < ApplicationController
       all = Post.published.recent
       [all.to_a, all.maximum(:updated_at)]
     end
-
-    fresh_when @posts, last_modified: last_post_updated_at, public: true
   end
 
   def list
@@ -86,8 +82,6 @@ class PostsController < ApplicationController
       prev_post    = current_post.previous
       [current_post, { next: next_post, prev: prev_post }]
     end
-
-    fresh_when @post, public: true
   end
 
   private
