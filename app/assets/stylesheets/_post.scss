@@ -27,14 +27,14 @@
   }
 }
 
-.post-title {
-  text-align: center;
-  h1 {
-    font-size: 30px;
-  }
-}
-
 .post-container {
+  .post-title {
+    text-align: center;
+    h1 {
+      font-size: 30px;
+    }
+  }
+
   h3 {
     color: $gray-900;
     margin-top: 60px;
