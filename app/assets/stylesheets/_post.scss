@@ -22,7 +22,7 @@
   }
   @media only screen and (min-width: 768px) {
     > .post-title {
-      font-size: 36px;
+      font-size: 30px;
     }
   }
 }
@@ -66,11 +66,10 @@
     transform: translateY(1em);
   }
 
-  &:hover .navigation-text{
+  &:hover .navigation-text {
     visibility: visible;
     transform: translateY(0);
   }
-
 
   @media only screen and (min-width: 768px) {
     position: fixed;
@@ -90,7 +89,7 @@
 
 .post-nav-right {
   right: 0px;
-  @media only screen and (min-width: 768px) {  
+  @media only screen and (min-width: 768px) {
     right: 50px;
   }
 }
