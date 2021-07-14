@@ -14,7 +14,6 @@
   .col-lg-8.col-md-10.mx-auto.my-5.py-5.post-container
     .post-title
       h1 = @post.title
-      h5 = @post.description
     = render 'tags_display', tags: @post.tags
     = @post.body.html_safe
 

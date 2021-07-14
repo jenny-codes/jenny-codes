@@ -54,16 +54,15 @@
   -moz-transition: all 0.2s;
   transition: all 0.2s;
 }
-@mixin background-cover() {
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
 @mixin serif-font() {
-  font-family: 'Noto Serif', 'Noto Serif TC', 'Lora', 'Times New Roman', serif;
+  font-family: "Noto Serif", "Noto Serif TC", "Lora", "Times New Roman", serif;
 }
 @mixin sans-serif-font() {
-  font-family: 'Avenir', 'Avenir Next', 'Nunito', 'Open Sans', 'Helvetica Neue', Helvetica, sans-serif;
-  src: url('Avenir.ttc');
+  font-family: "Avenir", "Avenir Next", "Nunito", "Open Sans", "Helvetica Neue",
+    Helvetica, sans-serif;
+  src: url("Avenir.ttc");
+}
+
+@mixin post-title-font() {
+  font-family: "Nunito", "Open Sans", "Helvetica Neue", Helvetica, sans-serif;
 }
