@@ -10,5 +10,6 @@ Rails.application.routes.draw do
 
   # unchanged content 
   get 'about', to: 'statics#about'
+  get 'limuy', to: 'statics#limuy'
 end
 
