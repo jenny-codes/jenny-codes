@@ -3,8 +3,8 @@
     .list-group.list-group-flush
       - @posts.each do |post|
         = link_to post_path(post), class: 'post-preview' do
-          .list-group-item.list-group-item-action.flex-column.align-items-start	
-            .d-flex.w-100.justify-content-between	
+          .list-group-item.list-group-item-action.flex-column.align-items-start.post-row
+            h2.d-flex.w-100.justify-content-between
                 = post.title	
-            p.my-1 	
+            h5.my-1
               = post.description.html_safe 
