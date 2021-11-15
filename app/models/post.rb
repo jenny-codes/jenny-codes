@@ -1,10 +1,8 @@
 class Post < ApplicationRecord
-  include Searchable
-
   extend FriendlyId
   friendly_id :title, use: :slugged
   validates :title, presence: true
-  enum status: [:draft, :published]
+  enum status: %i[draft published]
 
   has_many :taggings
   has_many :tags, through: :taggings
@@ -18,12 +16,10 @@ class Post < ApplicationRecord
   end
 
   def next
-    Post.published.where("id > ?", id).order("id ASC").first || Post.first
+    Post.published.where('id > ?', id).order('id ASC').first || Post.first
   end
 
   def previous
-    Post.published.where("id < ?", id).order("id DESC").first || Post.last
+    Post.published.where('id < ?', id).order('id DESC').first || Post.last
   end
 end
-
-  
