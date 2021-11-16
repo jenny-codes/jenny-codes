@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/workdir
+    environment:
+      DATABASE_HOST: postgres # apparently we need to provide our db service's name here
+    stdin_open: true
+    # tty: true
+
+  postgres:
+    image: postgres:13.1-alpine
+    volumes:
+      - postgresql:/var/lib/postgresql/data:delegated
+    ports:
+      # For our web service, we said "take what's running on port 4567
+      # on the container and forward it to port 4567 on the host machine".
+      # No reason not to use the same port in that case. In this case,
+      # however, there's a good chance that the user of this environment
+      # might already have PostgreSQL running on their machine, and so
+      # might have a conflict on port 5432. Therefore we aren't
+      # forwarding port 5432 to port 5432 but rather to port 5444.
+      # - "127.0.0.1:5444:5432"
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+volumes:
+  postgresql:
