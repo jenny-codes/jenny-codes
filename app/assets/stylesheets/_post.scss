@@ -2,14 +2,8 @@
 .post-preview {
   text-decoration: none;
   .post-row {
-    color: $black;
+    color: $gray-800;
     @include transition-all;
-    &:focus,
-    &:hover {
-      // color: $yellow;
-      text-decoration: underline;
-      text-decoration-color: $yellow;
-    }
   }
 
   h1,
@@ -28,11 +22,6 @@
     margin-bottom: 10px;
     color: $black;
     @include transition-all;
-    &:focus,
-    &:hover {
-      color: $yellow;
-      text-decoration: none;
-    }
   }
   .post-subtitle {
     font-weight: 300;
