@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   private
 
   def ensure_domain
-    return if request.env['HTTP_HOST'] == 'codecharms.me'
+    return if Rails.env.development? || request.env['HTTP_HOST'] == 'codecharms.me'
 
     redirect_to "https://codecharms.me#{request.env['REQUEST_PATH']}", status: 301
   end
