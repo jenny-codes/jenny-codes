@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   end
 
   get 'about',     to: 'statics#about'
-  get 'speakings', to: 'statics#speakings'
+  get 'talks', to: 'statics#talks'
 
   get 'limuy', to: 'statics#limuy'
   get 'chloe', to: 'statics#chloe'
