@@ -1,13 +1,14 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
-  include Error::ErrorHandler
   protect_from_forgery with: :null_session
   before_action :ensure_domain
 
   private
-  def ensure_domain
-    if request.env['HTTP_HOST'] == "jennycodes.herokuapp.com"
-      redirect_to "https://jennycodes.me#{request.env['REQUEST_PATH']}", status: 301
-    end
-  end
 
+  def ensure_domain
+    return if request.env['HTTP_HOST'] == 'codecharms.me'
+
+    redirect_to "https://codecharms.me#{request.env['REQUEST_PATH']}", status: 301
+  end
 end

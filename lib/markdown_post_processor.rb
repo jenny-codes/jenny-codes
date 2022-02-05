@@ -1,10 +1,11 @@
-module MarkdownPostProcessor
+# frozen_string_literal: true
 
+module MarkdownPostProcessor
   module_function
 
   def get_html_from_md(input)
     html_raw = Redcarpet::Markdown.new(
-      CustomHtmlRender, 
+      CustomHtmlRender,
       fenced_code_blocks: true,
       strikethrough: true,
       autolink: true
@@ -22,7 +23,7 @@ module MarkdownPostProcessor
   end
 
   def post_body_for(html)
-    # remove 
+    # remove
     # 1. title
     # 2. first paragraph (description)
     # 3. blank leading paragraphs
@@ -38,9 +39,9 @@ module MarkdownPostProcessor
   def post_tag_names_for(html)
     html.search('h5').map(&:text)
   end
- 
+
   class CustomHtmlRender < ::Redcarpet::Render::HTML
-    def image(link, title, alt_text)
+    def image(link, _title, alt_text)
       %(<img alt="#{alt_text}" class="lazy img-fluid" data-src="#{link}">)
     end
 

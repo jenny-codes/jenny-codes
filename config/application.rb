@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails/all'
@@ -9,16 +11,12 @@ Bundler.require(*Rails.groups)
 module Jennycodes
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration can go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded after loading
-    # the framework and any gems in your application.
-    
-    config.time_zone = "Taipei"
+    config.load_defaults 7.0
+
+    config.time_zone = 'Taipei'
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
     config.assets.paths << Rails.root.join('vendor', 'assets', 'fonts')
-    config.assets.precompile += %w(.jpeg .jpg .ttc)
+    config.assets.precompile += %w[.jpeg .jpg .ttc]
   end
 end
