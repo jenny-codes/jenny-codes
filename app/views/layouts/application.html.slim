@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title = @post&.title || 'Jenny Shih'
+    title = @post ? "#{@post.title} | Code charms me" : 'Jenny Shih 施靜樺'
     = csrf_meta_tags
     = csp_meta_tag
 
@@ -25,7 +25,7 @@ html
     meta property="og:description" content="Jenny Shih website"
 
     / Favicon
-    = favicon_link_tag asset_path('favicon.ico')    
+    = favicon_link_tag asset_path('favicon.ico')
 
     - if content_for?(:head)
       = yield(:head)
