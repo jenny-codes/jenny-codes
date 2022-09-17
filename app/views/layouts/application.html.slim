@@ -10,6 +10,9 @@ html
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload', async: Rails.env.production?
 
+    / Cursor effect. OMG so much fun. https://github.com/tholman/cursor-effects
+    = javascript_include_tag "https://unpkg.com/cursor-effects@latest/dist/browser.js"
+
     / Google Fonts: Noto Serif & Nunito
     = stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Noto+Serif:400,400i,700|Nunito:400,700|Noto+Serif+TC&amp;subset=chinese-traditional'
 
@@ -38,3 +41,6 @@ html
           = yield(:container)
         = flash_messages
         = yield
+
+javascript:
+  new cursoreffects.emojiCursor({emoji: ["🐥"]});

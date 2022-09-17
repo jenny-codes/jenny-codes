@@ -25,7 +25,6 @@ $(document).on('ready', function() {
   window.lazyLoadInit();
 });
 
-
 window.lazyLoadInit = function(){
   $('.lazy').Lazy({
     effect: "fadeIn",
