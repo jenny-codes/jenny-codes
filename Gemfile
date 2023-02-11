@@ -42,9 +42,6 @@ gem 'friendly_id', '~> 5.2.4'
 # Markdown to HTML converter
 gem 'redcarpet'
 
-# Monitoring
-gem 'newrelic_rpm'
-
 group :test, :development do
   gem 'rubocop'
   gem 'ruby-lsp'
