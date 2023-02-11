@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'models/post'
-require 'adapters/posts_repo'
+require 'model/post'
+require 'adapter/posts_repo'
 
 path = "#{Rails.root}/lib/assets/posts.json"
 posts = JSON.parse(File.read(path), symbolize_names: true).map do |post_hash|

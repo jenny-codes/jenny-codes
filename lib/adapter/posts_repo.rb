@@ -31,12 +31,12 @@ module Adapter
     end
 
     def next_of(id)
-      next_index = T.must(@posts.index { _1.id == id }) + 1
+      next_index = @posts.index { _1.id == id } + 1
       next_index == @posts.count ? @posts.first : @posts[next_index]
     end
 
     def prev_of(id)
-      prev_index = T.must(@posts.index { _1.id == id }) - 1
+      prev_index = @posts.index { _1.id == id } - 1
       prev_index == -1 ? @posts.last : @posts[prev_index]
     end
   end
