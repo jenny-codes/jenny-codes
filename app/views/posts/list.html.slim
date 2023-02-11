@@ -1,12 +1,8 @@
 .row
-  .col-md-4.form-inline
-    = link_to '新增文章', new_post_path, class: 'btn-fit btn-info'
-
-.row
   .col-md-12
     .card
       .card-header.text-white.bg-primary
-        h5 style='margin: 0;' PUBLISHED 
+        h5 style='margin: 0;' PUBLISHED
       .card-body
         table.table
           thead
@@ -23,10 +19,6 @@
                 td = link_to post.title.truncate(15), post_path(post.id)
                 td = link_to *medium_url(post)
                 td = post.updated_at.strftime('%F')
-                td.form-inline 
-                  = link_to 'edit', edit_post_path(post.id), class: 'btn-fit btn-primary'
-                  | ｜
-                  = button_to 'delete', post_path(post.id), method: 'delete', class: 'btn-fit btn-danger'
 
   .col-md-12
     .card
@@ -44,10 +36,6 @@
             - @draft.each do |post|
               tr
                 td = post.id
-                td 
+                td
                   = link_to post.title.truncate(50), post_path(post.id)
                 td = post.updated_at.strftime('%F')
-                td.form-inline 
-                  = link_to 'edit', edit_post_path(post.id), class: 'btn-fit btn-primary'
-                  | ｜
-                  = button_to 'delete', post_path(post.id), method: 'delete', class: 'btn-fit btn-danger'

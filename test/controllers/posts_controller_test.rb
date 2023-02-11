@@ -16,44 +16,19 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should get new' do
-    get new_post_url
+  test 'should get all' do
+    get all_posts_url
     assert_response :success
   end
 
-  test 'should create post' do
-    assert_difference('Post.count') do
-      post posts_url,
-           params: { post: { body: @post.body, description: @post.description, status: @post.status,
-                             title: @post.title } }
-    end
-
-    assert_redirected_to list_posts_url
+  test 'should get list' do
+    get list_posts_url
+    assert_response :success
   end
 
   test 'should show post' do
     get post_url(@post)
     assert_response :success
-  end
-
-  test 'should get edit' do
-    get edit_post_url(@post)
-    assert_response :success
-  end
-
-  test 'should update post' do
-    patch post_url(@post),
-          params: { post: { body: @post.body, description: @post.description, status: @post.status,
-                            title: @post.title } }
-    assert_redirected_to post_url(@post)
-  end
-
-  test 'should destroy post' do
-    assert_difference('Post.count', -1) do
-      delete post_url(@post)
-    end
-
-    assert_redirected_to list_posts_url
   end
 
   test 'cache works for index' do
