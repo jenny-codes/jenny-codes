@@ -116,7 +116,7 @@ class PostsController < ApplicationController
     post_params = params.require(:post).permit(:title, :body, :status, :description, :medium_url, :slug)
 
     tags = tag_params
-    post_params.merge!(tags: tags) if tags
+    post_params.merge!(tags:) if tags
 
     post_params
   end

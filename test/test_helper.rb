@@ -12,7 +12,7 @@ module ActiveSupport
     def assert_db_queries(expected_hits, &block)
       queries = []
 
-      counter_f = ->(_name, _started, _finished, _unique_id, payload) do
+      counter_f = lambda do |_name, _started, _finished, _unique_id, payload|
         queries << payload[:sql] unless payload[:name].in? %w[CACHE SCHEMA]
       end
 
@@ -26,7 +26,7 @@ module ActiveSupport
     def assert_cache_queries(expected_hits, &block)
       queries = []
 
-      counter_f = ->(_name, _started, _finished, _unique_id, payload) do
+      counter_f = lambda do |_name, _started, _finished, _unique_id, payload|
         queries << payload[:key] if payload[:hit]
       end
 
