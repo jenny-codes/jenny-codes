@@ -5,11 +5,12 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.0'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 7.0.4'
-# Use postgresql as the database for Active Record
-gem 'pg', '~> 1.4', '>= 1.4.5'
-# gem 'pg', '>= 0.18', '< 2.0'
+gem "actionpack", '~> 7.0.4'
+gem "actionview", '~> 7.0.4'
+gem "activesupport", '~> 7.0.4'
+gem "railties", '~> 7.0.4'
+# gem "sprockets-rails"
+
 # Use Puma as the app server
 gem 'puma', '~> 5.0'
 # Use SCSS for stylesheets
@@ -34,10 +35,6 @@ gem 'jquery-rails'
 
 # authentication
 gem 'figaro'
-
-# use slug for post url
-gem 'babosa'
-gem 'friendly_id', '~> 5.2.4'
 
 # Markdown to HTML converter
 gem 'redcarpet'

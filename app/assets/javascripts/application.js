@@ -12,9 +12,8 @@
 //
 //= require jquery
 //= require rails-ujs
-//= require popper 
+//= require popper
 //= require bootstrap
-//= require activestorage
 //= require jquery-lazy
 //= require clean-blog
 //= require turbolinks
