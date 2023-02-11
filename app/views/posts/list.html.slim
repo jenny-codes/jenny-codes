@@ -17,7 +17,7 @@
               tr
                 td = post.id
                 td = link_to post.title.truncate(15), post_path(post.id)
-                td = link_to *medium_url(post)
+                td = link_to post.medium_url
                 td = post.updated_at.strftime('%F')
 
   .col-md-12

@@ -11,10 +11,9 @@ class PostsController < ApplicationController
   # Default view, now only when tag is clicked
   def index
     @posts_in_pages = cache('post_index', tag: params[:tag] || 'none') do
-      posts_rel = Post.includes(:tags).published.recent
-      posts_rel = posts_rel.where(tags: { text: params[:tag] }) if params[:tag]
+      posts = PostArchive.list_published_order_by_id_desc(params[:tag])
 
-      posts_rel.in_groups_of(POSTS_PER_PAGE, false)
+      posts.in_groups_of(POSTS_PER_PAGE, false)
     end
 
     @pagination = {
@@ -28,7 +27,7 @@ class PostsController < ApplicationController
   # Simplified view
   def all
     @posts = cache('post_all') do
-      Post.published.recent.to_a
+      PostArchive.list_published_order_by_id_desc
     end
 
     expires_in(10.minutes, public: true)
@@ -36,15 +35,17 @@ class PostsController < ApplicationController
 
   # Internal view
   def list
-    @posts = Post.published.recent
-    @draft = Post.draft
+    @posts = PostArchive.list_published_order_by_id_desc
+    @draft = PostArchive.list_draft_order_by_id_desc
   end
 
   def show
+    raise 'need to support id field' if /^\d+$/.match?(params[:id])
+
     @post, @adjacent_posts = cache('post_show', id: params[:id]) do
-      current_post = Post.includes(:tags).friendly.find(params[:id])
-      next_post    = current_post.next
-      prev_post    = current_post.previous
+      current_post = PostArchive.find_by_slug(params[:id])
+      next_post    = PostArchive.next_of(current_post.id)
+      prev_post    = PostArchive.prev_of(current_post.id)
       [current_post, { next: next_post, prev: prev_post }]
     end
 

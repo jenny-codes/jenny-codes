@@ -5,10 +5,10 @@
     /Pager
     .clearfix
       - if @pagination[:curr_page] > 1
-        = link_to root_path(page: @pagination[:curr_page] - 1), class: 'float-left' do
-          i.fas.fa-chevron-left 
+        = link_to posts_path(page: @pagination[:curr_page] - 1), class: 'float-left' do
+          i.fas.fa-chevron-left
           span.btn Previous
       - if @pagination[:curr_page] < @pagination[:total_pages]
-        = link_to root_path(page: @pagination[:curr_page] + 1), class: 'float-right' do
+        = link_to posts_path(page: @pagination[:curr_page] + 1), class: 'float-right' do
           span.btn Next
           i.fas.fa-chevron-right

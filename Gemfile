@@ -5,10 +5,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.0'
 
-gem "actionpack", '~> 7.0.4'
-gem "actionview", '~> 7.0.4'
-gem "activesupport", '~> 7.0.4'
-gem "railties", '~> 7.0.4'
+gem 'actionpack', '~> 7.0.4'
+gem 'actionview', '~> 7.0.4'
+gem 'activesupport', '~> 7.0.4'
+gem 'railties', '~> 7.0.4'
 # gem "sprockets-rails"
 
 # Use Puma as the app server
