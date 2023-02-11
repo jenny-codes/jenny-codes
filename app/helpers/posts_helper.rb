@@ -3,7 +3,7 @@
 module PostsHelper
   def medium_url(post)
     if post.medium_url.present?
-      if url = URI.decode(post.medium_url).match(%r{(?<=shih/).*})
+      if (url = URI.decode(post.medium_url).match(%r{(?<=shih/).*}))
         [url[0].truncate(20), post.medium_url]
       end
     else

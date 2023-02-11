@@ -44,3 +44,8 @@ gem 'redcarpet'
 
 # Monitoring
 gem 'newrelic_rpm'
+
+group :test, :development do
+  gem 'rubocop'
+  gem 'ruby-lsp'
+end
