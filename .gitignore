@@ -32,3 +32,5 @@
 
 # Ignore asdf config
 .tool-versions
+
+settings.json
