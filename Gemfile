@@ -42,4 +42,7 @@ gem 'redcarpet'
 group :test, :development do
   gem 'rubocop'
   gem 'ruby-lsp'
+  gem 'sorbet'
+  gem 'sorbet-runtime'
+  gem 'tapioca', require: false
 end
