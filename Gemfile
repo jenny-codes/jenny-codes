@@ -9,7 +9,6 @@ gem "actionpack", "~> 7.0.4"
 gem "actionview", "~> 7.0.4"
 gem "activesupport", "~> 7.0.4"
 gem "railties", "~> 7.0.4"
-# gem "sprockets-rails"
 
 # Use Puma as the app server
 gem "puma", "~> 5.0"
