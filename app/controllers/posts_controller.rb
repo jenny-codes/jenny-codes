@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 class PostsController < ApplicationController
-  before_action :authenticate,    except: [:index, :all, :show]
+  before_action :authenticate, except: [:index, :all, :show]
 
   USERS = { ENV["admin_username"] => ENV["admin_password"] }.freeze
   POSTS_PER_PAGE = 10

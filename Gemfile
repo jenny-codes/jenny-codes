@@ -24,9 +24,6 @@ gem "slim-rails"
 gem "bootstrap", ">= 4.3.1"
 gem "jquery-rails"
 
-# authentication
-gem "figaro"
-
 # Markdown to HTML converter
 gem "redcarpet"
 
