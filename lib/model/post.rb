@@ -2,11 +2,20 @@
 # frozen_string_literal: true
 
 module Model
-  POST_ATTRS = [
-    :id, :title, :body, :status, :description, :created_at, :updated_at, :slug, :medium_url, :tags,
-  ].freeze
+  PostShape = Data.define(
+    :id,
+    :title,
+    :body,
+    :status,
+    :description,
+    :created_at,
+    :updated_at,
+    :slug,
+    :medium_url,
+    :tags,
+  )
 
-  class Post < Data.define(*POST_ATTRS)
+  class Post < PostShape
     STATUS_DRAFT = "draft"
     STATUS_PUBLISHED = "published"
     STATUS_OF = {

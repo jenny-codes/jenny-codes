@@ -1,8 +1,11 @@
 gem:
   # Add your `gem` command parameters here:
   #
-  # exclude:
-  # - gem_name
+  exclude:
+  - bootstrap
+  - sassc-rails
+  - sprockets
+  - sprockets-rails
   # doc: true
   # workers: 5
 dsl:
