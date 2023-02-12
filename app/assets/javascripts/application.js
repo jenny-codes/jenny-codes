@@ -11,15 +11,12 @@
 // about supported directives.
 //
 //= require jquery
-//= require rails-ujs
 //= require popper
 //= require bootstrap
 //= require jquery-lazy
 //= require clean-blog
-//= require turbolinks
 //= require prism
 
-// $(document).on('turbolinks:load', function() {
 $(document).on('ready', function() {
   window.lazyLoadInit();
 });
