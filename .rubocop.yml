@@ -1,14 +1,14 @@
-Metrics/BlockLength:
-  Enabled: false
-Metrics/MethodLength:
-  Enabled: false
-Metrics/ClassLength:
-  Enabled: false
-Metrics/AbcSize:
-  Enabled: false
-Style/Documentation:
-  Enabled: false
-Style/MixinUsage:
-  Enabled: false
-Lint/UriEscapeUnescape:
-  Enabled: false
+inherit_gem:
+  rubocop-shopify: rubocop.yml
+
+require:
+ - rubocop-sorbet
+ - rubocop-minitest
+
+AllCops:
+  NewCops: disable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.2
+  Exclude:
+  - "vendor/**/*"
+  - "test/fixtures/**/*"

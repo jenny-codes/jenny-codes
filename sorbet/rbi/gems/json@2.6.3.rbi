@@ -587,6 +587,8 @@ end
 #     Without custom addition:  "#<Foo:0x0000000006534e80>" (String)
 #     With custom addition:     #<Foo:0x0000000006473bb8 @bar=0, @baz=1> (Foo)
 module JSON
+  extend ::Bootsnap::CompileCache::JSON::Patch
+
   private
 
   # :call-seq:
@@ -1272,17 +1274,6 @@ module JSON
     def load_default_options=(_arg0); end
 
     # :call-seq:
-    #   JSON.load_file(path, opts={}) -> object
-    #
-    # Calls:
-    #   parse(File.read(path), opts)
-    #
-    # See method #parse.
-    #
-    # source://json//json/common.rb#245
-    def load_file(filespec, opts = T.unsafe(nil)); end
-
-    # :call-seq:
     #   JSON.load_file!(path, opts = {})
     #
     # Calls:
@@ -1506,11 +1497,6 @@ JSON::State = JSON::Ext::Generator::State
 # source://json//json/common.rb#159
 JSON::UnparserError = JSON::GeneratorError
 
-# Since Ruby is very dynamic, methods added to the ancestors of
-# BlankSlate <em>after BlankSlate is defined</em> will show up in the
-# list of available BlankSlate methods.  We handle this by defining a
-# hook in the Object and Kernel classes that will hide any method
-# defined after BlankSlate has been loaded.
 module Kernel
   private
 
