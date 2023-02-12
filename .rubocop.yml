@@ -12,3 +12,4 @@ AllCops:
   Exclude:
   - "vendor/**/*"
   - "test/fixtures/**/*"
+  - "bin/*"

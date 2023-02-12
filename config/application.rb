@@ -1,12 +1,13 @@
+# typed: false
 # frozen_string_literal: true
 
-require_relative 'boot'
+require_relative "boot"
 
-%w[
-  rails
-  action_controller/railtie
-  action_view/railtie
-  rails/test_unit/railtie
+[
+  "rails",
+  "action_controller/railtie",
+  "action_view/railtie",
+  "rails/test_unit/railtie",
 ].each { |railtie| require railtie }
 
 # Require the gems listed in Gemfile, including any gems
@@ -16,12 +17,12 @@ Bundler.require(*Rails.groups)
 module Jennycodes
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults(7.0)
 
-    config.time_zone = 'Taipei'
-    config.autoload_paths << Rails.root.join('lib')
-    config.eager_load_paths << Rails.root.join('lib')
-    config.assets.paths << Rails.root.join('vendor', 'assets', 'fonts')
-    config.assets.precompile += %w[.jpeg .jpg .ttc]
+    config.time_zone = "Taipei"
+    config.autoload_paths << Rails.root.join("lib")
+    config.eager_load_paths << Rails.root.join("lib")
+    config.assets.paths << Rails.root.join("vendor", "assets", "fonts")
+    config.assets.precompile += [".jpeg", ".jpg", ".ttc"]
   end
 end

@@ -1,8 +1,9 @@
+# typed: false
 # frozen_string_literal: true
 
-ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-require 'rails/test_help'
+ENV["RAILS_ENV"] ||= "test"
+require_relative "../config/environment"
+require "rails/test_help"
 
 module ActiveSupport
   class TestCase
@@ -13,14 +14,14 @@ module ActiveSupport
       queries = []
 
       counter_f = lambda do |_name, _started, _finished, _unique_id, payload|
-        queries << payload[:sql] unless payload[:name].in? %w[CACHE SCHEMA]
+        queries << payload[:sql] unless payload[:name].in?(["CACHE", "SCHEMA"])
       end
 
-      ActiveSupport::Notifications.subscribed(counter_f, 'sql.active_record', &block)
+      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
 
       actual_queries = "Queries performed:\n#{queries.join("\n")}"
 
-      assert_equal expected_hits, queries.count, actual_queries
+      assert_equal(expected_hits, queries.count, actual_queries)
     end
 
     def assert_cache_queries(expected_hits, &block)
@@ -30,11 +31,11 @@ module ActiveSupport
         queries << payload[:key] if payload[:hit]
       end
 
-      ActiveSupport::Notifications.subscribed(counter_f, 'cache_read.active_support', &block)
+      ActiveSupport::Notifications.subscribed(counter_f, "cache_read.active_support", &block)
 
       actual_queries = "Queries performed:\n#{queries.join("\n")}"
 
-      assert_equal expected_hits, queries.count, actual_queries
+      assert_equal(expected_hits, queries.count, actual_queries)
     end
   end
 end

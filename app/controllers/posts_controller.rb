@@ -1,16 +1,17 @@
+# typed: false
 # frozen_string_literal: true
 
 class PostsController < ApplicationController
-  before_action :authenticate,    except: %i[index all show]
+  before_action :authenticate,    except: [:index, :all, :show]
 
-  USERS = { ENV['admin_username'] => ENV['admin_password'] }.freeze
+  USERS = { ENV["admin_username"] => ENV["admin_password"] }.freeze
   POSTS_PER_PAGE = 10
 
   include Caching
 
   # Default view, now only when tag is clicked
   def index
-    @posts_in_pages = cache('post_index', tag: params[:tag] || 'none') do
+    @posts_in_pages = cache("post_index", tag: params[:tag] || "none") do
       posts = PostArchive.list_published_order_by_id_desc(params[:tag])
 
       posts.in_groups_of(POSTS_PER_PAGE, false)
@@ -18,7 +19,7 @@ class PostsController < ApplicationController
 
     @pagination = {
       curr_page: params[:page].try(:to_i) || 1,
-      total_pages: @posts_in_pages.count
+      total_pages: @posts_in_pages.count,
     }
 
     expires_in(10.minutes, public: true)
@@ -26,7 +27,7 @@ class PostsController < ApplicationController
 
   # Simplified view
   def all
-    @posts = cache('post_all') do
+    @posts = cache("post_all") do
       PostArchive.list_published_order_by_id_desc
     end
 
@@ -40,9 +41,9 @@ class PostsController < ApplicationController
   end
 
   def show
-    raise 'need to support id field' if /^\d+$/.match?(params[:id])
+    raise "need to support id field" if /^\d+$/.match?(params[:id])
 
-    @post, @adjacent_posts = cache('post_show', id: params[:id]) do
+    @post, @adjacent_posts = cache("post_show", id: params[:id]) do
       current_post = PostArchive.find_by_slug(params[:id])
       next_post    = PostArchive.next_of(current_post.id)
       prev_post    = PostArchive.prev_of(current_post.id)

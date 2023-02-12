@@ -1,6 +1,7 @@
+# typed: false
 # frozen_string_literal: true
 
-require 'test_helper'
+require "test_helper"
 
 class PostsControllerTest < ActionDispatch::IntegrationTest
   setup do
@@ -11,27 +12,27 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     Rails.cache.clear
   end
 
-  test 'should get index' do
+  test "should get index" do
     get posts_url
     assert_response :success
   end
 
-  test 'should get all' do
+  test "should get all" do
     get all_posts_url
     assert_response :success
   end
 
-  test 'should get list' do
+  test "should get list" do
     get list_posts_url
     assert_response :success
   end
 
-  test 'should show post' do
+  test "should show post" do
     get post_url(@post)
     assert_response :success
   end
 
-  test 'cache works for index' do
+  test "cache works for index" do
     get posts_url
 
     assert_db_queries(0) do
@@ -41,7 +42,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'cache works for post_all' do
+  test "cache works for post_all" do
     get all_posts_url
 
     assert_db_queries(0) do
@@ -51,7 +52,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'cache works for post_show' do
+  test "cache works for post_show" do
     get post_url(@post)
 
     assert_db_queries(0) do

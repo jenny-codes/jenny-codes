@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 module Adapter
@@ -10,10 +11,10 @@ module Adapter
 
     def list_published_order_by_id_desc(tag: nil)
       select_fn = if tag && !tag.empty?
-                    ->(post) { post.status == Model::Post::STATUS_PUBLISHED && post.tags.include?(tag) }
-                  else
-                    ->(post) { post.status == Model::Post::STATUS_PUBLISHED }
-                  end
+        ->(post) { post.status == Model::Post::STATUS_PUBLISHED && post.tags.include?(tag) }
+      else
+        ->(post) { post.status == Model::Post::STATUS_PUBLISHED }
+      end
 
       @posts.select(&select_fn).reverse
     end
