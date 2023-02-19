@@ -12,7 +12,7 @@ class PostsController < ApplicationController
   # Default view, now only when tag is clicked
   def index
     @posts_in_pages = cache("post_index", tag: params[:tag] || "none") do
-      posts = PostArchive.list_published_order_by_id_desc(params[:tag])
+      posts = PostArchive.list_published_order_by_id_desc(tag: params[:tag])
 
       posts.in_groups_of(POSTS_PER_PAGE, false)
     end

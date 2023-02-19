@@ -26,8 +26,9 @@ gem "jquery-rails"
 # Markdown to HTML converter
 gem "redcarpet"
 
+gem "sorbet-static-and-runtime", "~> 0.5.10658"
+
 group :test, :development do
-  gem "sorbet-static-and-runtime", "~> 0.5.10658"
   gem "ruby-lsp"
   gem "tapioca", require: false
 

@@ -1,6 +1,8 @@
 # typed: true
 # frozen_string_literal: true
 
+# This is needed because this class is used at application initialization
+require "sorbet-runtime"
 module Adapter
   class PostsRepo
     extend T::Sig
@@ -9,23 +11,23 @@ module Adapter
 
     sig { params(posts: T::Array[Model::Post]).void }
     def initialize(posts)
-      @posts = posts.sort_by(&:id)
+      @posts = posts.sort_by(&:id).reverse
     end
 
     sig { params(tag: T.nilable(String)).returns(T::Array[Model::Post]) }
     def list_published_order_by_id_desc(tag: nil)
       select_fn = if tag && !tag.empty?
-        ->(post) { post.status == Model::Post::STATUS_PUBLISHED && post.tags.include?(tag) }
+        ->(post) { post.published? && post.tags.include?(tag) }
       else
-        ->(post) { post.status == Model::Post::STATUS_PUBLISHED }
+        ->(post) { post.published? }
       end
 
-      @posts.select(&select_fn).reverse
+      @posts.select(&select_fn)
     end
 
     sig { returns(T::Array[Model::Post]) }
     def list_draft_order_by_id_desc
-      @posts.select { _1.status == Model::Post::STATUS_DRAFT }.reverse
+      @posts.select(&:draft?)
     end
 
     sig { params(id: Integer).returns(T.any(Model::Post, RecordNotFound)) }

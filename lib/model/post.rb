@@ -16,11 +16,38 @@ module Model
   )
 
   class Post < PostShape
-    STATUS_DRAFT = "draft"
-    STATUS_PUBLISHED = "published"
-    STATUS_OF = {
-      0 => STATUS_DRAFT,
-      1 => STATUS_PUBLISHED,
-    }.freeze
+    class Status
+      DRAFT = "draft"
+      PUBLISHED = "published"
+
+      class << self
+        def valid?(status)
+          [DRAFT, PUBLISHED].include?(status)
+        end
+      end
+    end
+
+    def published?
+      status == Status::PUBLISHED
+    end
+
+    def draft?
+      status == Status::DRAFT
+    end
+
+    def to_json(opts)
+      {
+        id: id,
+        title: title,
+        status: status,
+        description: description,
+        created_at: created_at,
+        updated_at: updated_at,
+        slug: slug,
+        medium_url: medium_url,
+        tags: tags,
+        body: body,
+      }.to_json(opts)
+    end
   end
 end
