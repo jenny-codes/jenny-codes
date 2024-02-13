@@ -8,8 +8,8 @@ class ApplicationController < ActionController::Base
   private
 
   def ensure_domain
-    return if Rails.env.development? || Rails.env.test? || request.env["HTTP_HOST"] == "codecharms.me"
+    return if Rails.env.development? || Rails.env.test? || request.env["HTTP_HOST"] == "jenny.sh"
 
-    redirect_to("https://codecharms.me#{request.env["REQUEST_PATH"]}", status: 301)
+    redirect_to("https://jenny.sh#{request.env["REQUEST_PATH"]}", status: 301)
   end
 end
