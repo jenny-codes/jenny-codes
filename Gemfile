@@ -11,7 +11,7 @@ gem "activesupport", "~> 7.0.4"
 gem "railties", "~> 7.0.4"
 
 # Use Puma as the app server
-gem "puma", "~> 5.0"
+gem "puma", "~> 6.0"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", ">= 1.1.0", require: false
 
