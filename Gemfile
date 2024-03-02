@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.3.0"
 
-gem "actionpack", "~> 7.0.4"
+gem "actionpack", "~> 7.0.8"
 gem "actionview", "~> 7.0.4"
 gem "activesupport", "~> 7.0.4"
 gem "railties", "~> 7.0.4"
