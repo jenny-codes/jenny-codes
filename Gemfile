@@ -7,7 +7,7 @@ ruby "3.3.0"
 
 gem "actionpack", "~> 7.0.4"
 gem "actionview", "~> 7.0.4"
-gem "activesupport", "~> 7.0.4"
+gem "activesupport", "~> 7.0.7"
 gem "railties", "~> 7.0.4"
 
 # Use Puma as the app server
