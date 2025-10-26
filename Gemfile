@@ -3,10 +3,12 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-gem "actionpack", "~> 7.1.3", ">= 7.1.3.4"
-gem "actionview", "~> 7.1.3", ">= 7.1.3.4"
-gem "activesupport", "~> 7.1.3", ">= 7.1.3.4"
-gem "railties", "~> 7.1.3", ">= 7.1.3.4"
+ruby "3.3.4"
+
+gem "actionpack", "~> 8.0"
+gem "actionview", "~> 8.0"
+gem "activesupport", "~> 8.0"
+gem "railties", "~> 8.0"
 
 # Use Puma as the app server
 gem "puma", "~> 6.0"
@@ -18,8 +20,9 @@ gem "tzinfo-data"
 gem "slim"
 gem "slim-rails"
 
-gem "bootstrap", ">= 4.3.1"
-gem "jquery-rails"
+gem "propshaft"
+gem "cssbundling-rails"
+gem "jsbundling-rails"
 
 # Markdown to HTML converter
 gem "redcarpet"

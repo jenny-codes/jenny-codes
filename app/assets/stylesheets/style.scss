@@ -1,7 +1,7 @@
-@import "variables.scss";
-@import "mixins.scss";
-@import "bootstrap-overrides.scss";
-@import "bootstrap";
+@import "variables";
+@import "mixins";
+@import "bootstrap-overrides";
+@import "bootstrap/scss/bootstrap";
 @import "clean-blog";
 
 .page-heading {

@@ -1,5 +1,18 @@
 {
   "name": "jennycodes",
   "private": true,
-  "dependencies": {}
+  "engines": {
+    "node": "22.11.0"
+  },
+  "scripts": {
+    "build": "esbuild app/javascript/application.js --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
+    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3",
+    "esbuild": "^0.25.11",
+    "jquery": "^3.7.1",
+    "jquery-lazy": "^1.7.11",
+    "sass": "^1.93.2"
+  }
 }

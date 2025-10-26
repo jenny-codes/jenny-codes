@@ -3,6 +3,14 @@ name: ruby-lsp
 type: ruby
 
 up:
-  - ruby: '3.0'
+  - ruby: '3.4'
   - bundler:
       gemfile: Gemfile
+  - node:
+      version: v22.11.0
+
+commands:
+  server:
+    desc: 'Start Rails with JS/CSS bundler watchers'
+    aliases: [s]
+    run: bin/dev
