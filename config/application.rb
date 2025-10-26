@@ -17,11 +17,11 @@ Bundler.require(*Rails.groups)
 module Jennycodes
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults(7.0)
+    config.load_defaults(7.1)
 
     config.time_zone = "Taipei"
-    config.autoload_paths << Rails.root.join("lib")
-    config.eager_load_paths << Rails.root.join("lib")
+    config.autoload_lib(ignore: %w[assets tasks])
+    config.active_support.cache_format_version = 7.1
     config.assets.paths << Rails.root.join("vendor", "assets", "fonts")
     config.assets.precompile += [".jpeg", ".jpg", ".ttc"]
   end

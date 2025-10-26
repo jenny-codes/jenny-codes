@@ -3,12 +3,10 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.3.0"
-
-gem "actionpack", "~> 7.0.4"
-gem "actionview", "~> 7.0.4"
-gem "activesupport", "~> 7.0.4"
-gem "railties", "~> 7.0.4"
+gem "actionpack", "~> 7.1.3", ">= 7.1.3.4"
+gem "actionview", "~> 7.1.3", ">= 7.1.3.4"
+gem "activesupport", "~> 7.1.3", ">= 7.1.3.4"
+gem "railties", "~> 7.1.3", ">= 7.1.3.4"
 
 # Use Puma as the app server
 gem "puma", "~> 6.0"
@@ -26,7 +24,7 @@ gem "jquery-rails"
 # Markdown to HTML converter
 gem "redcarpet"
 
-gem "sorbet-static-and-runtime", "~> 0.5.10658"
+gem "sorbet-static-and-runtime", "~> 0.6.0", ">= 0.6.12665"
 
 group :test, :development do
   gem "ruby-lsp"
