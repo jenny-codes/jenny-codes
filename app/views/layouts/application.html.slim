@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title = @post ? "#{@post.title} | Code charms me" : 'Jenny Shih 施靜樺'
+    title = @post ? @post.title : 'Jenny Shih 施靜樺'
     = csrf_meta_tags
     = csp_meta_tag
 
@@ -23,7 +23,7 @@ html
     / Better thumbnail (Open Graph Protocol)
     meta property="og:title" content="Jenny Shih"
     meta property="og:type" content="website"
-    meta property="og:description" content="Jenny Shih website"
+    meta property="og:description" content="Building, learning, and occasionally making jokes that are actually funny"
 
     / Favicon
     = favicon_link_tag asset_path('favicon.ico')
