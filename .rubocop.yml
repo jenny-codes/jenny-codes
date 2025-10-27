@@ -1,14 +1,10 @@
-inherit_gem:
-  rubocop-shopify: rubocop.yml
-
-require:
+plugins:
  - rubocop-sorbet
  - rubocop-minitest
 
 AllCops:
   NewCops: disable
   SuggestExtensions: false
-  TargetRubyVersion: 3.3
   Exclude:
   - "vendor/**/*"
   - "test/fixtures/**/*"
