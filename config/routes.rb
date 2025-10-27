@@ -18,4 +18,5 @@ Rails.application.routes.draw do
   get "chloe", to: "statics#chloe"
 
   get "advent", to: "advent#index"
+  post "advent/check_in", to: "advent#check_in"
 end

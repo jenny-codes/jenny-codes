@@ -2,5 +2,6 @@
   .col-lg-8.col-md-10.mx-auto 
     p Wah. Welcome to #{@today}. #{@days_left} days left.
     p #{@prompt}
+    = button_to "Check in", advent_check_in_path, method: :post, class: "btn btn-primary mt-4"
 
 .row style='margin-bottom: 150px;'
