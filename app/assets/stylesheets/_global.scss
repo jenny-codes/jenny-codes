@@ -1,3 +1,6 @@
+@use "./mixins" as *;
+@use "./variables" as *;
+
 // Global styling for this template
 body {
   font-size: 18px;

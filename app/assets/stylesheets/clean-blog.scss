@@ -1,4 +1,4 @@
-@import "global.scss";
-@import "navbar.scss";
-@import "post.scss";
-@import "footer.scss";
+@use "./global";
+@use "./navbar";
+@use "./post";
+@use "./footer";

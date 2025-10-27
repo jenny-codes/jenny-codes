@@ -1,3 +1,6 @@
+@use "./mixins" as *;
+@use "./variables" as *;
+
 // Styling for the post page
 .post-preview {
   text-decoration: none;

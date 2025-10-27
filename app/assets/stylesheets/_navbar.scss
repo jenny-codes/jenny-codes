@@ -1,3 +1,7 @@
+@use "sass:color";
+@use "./mixins" as *;
+@use "./variables" as *;
+
 // Styling for the navbar
 #mainNav {
   position: absolute;
@@ -33,7 +37,7 @@
       color: $black;
       &:focus,
       &:hover {
-        color: fade-out($black, .2);
+        color: color.adjust($black, $alpha: -0.2);
       }
     }
     .navbar-nav {
@@ -43,7 +47,7 @@
           color: $black;
           &:focus,
           &:hover {
-            color: fade-out($black, .2);
+            color: color.adjust($black, $alpha: -0.2);
           }
         }
       }
@@ -67,8 +71,8 @@
       -webkit-transition: -webkit-transform 0.2s;
       -moz-transition: -moz-transform 0.2s;
       transition: transform 0.2s;
-      border-bottom: 1px solid darken($white, .05);
-      background-color: fade-out($white, .1);
+      border-bottom: 1px solid color.adjust($white, $lightness: -5%);
+      background-color: color.adjust($white, $alpha: -0.1);
       .navbar-brand {
         color: $gray-900;
         &:focus,
