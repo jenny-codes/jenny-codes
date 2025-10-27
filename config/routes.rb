@@ -16,4 +16,6 @@ Rails.application.routes.draw do
 
   get "limuy", to: "statics#limuy"
   get "chloe", to: "statics#chloe"
+
+  get "advent", to: "advent#index"
 end
