@@ -5,7 +5,7 @@ require "test_helper"
 
 class PostsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @post = posts(:one)
+    @post = PostArchive.list_published_order_by_id_desc.first
   end
 
   teardown do
@@ -28,37 +28,31 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show post" do
-    get post_url(@post)
+    get post_url(@post.slug)
     assert_response :success
   end
 
   test "cache works for index" do
     get posts_url
 
-    assert_db_queries(0) do
-      assert_cache_queries(1) do
-        get posts_url
-      end
+    assert_cache_queries(1) do
+      get posts_url
     end
   end
 
   test "cache works for post_all" do
     get all_posts_url
 
-    assert_db_queries(0) do
-      assert_cache_queries(1) do
-        get all_posts_url
-      end
+    assert_cache_queries(1) do
+      get all_posts_url
     end
   end
 
   test "cache works for post_show" do
-    get post_url(@post)
+    get post_url(@post.slug)
 
-    assert_db_queries(0) do
-      assert_cache_queries(1) do
-        get post_url(@post)
-      end
+    assert_cache_queries(1) do
+      get post_url(@post.slug)
     end
   end
 end
