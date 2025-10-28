@@ -10,7 +10,7 @@ class AdventController < ApplicationController
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
     @seconds_until_midnight = @calendar.seconds_until_midnight
-    render @calendar.template
+    render 'advent/index', locals: layout_locals
   end
 
   def check_in
@@ -24,5 +24,16 @@ class AdventController < ApplicationController
     @today = Date.today
     @calendar = Adapter::AdventCalendar.on(@today)
     @advent_year = Adapter::AdventCalendar::END_DATE.year
+  end
+
+  def layout_locals
+    if @calendar.checked_in?
+      { main_partial: 'advent/panels/after_main', primary_action: nil }
+    else
+      {
+        main_partial: 'advent/panels/before_main',
+        primary_action: view_context.button_to('Check in', advent_check_in_path, method: :post, class: 'advent-button')
+      }
+    end
   end
 end

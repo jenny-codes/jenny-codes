@@ -13,7 +13,8 @@ const initializeAdventCountdown = (root) => {
   const label = root.querySelector("[data-countdown-label]");
   if (!label) return;
 
-  let remainingSeconds = Number(root.dataset.remainingSeconds);
+  const rawRemaining = root.dataset.remainingSeconds ?? root.dataset['remaining_seconds'];
+  let remainingSeconds = Number(rawRemaining);
   if (Number.isNaN(remainingSeconds)) return;
   remainingSeconds = Math.max(remainingSeconds, 0);
 
@@ -34,8 +35,117 @@ const initializeAdventCountdown = (root) => {
   intervalId = window.setInterval(update, 1000);
 };
 
+function initializeTabs(consoleEl) {
+  if (!consoleEl) return;
+
+  const tabs = Array.from(consoleEl.querySelectorAll("[data-advent-tab]"));
+  const panels = Array.from(consoleEl.querySelectorAll("[data-advent-panel]"));
+
+  if (tabs.length === 0 || panels.length === 0) {
+    return;
+  }
+
+  let currentId =
+    tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.adventTab ||
+    tabs[0].dataset.adventTab;
+
+  const activate = (targetId) => {
+    if (!targetId) {
+      return;
+    }
+
+    currentId = targetId;
+
+    panels.forEach((panel) => {
+      const isMatch = panel.dataset.adventPanel === targetId;
+      panel.classList.toggle("is-hidden", !isMatch);
+    });
+
+    tabs.forEach((tab) => {
+      const isMatch = tab.dataset.adventTab === targetId;
+      tab.classList.toggle("is-active", isMatch);
+    });
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", (event) => {
+      event.preventDefault();
+      const targetId = tab.dataset.adventTab;
+
+      if (!targetId || targetId === currentId) {
+        return;
+      }
+
+      activate(targetId);
+    });
+  });
+
+  activate(currentId);
+}
+
+function initializeHeadline(consoleEl) {
+  if (!consoleEl) return;
+
+  const title = consoleEl.querySelector(".advent-title");
+  if (!title) return;
+
+  const lines = Array.from(title.querySelectorAll(".advent-title__line"));
+  if (lines.length === 0) {
+    return;
+  }
+
+  const clearTimers = (line) => {
+    if (line._typingTimeouts) {
+      line._typingTimeouts.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    }
+    line._typingTimeouts = [];
+  };
+
+  lines.forEach((line) => {
+    clearTimers(line);
+    const text = line.dataset.text || line.textContent || "";
+    line.dataset.text = text;
+    line.textContent = "";
+    line.classList.remove("is-complete");
+  });
+
+  const typeLine = (index) => {
+    if (index >= lines.length) return;
+
+    const line = lines[index];
+    const text = line.dataset.text || "";
+    const baseDelay = Number(line.dataset.speed || 65);
+    let charIndex = 0;
+
+    const schedule = (callback, delay) => {
+      const timeoutId = window.setTimeout(callback, delay);
+      line._typingTimeouts.push(timeoutId);
+      return timeoutId;
+    };
+
+    const step = () => {
+      line.textContent = text.slice(0, charIndex);
+      charIndex += 1;
+
+      if (charIndex <= text.length) {
+        schedule(step, baseDelay);
+      } else {
+        line.classList.add("is-complete");
+        schedule(() => typeLine(index + 1), 500);
+      }
+    };
+
+    schedule(step, 0);
+  };
+
+  typeLine(0);
+}
+
 const bootstrapAdvent = () => {
-  initializeAdventCountdown(document.querySelector(".advent-countdown"));
+  const root = document.querySelector(".advent-console");
+  initializeAdventCountdown(root?.querySelector(".advent-countdown"));
+  initializeTabs(root);
+  initializeHeadline(root);
 };
 
 if (document.readyState === "loading") {

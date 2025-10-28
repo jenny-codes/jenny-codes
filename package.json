@@ -6,7 +6,8 @@
   },
   "scripts": {
     "build": "esbuild app/javascript/application.js app/javascript/advent.js --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
-    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css ./app/assets/stylesheets/advent.css.scss:./app/assets/builds/advent.css --no-source-map --load-path=node_modules --quiet-deps"
+    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css ./app/assets/stylesheets/advent.css.scss:./app/assets/builds/advent.css --no-source-map --load-path=node_modules --quiet-deps",
+    "test": "playwright test"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
@@ -14,5 +15,8 @@
     "jquery": "^3.7.1",
     "jquery-lazy": "^1.7.11",
     "sass": "^1.93.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
   }
 }

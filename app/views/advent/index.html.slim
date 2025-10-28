@@ -1,0 +1,36 @@
+- active_tab = 'main'
+- primary_action ||= nil
+- main_partial ||= 'advent/panels/after_main'
+- rewards_partial ||= 'advent/panels/rewards'
+- faq_partial ||= 'advent/panels/faq'
+- panel_entries = { 'main' => main_partial, 'rewards' => rewards_partial, 'faq' => faq_partial }
+
+.advent-console
+  header.advent-header
+    .advent-title
+      span.advent-title__line data-text="Today is #{@today.strftime('%b %d, %Y')}..."
+      span.advent-title__line data-text="#{@days_left} days left to go."
+
+  nav.advent-tabs
+    - panel_entries.each_key do |tab_id|
+      - is_active = tab_id == active_tab
+      a.advent-tab href="#" data-advent-tab=tab_id class=(is_active ? 'is-active' : nil)
+        = tab_id
+
+  .advent-panels
+    - panel_entries.each do |panel_id, partial_name|
+      - is_active = panel_id == active_tab
+      section.advent-panel data-advent-panel=panel_id class=(is_active ? nil : 'is-hidden')
+        = render partial_name
+
+  - if primary_action.present?
+    .advent-action
+      == primary_action
+
+  - seconds_remaining = @seconds_until_midnight.to_i
+  - hours = seconds_remaining / 3600
+  - minutes = (seconds_remaining % 3600) / 60
+  - seconds = seconds_remaining % 60
+  - countdown_text = format('%02d:%02d:%02d left until next check-in', hours, minutes, seconds)
+  footer.advent-footer.advent-countdown data-remaining-seconds=seconds_remaining
+    = tag.span(countdown_text, data: { countdown_label: true })
