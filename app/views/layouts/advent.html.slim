@@ -10,9 +10,13 @@ html
     = javascript_include_tag 'advent', 'data-turbo-track': 'reload', type: 'module'
 
     / Better thumbnail (Open Graph Protocol)
-    meta property="og:title" content="JJ Advent Calendar"
+    meta property="og:title" content="⭐️ Advent Calendar"
     meta property="og:type" content="website"
-    meta property="og:description" content="Made for you, Joyce, with ❤️"
+    meta property="og:description" content="Wah. Made with ❤️"
+
+    / Better experience on mobile device
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+
   body class="advent-shell"
     main.advent-main
       = yield
