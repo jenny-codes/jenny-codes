@@ -4,7 +4,7 @@
 require "model/post"
 require "adapter/posts_repo"
 
-path = "#{Rails.root}/lib/assets/posts.json"
+path = "#{Rails.root}/lib/data/posts.json"
 posts = JSON.parse(File.read(path), symbolize_names: true).map do |post_hash|
   status = post_hash[:status]
   raise("Status '#{status}' for post '#{post_hash[:id]}' is not recognized.") unless Model::Post::Status.valid?(status)

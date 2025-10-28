@@ -1,0 +1,19 @@
+.advent-console
+  header.advent-header
+    h1.advent-title Advent of ... coming back home
+    p.advent-ticker 0.0.0.0:#{@advent_year}
+    p.advent-header__date #{@today.strftime('%B %d, %Y')}
+
+  section.advent-section
+    h2.advent-section__title == '== status =='
+    p.advent-section__text  Wah. You have successfully checked in #{@checkin_count} days. #{@days_left} days to go.
+    p.advent-section__text  You have #{@star_count} stars! Here, have your stars: #{"⭐️"*@star_count}
+
+  section.advent-section
+    pre.advent-prompt Welcome. This is an advent calendar I built for us. Every day you can come here and check in, sometimes as simple as pressing the button: {press and special effect of getting a star} like this. Now you have one star :) Or sometimes you will have to work for the star, for example, fill this in: {what is your mother's maiden name?} jk, your answer is useless because the moment you log into this website I have already hacked all your personal information. jk. {where do you want me to kiss you right now?} please hold while the request is being complete...{I am satisfied} {special star effect}. Every day, it will be slightly different.
+
+  .advent-action
+    = button_to "Check in", advent_check_in_path, method: :post, class: "advent-button"
+
+  footer.advent-footer
+    | Keep the streak alive. Come back tomorrow for a fresh prompt.

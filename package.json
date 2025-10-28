@@ -5,8 +5,8 @@
     "node": "22.11.0"
   },
   "scripts": {
-    "build": "esbuild app/javascript/application.js --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
-    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules"
+    "build": "esbuild app/javascript/application.js app/javascript/advent.js --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
+    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css ./app/assets/stylesheets/advent.css.scss:./app/assets/builds/advent.css --no-source-map --load-path=node_modules --quiet-deps"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",

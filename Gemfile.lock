@@ -30,10 +30,11 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    ast (2.4.2)
+    ast (2.4.3)
     base64 (0.3.0)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
-    bootsnap (1.16.0)
+    bootsnap (1.18.6)
       msgpack (~> 1.2)
     builder (3.3.0)
     concurrent-ruby (1.3.5)
@@ -42,7 +43,6 @@ GEM
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
     date (3.4.1)
-    diff-lcs (1.5.0)
     drb (2.2.3)
     erb (5.1.1)
     erubi (1.13.1)
@@ -55,29 +55,37 @@ GEM
       reline (>= 0.4.2)
     jsbundling-rails (1.3.1)
       railties (>= 6.0.0)
-    json (2.6.3)
-    language_server-protocol (3.17.0.3)
+    json (2.15.2)
+    language_server-protocol (3.17.0.5)
+    lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     minitest (5.26.0)
-    msgpack (1.6.0)
+    msgpack (1.8.0)
     netrc (0.11.0)
-    nio4r (2.7.0)
+    nio4r (2.7.4)
+    nokogiri (1.18.10-aarch64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.10-aarch64-linux-musl)
+      racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
-    parallel (1.22.1)
-    parser (3.2.1.0)
+    nokogiri (1.18.10-x86_64-linux-musl)
+      racc (~> 1.4)
+    parallel (1.27.0)
+    parser (3.3.10.0)
       ast (~> 2.4.1)
+      racc
     pp (0.6.3)
       prettyprint
-    prettier_print (1.2.0)
     prettyprint (0.2.0)
+    prism (1.6.0)
     propshaft (1.3.1)
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
@@ -85,7 +93,7 @@ GEM
     psych (5.2.6)
       date
       stringio
-    puma (6.4.2)
+    puma (6.6.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.3)
@@ -114,103 +122,113 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.0)
-    rbi (0.0.16)
-      ast
-      parser (>= 2.6.4.0)
-      sorbet-runtime (>= 0.5.9204)
-      unparser
+    rbi (0.3.7)
+      prism (~> 1.0)
+      rbs (>= 3.4.4)
+    rbs (3.9.5)
+      logger
     rdoc (6.15.0)
       erb
       psych (>= 4.0.0)
       tsort
-    redcarpet (3.6.0)
-    regexp_parser (2.7.0)
+    regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
-    rexml (3.2.5)
-    rubocop (1.45.1)
+    rexml (3.4.4)
+    rubocop (1.81.6)
       json (~> 2.3)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
       parallel (~> 1.10)
-      parser (>= 3.2.0.0)
+      parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.8, < 3.0)
-      rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.24.1, < 2.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.47.1, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.26.0)
-      parser (>= 3.2.1.0)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.47.1)
+      parser (>= 3.3.7.2)
+      prism (~> 1.4)
     rubocop-minitest (0.27.0)
       rubocop (>= 0.90, < 2.0)
-    rubocop-shopify (2.12.0)
-      rubocop (~> 1.44)
-    rubocop-sorbet (0.7.0)
-      rubocop (>= 0.90.0)
-    ruby-lsp (0.3.8)
+    rubocop-rails (2.33.4)
+      activesupport (>= 4.2.0)
+      lint_roller (~> 1.1)
+      rack (>= 1.1)
+      rubocop (>= 1.75.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
+    rubocop-sorbet (0.11.0)
+      lint_roller
+      rubocop (>= 1.75.2)
+    ruby-lsp (0.26.1)
       language_server-protocol (~> 3.17.0)
-      sorbet-runtime
-      syntax_tree (>= 5.0.0, < 6)
-    ruby-progressbar (1.11.0)
+      prism (>= 1.2, < 2.0)
+      rbs (>= 3, < 5)
+    ruby-progressbar (1.13.0)
     securerandom (0.4.1)
-    slim (4.1.0)
-      temple (>= 0.7.6, < 0.9)
-      tilt (>= 2.0.6, < 2.1)
-    slim-rails (3.5.1)
+    slim (5.2.1)
+      temple (~> 0.10.0)
+      tilt (>= 2.1.0)
+    slim-rails (3.7.0)
       actionpack (>= 3.1)
       railties (>= 3.1)
-      slim (>= 3.0, < 5.0)
-    sorbet (0.6.12665)
-      sorbet-static (= 0.6.12665)
-    sorbet-runtime (0.6.12665)
-    sorbet-static (0.6.12665-universal-darwin)
-    sorbet-static (0.6.12665-x86_64-linux)
-    sorbet-static-and-runtime (0.6.12665)
-      sorbet (= 0.6.12665)
-      sorbet-runtime (= 0.6.12665)
-    spoom (1.1.15)
-      sorbet (>= 0.5.10187)
-      sorbet-runtime (>= 0.5.9204)
+      slim (>= 3.0, < 6.0, != 5.0.0)
+    sorbet (0.6.12666)
+      sorbet-static (= 0.6.12666)
+    sorbet-runtime (0.6.12666)
+    sorbet-static (0.6.12666-aarch64-linux)
+    sorbet-static (0.6.12666-universal-darwin)
+    sorbet-static (0.6.12666-x86_64-linux)
+    sorbet-static-and-runtime (0.6.12666)
+      sorbet (= 0.6.12666)
+      sorbet-runtime (= 0.6.12666)
+    spoom (1.6.3)
+      erubi (>= 1.10.0)
+      prism (>= 0.28.0)
+      rbi (>= 0.3.3)
+      rexml (>= 3.2.6)
+      sorbet-static-and-runtime (>= 0.5.10187)
       thor (>= 0.19.2)
     stringio (3.1.7)
-    syntax_tree (5.3.0)
-      prettier_print (>= 1.2.0)
-    tapioca (0.10.5)
-      bundler (>= 1.17.3)
+    tapioca (0.16.11)
+      benchmark
+      bundler (>= 2.2.25)
       netrc (>= 0.11.0)
       parallel (>= 1.21.0)
-      rbi (~> 0.0.0, >= 0.0.16)
-      sorbet-static-and-runtime (>= 0.5.10187)
-      spoom (~> 1.1.0, >= 1.1.11)
+      rbi (~> 0.2)
+      sorbet-static-and-runtime (>= 0.5.11087)
+      spoom (>= 1.2.0)
       thor (>= 1.2.0)
       yard-sorbet
-    temple (0.8.2)
+    temple (0.10.4)
     thor (1.4.0)
-    tilt (2.0.11)
+    tilt (2.6.1)
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2022.7)
+    tzinfo-data (1.2025.2)
       tzinfo (>= 1.0.0)
-    unicode-display_width (2.4.2)
-    unparser (0.6.7)
-      diff-lcs (~> 1.3)
-      parser (>= 3.2.0)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.1.0)
     uri (1.0.4)
     useragent (0.16.11)
-    webrick (1.7.0)
-    yard (0.9.28)
-      webrick (~> 1.7.0)
-    yard-sorbet (0.8.0)
-      sorbet-runtime (>= 0.5)
-      yard (>= 0.9)
+    yard (0.9.37)
+    yard-sorbet (0.9.0)
+      sorbet-runtime
+      yard
     zeitwerk (2.7.3)
 
 PLATFORMS
-  arm64-darwin-21
-  arm64-darwin-24
-  arm64-darwin-25
-  universal-darwin-22
+  aarch64-linux
+  aarch64-linux-gnu
+  aarch64-linux-musl
+  arm64-darwin
+  universal-darwin
+  x86_64-darwin
   x86_64-linux
+  x86_64-linux-gnu
+  x86_64-linux-musl
 
 DEPENDENCIES
   actionpack (~> 8.0)
@@ -222,20 +240,19 @@ DEPENDENCIES
   propshaft
   puma (~> 6.0)
   railties (~> 8.0)
-  redcarpet
-  rubocop (~> 1.45)
+  rubocop
   rubocop-minitest (~> 0.27.0)
-  rubocop-shopify (~> 2.12)
+  rubocop-rails
   rubocop-sorbet (~> 0.7)
   ruby-lsp
   slim
   slim-rails
-  sorbet-static-and-runtime (~> 0.6.0, >= 0.6.12665)
+  sorbet-static-and-runtime
   tapioca
   tzinfo-data
 
 RUBY VERSION
-   ruby 3.3.4p0
+   ruby 3.3.4p94
 
 BUNDLED WITH
    2.5.11
