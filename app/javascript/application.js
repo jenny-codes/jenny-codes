@@ -1,26 +1,8 @@
-import $ from "jquery";
-
-window.$ = $;
-window.jQuery = $;
-
+import $ from "./jquery_setup";
 import "bootstrap/dist/js/bootstrap.bundle";
 import "jquery-lazy";
 
 import "./vendor/prism";
-
-const setupFloatingLabels = () => {
-  $("body")
-    .on("input propertychange", ".floating-label-form-group", (event) => {
-      const hasValue = Boolean($(event.target).val());
-      $(event.currentTarget).toggleClass("floating-label-form-group-with-value", hasValue);
-    })
-    .on("focus", ".floating-label-form-group", (event) => {
-      $(event.currentTarget).addClass("floating-label-form-group-with-focus");
-    })
-    .on("blur", ".floating-label-form-group", (event) => {
-      $(event.currentTarget).removeClass("floating-label-form-group-with-focus");
-    });
-};
 
 const setupNavbarScrollBehavior = () => {
   const breakpoint = 992;
@@ -57,16 +39,28 @@ const setupNavbarScrollBehavior = () => {
 };
 
 const initializeLazyImages = () => {
-  $(".lazy").Lazy({
-    effect: "fadeIn",
-    effectTime: 1000,
-    threshold: 50,
-    delay: 1,
-  });
+  const activate = () => {
+    if (typeof $.fn.Lazy !== "function") {
+      return;
+    }
+
+    $(".lazy").Lazy({
+      effect: "fadeIn",
+      effectTime: 1000,
+      threshold: 50,
+      delay: 1,
+    });
+  };
+
+  if (typeof $.fn.Lazy === "function") {
+    activate();
+    return;
+  }
+
+  activate();
 };
 
 export const bootstrapApplication = () => {
-  setupFloatingLabels();
   setupNavbarScrollBehavior();
   initializeLazyImages();
 };
