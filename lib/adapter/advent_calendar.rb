@@ -6,9 +6,13 @@ require 'yaml'
 module Adapter
   class AdventCalendar
     END_DATE = Date.parse('2025-12-25')
-    DATA_FILE = Rails.root.join('lib', 'data', 'advent_calendar.yml')
+    DATA_FILE = if Rails.env.test?
+                  Rails.root.join('test', 'data', 'test_advent_calendar.yml')
+                else
+                  Rails.root.join('lib', 'data', 'advent_calendar.yml')
+                end
 
-    #: Date -> self
+    # : Date -> self
     def self.on(day)
       new(day)
     end
@@ -28,29 +32,29 @@ module Adapter
       3
     end
 
-    #: -> Integer
+    # : -> Integer
     def days_left
       (END_DATE - @day).to_i
     end
 
-    #: -> Bool
+    # : -> Bool
     def checked_in?
       @checked_in
     end
 
     def prompt
       if checked_in?
-        "Wah. You are absolutely right"
+        'Wah. You are absolutely right'
       else
-        "Time to check in"
+        'Time to check in'
       end
     end
 
     def template
       if checked_in?
-        :checked_in
+        :after
       else
-        :index
+        :before
       end
     end
 

@@ -1,0 +1,24 @@
+.advent-console
+  header.advent-header
+    h1
+      span.advent-header__star *
+      | Advent Console
+    p.advent-header__date #{@today.strftime('%B %d, %Y')}
+
+  section.advent-section
+    h2.advent-section__title == '== status =='
+    p.advent-section__text Wah. Welcome to #{@today}. #{@days_left} days left.
+
+  section.advent-section
+    h2.advent-section__title == '== prompt =='
+    pre.advent-prompt #{@prompt}
+
+  section.advent-section
+    h2.advent-section__title == '== log =='
+    p.advent-section__text You checked in. Next check-in opens at midnight tomorrow.
+
+  .advent-action
+    = link_to "Back to calendar", advent_path, class: "advent-button"
+
+  footer.advent-footer
+    | Stars align again tomorrow. Rest up, adventurer.

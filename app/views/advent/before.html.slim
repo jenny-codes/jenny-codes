@@ -1,0 +1,20 @@
+.advent-console
+  header.advent-header
+    h1
+      span.advent-header__star *
+      | Advent Console
+    p.advent-header__date #{@today.strftime('%B %d, %Y')}
+
+  section.advent-section
+    h2.advent-section__title == '== status =='
+    p.advent-section__text Wah. Welcome to #{@today}. #{@days_left} days left.
+
+  section.advent-section
+    h2.advent-section__title == '== prompt =='
+    pre.advent-prompt #{@prompt}
+
+  .advent-action
+    = button_to "Check in", advent_check_in_path, method: :post, class: "advent-button"
+
+  footer.advent-footer
+    | Keep the streak alive. Come back tomorrow for a fresh prompt.
