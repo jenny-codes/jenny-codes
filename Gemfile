@@ -24,9 +24,10 @@ gem 'cssbundling-rails'
 gem 'jsbundling-rails'
 gem 'propshaft'
 
+gem 'sorbet-static-and-runtime'
+
 group :test, :development do
   gem 'ruby-lsp', require: false
-  gem 'sorbet-static-and-runtime'
   gem 'tapioca', require: false
 
   gem 'rubocop', require: false
