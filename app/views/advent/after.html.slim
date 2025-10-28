@@ -1,17 +1,15 @@
 .advent-console
   header.advent-header
-    h1
-      span.advent-header__star *
-      | Advent Console
+    h1.advent-title Advent of ... coming back home
     p.advent-header__date #{@today.strftime('%B %d, %Y')}
 
   section.advent-section
     h2.advent-section__title == '== status =='
-    p.advent-section__text Wah. Welcome to #{@today}. #{@days_left} days left.
+    p.advent-section__text  Wah. You have successfully checked in #{@checkin_count} days. #{@days_left} days to go.
+    p.advent-section__text  You have #{@star_count} stars! Here, have your stars: #{"⭐️"*@star_count}
 
   section.advent-section
-    h2.advent-section__title == '== prompt =='
-    pre.advent-prompt #{@prompt}
+    pre.advent-prompt Now you chill until the next day :) Safe flight and...I miss you already.
 
   section.advent-section
     h2.advent-section__title == '== log =='

@@ -6,11 +6,12 @@ require 'yaml'
 module Adapter
   class AdventCalendar
     END_DATE = Date.parse('2025-12-25')
-    DATA_FILE = if Rails.env.test?
-                  Rails.root.join('test', 'data', 'test_advent_calendar.yml')
-                else
-                  Rails.root.join('lib', 'data', 'advent_calendar.yml')
-                end
+    DATA_FILE =
+      if Rails.env.test?
+        Rails.root.join('test', 'data', 'test_advent_calendar.yml')
+      else
+        Rails.root.join('lib', 'data', 'advent_calendar.yml')
+      end
 
     # : Date -> self
     def self.on(day)

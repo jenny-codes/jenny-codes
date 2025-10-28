@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title JJ Advent Calendar
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag 'advent', 'data-turbo-track': 'reload'
+
+    / Better thumbnail (Open Graph Protocol)
+    meta property="og:title" content="JJ Advent Calendar"
+    meta property="og:type" content="website"
+    meta property="og:description" content="Made for you, Joyce, with ❤️"
+  body class="advent-shell"
+    main.advent-main
+      = yield

@@ -1,0 +1,168 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap");
+
+body.advent-shell {
+  background: radial-gradient(circle at top, #20204a 0%, #0f0f23 55%, #050512 100%);
+  color: #00e060;
+  font-family: "Source Code Pro", "Lucida Console", Monaco, monospace;
+  margin: 0;
+  min-height: 100vh;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+}
+
+.advent-main {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.advent-console {
+  background: rgba(12, 12, 32, 0.82);
+  border: 1px solid rgba(255, 255, 102, 0.4);
+  box-shadow: 0 0 25px rgba(0, 224, 96, 0.2);
+  max-width: 840px;
+  padding: 3rem 2.5rem 2.75rem;
+  width: 100%;
+}
+
+.advent-header {
+  border-bottom: 2px solid rgba(255, 255, 102, 0.35);
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  text-align: center;
+}
+
+.advent-title {
+  color: #74ff7c;
+  font-size: clamp(2.9rem, 7vw, 4.1rem);
+  letter-spacing: 0.12em;
+  margin: 0 0 0.4rem;
+  text-shadow: 0 0 10px rgba(80, 255, 130, 0.6), 0 0 22px rgba(40, 255, 110, 0.35);
+}
+
+.advent-ticker {
+  color: #74ff7c;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  letter-spacing: 0.45em;
+  margin: 0 0 1rem;
+  text-shadow: 0 0 9px rgba(80, 255, 130, 0.55), 0 0 20px rgba(40, 255, 110, 0.3);
+}
+
+.advent-header__date {
+  color: rgba(255, 255, 200, 0.85);
+  letter-spacing: 0.18em;
+  margin: 0;
+}
+
+.advent-section {
+  margin-bottom: 2.25rem;
+}
+
+.advent-section__title {
+  color: #ffffa0;
+  font-size: 1rem;
+  letter-spacing: 0.25em;
+  margin: 0 0 1rem;
+}
+
+.advent-section__text {
+  background: rgba(5, 8, 22, 0.75);
+  border-left: 4px solid rgba(255, 255, 102, 0.6);
+  padding: 0.9rem 1.1rem;
+  margin: 0;
+}
+
+.advent-section__text::before {
+  content: "\003e ";
+  color: #ffffa0;
+}
+
+.advent-prompt {
+  background: rgba(8, 10, 28, 0.9);
+  border: 1px solid rgba(0, 224, 96, 0.4);
+  box-shadow: inset 0 0 10px rgba(0, 224, 96, 0.15);
+  color: #9af7c8;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin: 0;
+  padding: 1.25rem 1.4rem;
+  white-space: pre-wrap;
+}
+
+.advent-button {
+  appearance: none;
+  background: linear-gradient(120deg, rgba(255, 255, 102, 0.95), rgba(255, 215, 0, 0.8));
+  border: 0;
+  color: #102510;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  margin-bottom: 2.5rem;
+  padding: 0.95rem 3.4rem 0.9rem;
+  text-transform: uppercase;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  text-decoration: none;
+}
+
+.advent-action {
+  margin: 2.75rem 0;
+  text-align: center;
+}
+
+.advent-action form.button_to {
+  display: inline-block;
+}
+
+.advent-action .advent-button {
+  margin-bottom: 0;
+}
+
+.advent-button:hover,
+.advent-button:focus {
+  box-shadow: 0 0 18px rgba(255, 255, 102, 0.45);
+  transform: translateY(-2px);
+}
+
+.advent-button:active {
+  transform: translateY(1px);
+}
+
+.advent-footer {
+  border-top: 1px solid rgba(255, 255, 102, 0.25);
+  color: rgba(255, 255, 200, 0.7);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  margin: 0;
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .advent-main {
+    padding: 3rem 1rem 4rem;
+  }
+
+  .advent-console {
+    padding: 2.5rem 1.75rem 2.25rem;
+  }
+
+  .advent-title {
+    letter-spacing: 0.08em;
+  }
+
+  .advent-ticker {
+    letter-spacing: 0.28em;
+  }
+
+  .advent-section__title {
+    letter-spacing: 0.18em;
+  }
+
+  .advent-button {
+    display: block;
+    margin: 0 auto 2.5rem;
+    width: 100%;
+  }
+}

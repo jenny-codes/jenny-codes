@@ -3,10 +3,12 @@
 
 class AdventController < ApplicationController
   before_action :set_calendar
+  layout 'advent'
 
   def index
-    @days_left = @calendar.days_left
     @prompt = @calendar.prompt
+    @days_left = @calendar.days_left
+    @star_count = @calendar.total_stars
     render @calendar.template
   end
 
@@ -20,5 +22,6 @@ class AdventController < ApplicationController
   def set_calendar
     @today = Date.today
     @calendar = Adapter::AdventCalendar.on(@today)
+    @advent_year = Adapter::AdventCalendar::END_DATE.year
   end
 end

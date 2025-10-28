@@ -31,7 +31,7 @@ module Adapter
 
       refute_predicate calendar, :checked_in?
       assert_equal "Time to check in", calendar.prompt
-      assert_equal :index, calendar.template
+      assert_equal :before, calendar.template
     end
 
     test "checked_in? loads true from YAML" do
@@ -41,7 +41,7 @@ module Adapter
 
       assert_predicate calendar, :checked_in?
       assert_equal "Wah. You are absolutely right", calendar.prompt
-      assert_equal :checked_in, calendar.template
+      assert_equal :after, calendar.template
     end
 
     test "check_in updates state and persists to YAML" do
