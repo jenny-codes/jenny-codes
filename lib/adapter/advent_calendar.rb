@@ -59,6 +59,12 @@ module Adapter
       end
     end
 
+    def seconds_until_midnight
+      now = Time.now
+      midnight_tomorrow = (now + 1.day).to_date.to_time
+      [(midnight_tomorrow - now).to_i, 0].max
+    end
+
     private
 
     def load_checked_in

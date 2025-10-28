@@ -15,8 +15,5 @@
     h2.advent-section__title == '== log =='
     p.advent-section__text You checked in. Next check-in opens at midnight tomorrow.
 
-  .advent-action
-    = link_to "Back to calendar", advent_path, class: "advent-button"
-
-  footer.advent-footer
-    | Stars align again tomorrow. Rest up, adventurer.
+  footer.advent-footer.advent-countdown data-remaining-seconds=@seconds_until_midnight
+    span data-countdown-label="true" 00:00:00 left until next check-in

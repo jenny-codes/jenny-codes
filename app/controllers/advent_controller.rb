@@ -9,6 +9,7 @@ class AdventController < ApplicationController
     @prompt = @calendar.prompt
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
+    @seconds_until_midnight = @calendar.seconds_until_midnight
     render @calendar.template
   end
 
