@@ -1,9 +1,8 @@
-name: ruby-lsp
-
-type: ruby
+name: jennycodes
+type: rails
 
 up:
-  - ruby: '3.4'
+  - ruby
   - bundler:
       gemfile: Gemfile
   - node:
@@ -13,4 +12,8 @@ commands:
   server:
     desc: 'Start Rails with JS/CSS bundler watchers'
     aliases: [s]
-    run: bin/dev
+    run: bin/server
+  test:
+    desc: 'Run Rails test, playwright test, and rubocop'
+    aliases: [t]
+    run: bin/test

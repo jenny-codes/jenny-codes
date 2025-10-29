@@ -6,3 +6,6 @@ bin/rails test "$@"
 
 echo "Running Playwright tests..."
 npm test
+
+echo "Running rubocop..."
+rubocop -A
