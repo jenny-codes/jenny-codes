@@ -18,6 +18,11 @@ class AdventController < ApplicationController
     redirect_to advent_path
   end
 
+  def reset_check_in
+    @calendar.reset_check_in
+    redirect_to advent_path
+  end
+
   private
 
   def set_calendar

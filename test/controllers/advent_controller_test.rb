@@ -19,6 +19,26 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "after view shows reset button when checked in" do
+    post advent_check_in_url
+    get advent_url
+
+    assert_select "form[action='#{advent_reset_check_in_path}'][method='post']" do
+      assert_select "button", text: /reset check-in/i
+    end
+  end
+
+  test "reset check in returns calendar to before state" do
+    post advent_check_in_url
+    post advent_reset_check_in_url
+
+    get advent_url
+
+    assert_select "form[action='#{advent_check_in_path}']" do
+      assert_select "button", text: /check in/i
+    end
+  end
+
   private
 
   def write_calendar_data

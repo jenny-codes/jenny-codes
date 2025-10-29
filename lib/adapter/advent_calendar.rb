@@ -29,6 +29,12 @@ module Adapter
       persist_checked_in
     end
 
+    # This is for development purpose
+    def reset_check_in
+      @checked_in = false
+      persist_checked_in
+    end
+
     def total_stars
       3
     end

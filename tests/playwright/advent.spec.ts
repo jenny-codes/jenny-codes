@@ -88,4 +88,26 @@ test.describe('Advent Console', () => {
       .poll(async () => countdown.innerText(), { message: 'Expected countdown to tick down' })
       .not.toBe(initial);
   });
+
+  test('reset button returns console to check-in state', async ({ page }) => {
+    const checkInButton = page.getByRole('button', { name: /check in/i });
+    if (await checkInButton.count()) {
+      await Promise.all([
+        page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400),
+        checkInButton.click(),
+      ]);
+      await page.waitForURL(/\/advent$/);
+    }
+
+    const resetButton = page.getByRole('button', { name: /reset check-in/i });
+    await expect(resetButton).toBeVisible();
+
+    await Promise.all([
+      page.waitForResponse((response) => response.url().includes('/advent/reset_check_in') && response.status() < 400),
+      resetButton.click(),
+    ]);
+
+    await page.waitForURL(/\/advent$/);
+    await expect(page.getByRole('button', { name: /check in/i })).toBeVisible();
+  });
 });

@@ -136,6 +136,27 @@ body.advent-shell {
   margin: 0 0 1rem;
 }
 
+.advent-dev-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.advent-button--ghost {
+  background: transparent;
+  border: 1px solid rgba(150, 255, 200, 0.5);
+  color: rgba(200, 255, 230, 0.85);
+  text-transform: none;
+  letter-spacing: 0.12em;
+}
+
+.advent-button--ghost:hover,
+.advent-button--ghost:focus {
+  background: rgba(80, 255, 170, 0.1);
+  box-shadow: 0 0 12px rgba(80, 255, 170, 0.25);
+}
+
 .advent-prompt {
   background: rgba(8, 10, 28, 0.9);
   border: 1px solid rgba(0, 224, 96, 0.4);
