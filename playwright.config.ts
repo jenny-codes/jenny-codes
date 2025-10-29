@@ -11,6 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR ?? 'tmp/playwright-output',
   reporter: process.env.PLAYWRIGHT_REPORT ?? 'list',
   use: {
     baseURL,
