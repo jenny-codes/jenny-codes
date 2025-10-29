@@ -8,11 +8,14 @@ up:
   - node:
       version: v22.11.0
 
+open:
+  app: http://127.0.0.1:3333/advent
+
 commands:
   server:
     desc: 'Start Rails with JS/CSS bundler watchers'
     aliases: [s]
-    run: bin/server
+    run: bin/server -p 3333
   test:
     desc: 'Run Rails test, playwright test, and rubocop'
     aliases: [t]
