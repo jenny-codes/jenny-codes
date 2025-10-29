@@ -40,7 +40,7 @@ test.describe('Advent Console', () => {
     await expect(lines.nth(0)).toHaveClass(/is-complete/);
     await expect(lines.nth(0)).toHaveText(/Today is/);
     await expect(lines.nth(1)).toHaveClass(/is-complete/);
-    await expect(lines.nth(1)).toHaveText(/days left to go/);
+    await expect(lines.nth(1)).toHaveText(/days to go/);
   });
 
   test('tabs toggle active state and panel visibility', async ({ page }) => {

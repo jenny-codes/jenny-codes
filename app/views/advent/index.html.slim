@@ -8,8 +8,8 @@
 .advent-console
   header.advent-header
     .advent-title
-      span.advent-title__line data-text="Today is #{@today.strftime('%b %d, %Y')}..."
-      span.advent-title__line data-text="#{@days_left} days left to go."
+      span.advent-title__line data-text="Today is #{@today.strftime('%b %d')}..."
+      span.advent-title__line data-text="#{@days_left} days to go."
 
   nav.advent-tabs
     - panel_entries.each_key do |tab_id|
