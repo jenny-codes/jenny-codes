@@ -45,10 +45,10 @@ test.describe('Advent Console', () => {
 
   test('tabs toggle active state and panel visibility', async ({ page }) => {
     const mainTab = page.getByRole('link', { name: 'main' });
-    const rewardsTab = page.getByRole('link', { name: 'rewards' });
+    const rewardsTab = page.getByRole('link', { name: 'wah' });
     const faqTab = page.getByRole('link', { name: 'faq' });
 
-    const rewardsPanel = page.locator('[data-advent-panel="rewards"]');
+    const rewardsPanel = page.locator('[data-advent-panel="wah"]');
     const faqPanel = page.locator('[data-advent-panel="faq"]');
     const mainPanel = page.locator('[data-advent-panel="main"]');
 

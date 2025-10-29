@@ -65,7 +65,7 @@ body.advent-shell {
 .advent-title__line {
   display: block;
   letter-spacing: 0.06em;
-  overflow: hidden;
+  overflow-wrap: anywhere;
   white-space: nowrap;
   border-right: 2px solid rgba(255, 255, 200, 0.8);
   padding-right: 0.35rem;
@@ -154,6 +154,15 @@ body.advent-shell {
   letter-spacing: 0.02em;
   line-height: 1.8;
   margin: 0 0 1rem;
+  padding: 1.25rem 1.4rem;
+}
+
+pre.advent-section__text {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+  padding: 1.25rem 1.4rem;
 }
 
 .advent-starfield {
@@ -221,18 +230,6 @@ body.advent-shell {
 .advent-button--ghost:focus {
   background: rgba(80, 255, 170, 0.1);
   box-shadow: 0 0 12px rgba(80, 255, 170, 0.25);
-}
-
-.advent-prompt {
-  background: rgba(8, 10, 28, 0.9);
-  border: 1px solid rgba(0, 224, 96, 0.4);
-  box-shadow: inset 0 0 10px rgba(0, 224, 96, 0.15);
-  color: #9af7c8;
-  font-size: 1.05rem;
-  line-height: 1.8;
-  margin: 0;
-  padding: 1.25rem 1.4rem;
-  white-space: pre-wrap;
 }
 
 .advent-button {
@@ -304,7 +301,9 @@ body.advent-shell {
 
   .advent-title__line {
     white-space: normal;
+    overflow-wrap: anywhere;
     word-break: break-word;
+    overflow: visible;
     padding-right: 0.25rem;
     letter-spacing: 0.045em;
     border-right-width: 1.5px;
@@ -341,5 +340,6 @@ body.advent-shell {
     padding-right: 0.2rem;
     line-height: 1.4;
     letter-spacing: 0.035em;
+    overflow: visible;
   }
 }
