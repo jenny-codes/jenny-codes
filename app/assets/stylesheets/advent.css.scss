@@ -126,16 +126,14 @@ body.advent-shell {
   margin: 0 0 1rem;
 }
 
-.advent-section__text {
-  background: rgba(5, 8, 22, 0.75);
-  border-left: 4px solid rgba(255, 255, 102, 0.6);
-  padding: 0.9rem 1.1rem;
-  margin: 0;
-}
 
-.advent-section__text::before {
-  content: "\003e  ";
-  color: #ffffa0;
+.advent-section__text {
+  color: #dafee4;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+  margin: 0 0 1rem;
 }
 
 .advent-prompt {
@@ -198,6 +196,7 @@ body.advent-shell {
   padding-top: 1.5rem;
   text-align: center;
 }
+
 
 @media (max-width: 720px) {
   .advent-main {
