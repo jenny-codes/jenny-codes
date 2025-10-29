@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running Ruby tests..."
+bin/rails test "$@"
+
+echo "Running Playwright tests..."
+npm test

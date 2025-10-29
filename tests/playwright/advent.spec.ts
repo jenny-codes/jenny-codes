@@ -36,18 +36,11 @@ test.describe('Advent Console', () => {
 
     await waitForHeadlineCompletion(page);
 
+    await expect(lines).toHaveCount(2);
     await expect(lines.nth(0)).toHaveClass(/is-complete/);
     await expect(lines.nth(0)).toHaveText(/Today is/);
-
-    if (await lines.count() > 1) {
-      await expect(lines.nth(1)).toHaveClass(/is-complete/);
-      await expect(lines.nth(1)).toHaveText(/days left to go/);
-    }
-
-    if (await lines.count() > 2) {
-      await expect(lines.nth(2)).toHaveClass(/is-complete/);
-      await expect(lines.nth(2)).toHaveText(/collected/);
-    }
+    await expect(lines.nth(1)).toHaveClass(/is-complete/);
+    await expect(lines.nth(1)).toHaveText(/days left to go/);
   });
 
   test('tabs toggle active state and panel visibility', async ({ page }) => {
