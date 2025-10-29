@@ -295,7 +295,19 @@ body.advent-shell {
   }
 
   .advent-title {
-    letter-spacing: 0.08em;
+    font-size: clamp(1.55rem, 6.8vw, 1.95rem);
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    min-height: auto;
+    margin-bottom: 1.2rem;
+  }
+
+  .advent-title__line {
+    white-space: normal;
+    word-break: break-word;
+    padding-right: 0.25rem;
+    letter-spacing: 0.045em;
+    border-right-width: 1.5px;
   }
 
   .advent-tabs {
@@ -317,5 +329,17 @@ body.advent-shell {
     display: block;
     margin: 0 auto 2.5rem;
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .advent-title {
+    font-size: clamp(1.35rem, 7.8vw, 1.7rem);
+  }
+
+  .advent-title__line {
+    padding-right: 0.2rem;
+    line-height: 1.4;
+    letter-spacing: 0.035em;
   }
 }
