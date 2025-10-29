@@ -31,6 +31,18 @@ body.advent-shell {
   overflow: hidden;
 }
 
+.advent-console__body {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 620ms ease, transform 620ms ease;
+}
+
+.has-js .advent-console:not(.is-ready) .advent-console__body {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
 .advent-console.is-transitioning-out {
   opacity: 0;
   transform: translateY(14px) scale(0.97);

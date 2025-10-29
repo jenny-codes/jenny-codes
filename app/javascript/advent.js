@@ -84,7 +84,7 @@ function initializeTabs(consoleEl) {
 }
 
 function initializeHeadline(consoleEl, options = {}) {
-  const { skipAnimation = false } = options;
+  const { skipAnimation = false, onComplete } = options;
   if (!consoleEl) return;
 
   const title = consoleEl.querySelector(".advent-title");
@@ -92,6 +92,9 @@ function initializeHeadline(consoleEl, options = {}) {
 
   const lines = Array.from(title.querySelectorAll(".advent-title__line"));
   if (lines.length === 0) {
+    if (typeof onComplete === "function") {
+      onComplete();
+    }
     return;
   }
 
@@ -110,6 +113,9 @@ function initializeHeadline(consoleEl, options = {}) {
       line.textContent = text;
       line.classList.add("is-complete");
     });
+    if (typeof onComplete === "function") {
+      requestAnimationFrame(() => onComplete());
+    }
     return;
   }
 
@@ -143,7 +149,11 @@ function initializeHeadline(consoleEl, options = {}) {
         schedule(step, baseDelay);
       } else {
         line.classList.add("is-complete");
-        schedule(() => typeLine(index + 1), 500);
+        if (index + 1 < lines.length) {
+          schedule(() => typeLine(index + 1), 500);
+        } else if (typeof onComplete === "function") {
+          schedule(() => onComplete(), 120);
+        }
       }
     };
 
@@ -396,12 +406,29 @@ const initializeResetButton = (root) => {
 };
 
 const bootstrapAdvent = (rootOverride, options = {}) => {
+  document.documentElement.classList.add('has-js');
+
   const root = rootOverride ?? document.querySelector('.advent-console');
   if (!root) return;
 
+  const body = root.querySelector('.advent-console__body');
+
+  if (options.skipHeadlineAnimation) {
+    root.classList.add('is-ready');
+  } else {
+    root.classList.remove('is-ready');
+  }
+
   initializeAdventCountdown(root.querySelector('.advent-countdown'));
   initializeTabs(root);
-  initializeHeadline(root, { skipAnimation: options.skipHeadlineAnimation });
+  initializeHeadline(root, {
+    skipAnimation: options.skipHeadlineAnimation,
+    onComplete: () => {
+      if (body) {
+        root.classList.add('is-ready');
+      }
+    },
+  });
   initializeCheckInButton(root);
   initializeResetButton(root);
 };

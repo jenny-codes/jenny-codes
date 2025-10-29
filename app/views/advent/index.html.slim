@@ -11,26 +11,27 @@
       span.advent-title__line data-text="Today is #{@today.strftime('%b %d')}..."
       span.advent-title__line data-text="#{@days_left} days to go."
 
-  nav.advent-tabs
-    - panel_entries.each_key do |tab_id|
-      - is_active = tab_id == active_tab
-      a.advent-tab href="#" data-advent-tab=tab_id class=(is_active ? 'is-active' : nil)
-        = tab_id
+  .advent-console__body
+    nav.advent-tabs
+      - panel_entries.each_key do |tab_id|
+        - is_active = tab_id == active_tab
+        a.advent-tab href="#" data-advent-tab=tab_id class=(is_active ? 'is-active' : nil)
+          = tab_id
 
-  .advent-panels
-    - panel_entries.each do |panel_id, partial_name|
-      - is_active = panel_id == active_tab
-      section.advent-panel data-advent-panel=panel_id class=(is_active ? nil : 'is-hidden')
-        = render partial_name
+    .advent-panels
+      - panel_entries.each do |panel_id, partial_name|
+        - is_active = panel_id == active_tab
+        section.advent-panel data-advent-panel=panel_id class=(is_active ? nil : 'is-hidden')
+          = render partial_name
 
-  - if primary_action.present?
-    .advent-action
-      == primary_action
+    - if primary_action.present?
+      .advent-action
+        == primary_action
 
-  - seconds_remaining = @seconds_until_midnight.to_i
-  - hours = seconds_remaining / 3600
-  - minutes = (seconds_remaining % 3600) / 60
-  - seconds = seconds_remaining % 60
-  - countdown_text = format('%02d:%02d:%02d left until next check-in', hours, minutes, seconds)
-  footer.advent-footer.advent-countdown data-remaining-seconds=seconds_remaining
-    = tag.span(countdown_text, data: { countdown_label: true })
+    - seconds_remaining = @seconds_until_midnight.to_i
+    - hours = seconds_remaining / 3600
+    - minutes = (seconds_remaining % 3600) / 60
+    - seconds = seconds_remaining % 60
+    - countdown_text = format('%02d:%02d:%02d left until next check-in', hours, minutes, seconds)
+    footer.advent-footer.advent-countdown data-remaining-seconds=seconds_remaining
+      = tag.span(countdown_text, data: { countdown_label: true })
