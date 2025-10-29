@@ -55,7 +55,7 @@ module Adapter
       assert_predicate calendar, :checked_in?
 
       data = YAML.safe_load(File.read(@data_file))
-      assert_equal true, data["checked_in"]
+      assert data["checked_in"]
     end
   end
 end

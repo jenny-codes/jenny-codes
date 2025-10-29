@@ -1,16 +1,16 @@
 # typed: true
 # frozen_string_literal: true
 
-require 'yaml'
+require "yaml"
 
 module Adapter
   class AdventCalendar
-    END_DATE = Date.parse('2025-12-25')
+    END_DATE = Date.parse("2025-12-25")
     DATA_FILE =
       if Rails.env.test?
-        Rails.root.join('test', 'data', 'test_advent_calendar.yml')
+        Rails.root.join("test", "data", "test_advent_calendar.yml")
       else
-        Rails.root.join('lib', 'data', 'advent_calendar.yml')
+        Rails.root.join("lib", "data", "advent_calendar.yml")
       end
 
     # : Date -> self
@@ -45,9 +45,9 @@ module Adapter
 
     def prompt
       if checked_in?
-        'Wah. You are absolutely right'
+        "Wah. You are absolutely right"
       else
-        'Time to check in'
+        "Time to check in"
       end
     end
 
@@ -69,11 +69,11 @@ module Adapter
 
     def load_checked_in
       data = YAML.safe_load(File.read(@data_file))
-      data.is_a?(Hash) && data.key?('checked_in') ? data['checked_in'] : false
+      data.is_a?(Hash) && data.key?("checked_in") ? data["checked_in"] : false
     end
 
     def persist_checked_in
-      File.write(@data_file, { 'checked_in' => @checked_in }.to_yaml)
+      File.write(@data_file, { "checked_in" => @checked_in }.to_yaml)
     end
   end
 end

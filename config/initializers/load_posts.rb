@@ -19,7 +19,7 @@ posts = JSON.parse(File.read(path), symbolize_names: true).map do |post_hash|
     updated_at: Time.parse(post_hash[:updated_at]),
     slug: post_hash[:slug],
     medium_url: post_hash[:medium_url],
-    tags: post_hash[:tags],
+    tags: post_hash[:tags]
   )
 end
 

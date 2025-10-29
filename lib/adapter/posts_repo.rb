@@ -17,10 +17,10 @@ module Adapter
     sig { params(tag: T.nilable(String)).returns(T::Array[Model::Post]) }
     def list_published_order_by_id_desc(tag: nil)
       select_fn = if tag && !tag.empty?
-        ->(post) { post.published? && post.tags.include?(tag) }
-      else
-        ->(post) { post.published? }
-      end
+                    ->(post) { post.published? && post.tags.include?(tag) }
+                  else
+                    lambda(&:published?)
+                  end
 
       @posts.select(&select_fn)
     end

@@ -3,14 +3,14 @@
 
 class AdventController < ApplicationController
   before_action :set_calendar
-  layout 'advent'
+  layout "advent"
 
   def index
     @prompt = @calendar.prompt
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
     @seconds_until_midnight = @calendar.seconds_until_midnight
-    render 'advent/index', locals: layout_locals
+    render "advent/index", locals: layout_locals
   end
 
   def check_in
@@ -28,11 +28,11 @@ class AdventController < ApplicationController
 
   def layout_locals
     if @calendar.checked_in?
-      { main_partial: 'advent/panels/after_main', primary_action: nil }
+      { main_partial: "advent/panels/after_main", primary_action: nil }
     else
       {
-        main_partial: 'advent/panels/before_main',
-        primary_action: view_context.button_to('Check in', advent_check_in_path, method: :post, class: 'advent-button')
+        main_partial: "advent/panels/before_main",
+        primary_action: view_context.button_to("Check in", advent_check_in_path, method: :post, class: "advent-button")
       }
     end
   end

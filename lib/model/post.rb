@@ -12,7 +12,7 @@ module Model
     :updated_at,
     :slug,
     :medium_url,
-    :tags,
+    :tags
   )
 
   class Post < PostShape
@@ -46,7 +46,7 @@ module Model
         slug: slug,
         medium_url: medium_url,
         tags: tags,
-        body: body,
+        body: body
       }.to_json(opts)
     end
   end

@@ -4,7 +4,7 @@
 Rails.application.routes.draw do
   root "statics#about"
 
-  resources :posts, only: [:index, :show] do
+  resources :posts, only: %i[index show] do
     collection do
       get "list"
       get "all"
