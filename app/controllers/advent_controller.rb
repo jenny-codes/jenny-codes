@@ -37,7 +37,13 @@ class AdventController < ApplicationController
     else
       {
         main_partial: "advent/panels/before_main",
-        primary_action: view_context.button_to("Check in", advent_check_in_path, method: :post, class: "advent-button")
+        primary_action: view_context.button_to(
+          "Check in",
+          advent_check_in_path,
+          method: :post,
+          class: "advent-button",
+          data: { advent_check_in: true }
+        )
       }
     end
   end

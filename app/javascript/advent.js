@@ -83,7 +83,8 @@ function initializeTabs(consoleEl) {
   activate(currentId);
 }
 
-function initializeHeadline(consoleEl) {
+function initializeHeadline(consoleEl, options = {}) {
+  const { skipAnimation = false } = options;
   if (!consoleEl) return;
 
   const title = consoleEl.querySelector(".advent-title");
@@ -100,6 +101,17 @@ function initializeHeadline(consoleEl) {
     }
     line._typingTimeouts = [];
   };
+
+  if (skipAnimation) {
+    lines.forEach((line) => {
+      clearTimers(line);
+      const text = line.dataset.text || line.textContent || "";
+      line.dataset.text = text;
+      line.textContent = text;
+      line.classList.add("is-complete");
+    });
+    return;
+  }
 
   lines.forEach((line) => {
     clearTimers(line);
@@ -141,11 +153,257 @@ function initializeHeadline(consoleEl) {
   typeLine(0);
 }
 
-const bootstrapAdvent = () => {
-  const root = document.querySelector(".advent-console");
-  initializeAdventCountdown(root?.querySelector(".advent-countdown"));
+const prefersReducedMotion = () => {
+  const query = typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+
+  return query ? query.matches : false;
+};
+
+const triggerFireworks = () => {
+  if (prefersReducedMotion()) return;
+
+  const container = document.createElement("div");
+  container.className = "advent-starfield";
+
+  const symbols = ["✦", "✧", "✹", "✶", "★", "✺", "✷", "✵", "✱", "✻", "✫", "✯"];
+  const emissionDuration = 3000;
+  const removalDelay = 3700;
+  const waveInterval = 180;
+
+  const spawnBurst = () => {
+    const burstCenterX = 8 + Math.random() * 84;
+    const burstCenterY = 12 + Math.random() * 76;
+    const starCount = 26 + Math.floor(Math.random() * 18);
+
+    for (let index = 0; index < starCount; index += 1) {
+      const star = document.createElement("span");
+      star.className = "advent-starfield__star";
+
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 160 + Math.random() * 320;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance;
+
+      star.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      star.style.setProperty("--origin-x", `${burstCenterX}%`);
+      star.style.setProperty("--origin-y", `${burstCenterY}%`);
+      star.style.setProperty("--dx", `${dx}px`);
+      star.style.setProperty("--dy", `${dy}px`);
+      star.style.setProperty("--delay", `${Math.random() * 200}ms`);
+      star.style.setProperty("--duration", `${2400 + Math.random() * 1600}ms`);
+      star.style.setProperty("--rotate", `${Math.floor(Math.random() * 1440)}deg`);
+      star.style.setProperty("--scale", `${1 + Math.random() * 1.4}`);
+      star.style.setProperty("--size", `${28 + Math.random() * 28}px`);
+
+      container.appendChild(star);
+    }
+  };
+
+  spawnBurst();
+
+  const emissionStart = performance.now();
+  const emissionTimer = window.setInterval(() => {
+    if (performance.now() - emissionStart >= emissionDuration) {
+      window.clearInterval(emissionTimer);
+      return;
+    }
+    spawnBurst();
+  }, waveInterval);
+
+  document.body.appendChild(container);
+
+  window.setTimeout(() => {
+    container.classList.add("is-fading");
+  }, removalDelay - 350);
+
+  window.setTimeout(() => {
+    container.remove();
+  }, removalDelay);
+};
+
+const swapConsoleContent = (currentConsole, nextMarkup, options = {}) => {
+  const { skipHeadlineAnimation = false } = options;
+  if (!currentConsole) return;
+
+  const initialHeight = currentConsole.offsetHeight;
+  currentConsole.style.height = `${initialHeight}px`;
+
+  let hasSwapped = false;
+
+  const completeSwap = () => {
+    if (hasSwapped) return;
+    hasSwapped = true;
+
+    currentConsole.innerHTML = nextMarkup;
+    const nextHeight = currentConsole.scrollHeight;
+
+    requestAnimationFrame(() => {
+      currentConsole.style.height = `${nextHeight}px`;
+    });
+
+    currentConsole.classList.remove('is-transitioning-out');
+    currentConsole.classList.add('is-entering');
+
+    requestAnimationFrame(() => {
+      currentConsole.classList.add('is-visible');
+      bootstrapAdvent(currentConsole, { skipHeadlineAnimation });
+
+      let fadeInFallback;
+      const handleFadeInEnd = (event) => {
+        if (event.target !== currentConsole || (event.propertyName !== 'opacity' && event.propertyName !== 'height')) return;
+        currentConsole.classList.remove('is-entering', 'is-visible');
+        currentConsole.style.height = '';
+        currentConsole.removeEventListener('transitionend', handleFadeInEnd);
+        window.clearTimeout(fadeInFallback);
+      };
+
+      currentConsole.addEventListener('transitionend', handleFadeInEnd);
+
+      fadeInFallback = window.setTimeout(() => {
+        currentConsole.classList.remove('is-entering', 'is-visible');
+        currentConsole.style.height = '';
+        currentConsole.removeEventListener('transitionend', handleFadeInEnd);
+      }, 700);
+    });
+  };
+
+  const handleFadeOutEnd = (event) => {
+    if (event && (event.target !== currentConsole || event.propertyName !== 'opacity')) return;
+    currentConsole.removeEventListener('transitionend', handleFadeOutEnd);
+    completeSwap();
+  };
+
+  currentConsole.addEventListener('transitionend', handleFadeOutEnd);
+  currentConsole.classList.add('is-transitioning-out');
+
+  window.setTimeout(() => {
+    handleFadeOutEnd();
+  }, 380);
+};
+
+const submitAdventForm = async (form, options = {}) => {
+  const { skipHeadlineAnimation = false } = options;
+  if (!form) return;
+
+  const currentConsole = document.querySelector('.advent-console');
+  if (!currentConsole) {
+    form.submit();
+    return;
+  }
+
+  const response = await fetch(form.action, {
+    method: (form.method || 'POST').toUpperCase(),
+    body: new FormData(form),
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const nextConsole = doc.querySelector('.advent-console');
+
+  if (!nextConsole) {
+    throw new Error('Unable to locate updated advent console in response');
+  }
+
+  swapConsoleContent(currentConsole, nextConsole.innerHTML, { skipHeadlineAnimation });
+};
+
+const initializeCheckInButton = (root) => {
+  if (!root) return;
+
+  const button = root.querySelector('[data-advent-check-in]');
+  if (!button || button.dataset.checkInBound === 'true') return;
+
+  button.dataset.checkInBound = 'true';
+
+  button.addEventListener('click', (event) => {
+    if (button.dataset.checkInPending === 'true') return;
+
+    event.preventDefault();
+
+    button.dataset.checkInPending = 'true';
+    button.disabled = true;
+    triggerFireworks();
+
+    const form = button.closest('form');
+    const delay = prefersReducedMotion() ? 0 : 3100;
+
+    const finalize = () => {
+      button.disabled = false;
+      button.dataset.checkInPending = 'false';
+    };
+
+    const performSubmission = async () => {
+      try {
+        await submitAdventForm(form, { skipHeadlineAnimation: true });
+      } catch (error) {
+        console.error('[advent] falling back to classic submission', error);
+        form?.submit();
+      } finally {
+        finalize();
+      }
+    };
+
+    if (delay === 0) {
+      void performSubmission();
+    } else {
+      window.setTimeout(() => {
+        void performSubmission();
+      }, delay);
+    }
+  });
+};
+
+const initializeResetButton = (root) => {
+  if (!root) return;
+
+  const button = root.querySelector('[data-advent-reset]');
+  if (!button || button.dataset.resetBound === 'true') return;
+
+  button.dataset.resetBound = 'true';
+
+  button.addEventListener('click', (event) => {
+    if (button.dataset.resetPending === 'true') return;
+
+    event.preventDefault();
+
+    button.dataset.resetPending = 'true';
+    button.disabled = true;
+
+    const form = button.closest('form');
+
+    submitAdventForm(form, { skipHeadlineAnimation: true })
+      .catch((error) => {
+        console.error('[advent] reset fallback submission', error);
+        form?.submit();
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.dataset.resetPending = 'false';
+      });
+  });
+};
+
+const bootstrapAdvent = (rootOverride, options = {}) => {
+  const root = rootOverride ?? document.querySelector('.advent-console');
+  if (!root) return;
+
+  initializeAdventCountdown(root.querySelector('.advent-countdown'));
   initializeTabs(root);
-  initializeHeadline(root);
+  initializeHeadline(root, { skipAnimation: options.skipHeadlineAnimation });
+  initializeCheckInButton(root);
+  initializeResetButton(root);
 };
 
 if (document.readyState === "loading") {

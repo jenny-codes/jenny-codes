@@ -89,25 +89,48 @@ test.describe('Advent Console', () => {
       .not.toBe(initial);
   });
 
+  test('check in triggers fireworks before submission', async ({ page }) => {
+    const checkInButton = page.getByRole('button', { name: /check in/i });
+    await expect(checkInButton).toBeVisible();
+
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400);
+
+    await checkInButton.click();
+    await page.waitForTimeout(200);
+
+    const starCount = await page.locator('.advent-starfield__star').count();
+    expect(starCount).toBeGreaterThan(0);
+
+    await responsePromise;
+    await expect(page.getByRole('button', { name: /reset check-in/i })).toBeVisible({ timeout: 7000 });
+
+    const afterLines = page.locator('.advent-title__line');
+    await expect(afterLines.first()).toHaveClass(/is-complete/);
+    await expect(afterLines.nth(1)).toHaveClass(/is-complete/);
+  });
+
   test('reset button returns console to check-in state', async ({ page }) => {
     const checkInButton = page.getByRole('button', { name: /check in/i });
     if (await checkInButton.count()) {
-      await Promise.all([
-        page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400),
-        checkInButton.click(),
-      ]);
-      await page.waitForURL(/\/advent$/);
+      const responsePromise = page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400);
+      await checkInButton.click();
+      await responsePromise;
+      await expect(page.getByRole('button', { name: /reset check-in/i })).toBeVisible({ timeout: 7000 });
     }
 
     const resetButton = page.getByRole('button', { name: /reset check-in/i });
     await expect(resetButton).toBeVisible();
 
-    await Promise.all([
-      page.waitForResponse((response) => response.url().includes('/advent/reset_check_in') && response.status() < 400),
-      resetButton.click(),
-    ]);
+    const resetResponsePromise = page.waitForResponse((response) => response.url().includes('/advent/reset_check_in') && response.status() < 400);
+    await resetButton.click();
+    await resetResponsePromise;
 
-    await page.waitForURL(/\/advent$/);
-    await expect(page.getByRole('button', { name: /check in/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /check in/i })).toBeVisible({ timeout: 5000 });
+
+    const beforeLines = page.locator('.advent-title__line');
+    await expect(beforeLines.first()).toHaveClass(/is-complete/);
+    if (await beforeLines.count() > 1) {
+      await expect(beforeLines.nth(1)).toHaveClass(/is-complete/);
+    }
   });
 });

@@ -3,4 +3,4 @@ section.advent-section
   p.advent-section__text  Now you chill until the next day :) Safe flight and...I miss you already.
 
   .advent-dev-controls
-    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost"
+    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }
