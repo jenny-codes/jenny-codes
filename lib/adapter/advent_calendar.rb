@@ -66,8 +66,8 @@ module Adapter
     end
 
     def seconds_until_midnight
-      now = Time.now
-      midnight_tomorrow = (now + 1.day).to_date.to_time
+      now = Time.zone.now
+      midnight_tomorrow = now.tomorrow.beginning_of_day
       [(midnight_tomorrow - now).to_i, 0].max
     end
 

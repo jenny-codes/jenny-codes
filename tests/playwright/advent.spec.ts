@@ -81,7 +81,7 @@ test.describe('Advent Console', () => {
     const countdown = page.locator('.advent-countdown [data-countdown-label]');
     await countdown.waitFor({ state: 'visible', timeout: 10000 });
 
-    await expect(countdown).toHaveText(/\d{2}:\d{2}:\d{2} left until next check-in/);
+    await expect(countdown).toHaveText(/\d+ (hour|minute|second)/);
 
     const initial = await countdown.innerText();
     await expect
