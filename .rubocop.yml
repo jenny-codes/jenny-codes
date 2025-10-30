@@ -1,6 +1,7 @@
 plugins:
  - rubocop-sorbet
- - rubocop-minitest
+
+require: rubocop-minitest
 
 AllCops:
   NewCops: disable

@@ -20,6 +20,8 @@ project. Please follow these rules whenever you contribute.
   `shadowenv exec -- <command>` so the correct environment is loaded.
 - Never ignore command failures. If something keeps failing—especially due to
   authentication—report it immediately instead of silently skipping the step.
+- When asked to run dev tooling, invoke `/opt/dev/bin/dev ...` rather than a
+  bundled executable.
 
 ## Frontend Interaction Patterns
 - The advent console relies on a fetch-and-swap transition (no full reload).
