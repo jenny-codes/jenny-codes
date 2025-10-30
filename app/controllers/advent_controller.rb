@@ -9,7 +9,7 @@ class AdventController < ApplicationController
     @prompt = @calendar.prompt
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
-    @seconds_until_midnight = @calendar.seconds_until_midnight
+    @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end
 
@@ -26,9 +26,15 @@ class AdventController < ApplicationController
   private
 
   def set_calendar
-    @today = Date.today
+    @today = Time.zone.today
     @calendar = Adapter::AdventCalendar.on(@today)
     @advent_year = Adapter::AdventCalendar::END_DATE.year
+  end
+
+  def seconds_until_midnight
+    now = Time.zone.now
+    midnight_tomorrow = now.tomorrow.beginning_of_day
+    [(midnight_tomorrow - now).to_i, 0].max
   end
 
   def layout_locals
