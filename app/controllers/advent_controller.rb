@@ -9,6 +9,7 @@ class AdventController < ApplicationController
     @prompt = @calendar.prompt
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
+    @total_check_ins = @calendar.total_check_ins
     @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end

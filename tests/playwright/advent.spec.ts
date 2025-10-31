@@ -7,8 +7,30 @@ const ADVENT_PATH = '/advent';
 const FALLBACK_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 const DATA_PATH = resolve(process.cwd(), 'test/data/test_advent_calendar.yml');
 
+const formatDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const resetCalendarState = () => {
-  writeFileSync(DATA_PATH, '---\nchecked_in: false\n');
+  const today = new Date();
+  const todayKey = formatDateKey(today);
+  const yesterdayKey = formatDateKey(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+
+  const state = [
+    '---',
+    `${yesterdayKey}:`,
+    '  checked_in: true',
+    '  stars: 1',
+    `${todayKey}:`,
+    '  checked_in: false',
+    '  stars: 0',
+    ''
+  ].join('\n');
+
+  writeFileSync(DATA_PATH, state);
 };
 
 const waitForHeadlineCompletion = async (page: Page) => {

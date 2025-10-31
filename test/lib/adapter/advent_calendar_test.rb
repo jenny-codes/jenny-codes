@@ -24,28 +24,35 @@ module Adapter
       end
     end
 
-    test "checked_in? defaults to false when checked_in key is absent" do
-      File.write(@data_file, {}.to_yaml)
+    test "defaults to unchecked day when file empty" do
+      write_data({})
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
 
       refute_predicate calendar, :checked_in?
-      assert_equal "Time to check in", calendar.prompt
-      assert_equal :before, calendar.template
+      assert_equal 0, calendar.total_stars
+      assert_equal 0, calendar.total_check_ins
     end
 
-    test "checked_in? loads true from YAML" do
-      File.write(@data_file, { "checked_in" => true }.to_yaml)
+    test "loads checked in day with stars" do
+      write_data(
+        @day.iso8601 => { "checked_in" => true, "stars" => 2 }
+      )
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
 
       assert_predicate calendar, :checked_in?
-      assert_equal "Wah. You are absolutely right", calendar.prompt
+      assert_equal 2, calendar.total_stars
+      assert_equal 1, calendar.total_check_ins
       assert_equal :after, calendar.template
+      assert_equal "Wah. You are absolutely right", calendar.prompt
     end
 
-    test "check_in updates state and persists to YAML" do
-      File.write(@data_file, { "checked_in" => false }.to_yaml)
+    test "check_in marks the day, bumps totals, and persists" do
+      write_data(
+        (@day - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
+        @day.iso8601 => { "checked_in" => false, "stars" => 0 }
+      )
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
       refute_predicate calendar, :checked_in?
@@ -53,9 +60,40 @@ module Adapter
       calendar.check_in
 
       assert_predicate calendar, :checked_in?
+      assert_equal 2, calendar.total_check_ins
+      assert_equal 2, calendar.total_stars
 
-      data = YAML.safe_load(File.read(@data_file))
-      assert data["checked_in"]
+      reloaded = AdventCalendar.new(@day, data_file: @data_file)
+      assert_predicate reloaded, :checked_in?
+      assert_equal 2, reloaded.total_check_ins
+      assert_equal 2, reloaded.total_stars
+    end
+
+    test "reset_check_in clears entry and updates totals" do
+      write_data(
+        (@day - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
+        @day.iso8601 => { "checked_in" => true, "stars" => 2 }
+      )
+
+      calendar = AdventCalendar.new(@day, data_file: @data_file)
+      assert_predicate calendar, :checked_in?
+
+      calendar.reset_check_in
+
+      refute_predicate calendar, :checked_in?
+      assert_equal 1, calendar.total_check_ins
+      assert_equal 1, calendar.total_stars
+
+      reloaded = AdventCalendar.new(@day, data_file: @data_file)
+      refute_predicate reloaded, :checked_in?
+      assert_equal 1, reloaded.total_check_ins
+      assert_equal 1, reloaded.total_stars
+    end
+
+    private
+
+    def write_data(entries)
+      File.write(@data_file, entries.to_yaml)
     end
   end
 end

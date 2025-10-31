@@ -1,2 +1,7 @@
 ---
-checked_in: false
+2025-10-30:
+  checked_in: true
+  stars: 1
+2025-10-31:
+  checked_in: false
+  stars: 0

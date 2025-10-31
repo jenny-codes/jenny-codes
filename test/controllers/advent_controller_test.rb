@@ -42,10 +42,15 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   private
 
   def write_calendar_data
-    File.write(Adapter::AdventCalendar::DATA_FILE, { "checked_in" => false }.to_yaml)
+    today = Time.zone.today
+    data = {
+      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
+      today.iso8601 => { "checked_in" => false, "stars" => 0 }
+    }
+    File.write(Adapter::AdventCalendar::DATA_FILE, data.to_yaml)
   end
 
   def reset_calendar_data
-    File.write(Adapter::AdventCalendar::DATA_FILE, {}.to_yaml)
+    write_calendar_data
   end
 end
