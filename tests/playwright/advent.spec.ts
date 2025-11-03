@@ -18,15 +18,27 @@ const resetCalendarState = () => {
   const today = new Date();
   const todayKey = formatDateKey(today);
   const yesterdayKey = formatDateKey(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+  const twoDaysAgoKey = formatDateKey(new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000));
+  const threeDaysAgoKey = formatDateKey(new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000));
 
   const state = [
     '---',
-    `${yesterdayKey}:`,
-    '  checked_in: true',
-    '  stars: 1',
-    `${todayKey}:`,
-    '  checked_in: false',
-    '  stars: 0',
+    'days:',
+    `  ${threeDaysAgoKey}:`,
+    '    checked_in: true',
+    '    stars: 1',
+    `  ${twoDaysAgoKey}:`,
+    '    checked_in: true',
+    '    stars: 1',
+    `  ${yesterdayKey}:`,
+    '    checked_in: true',
+    '    stars: 1',
+    `  ${todayKey}:`,
+    '    checked_in: false',
+    '    stars: 0',
+    'spent_stars: 0',
+    'voucher_awards: []',
+    'voucher_sequence: 1',
     ''
   ].join('\n');
 
@@ -154,5 +166,33 @@ test.describe('Advent Console', () => {
     if (await beforeLines.count() > 1) {
       await expect(beforeLines.nth(1)).toHaveClass(/is-complete/);
     }
+  });
+
+  test('voucher draw dispenses a surprise and hides the button', async ({ page }) => {
+    await page.getByRole('link', { name: 'wah' }).click();
+
+    await expect(page.getByRole('button', { name: /check in/i })).toHaveCount(0);
+
+    const drawButton = page.getByRole('button', { name: /weee/i });
+    await expect(drawButton).toBeVisible();
+
+    const drawResponse = page.waitForResponse((response) => response.url().includes('/advent/draw_voucher') && response.status() < 400);
+    await drawButton.click();
+    await drawResponse;
+
+    const latestPrize = page.locator('.advent-voucher-card--latest .advent-voucher-card__prize');
+    await expect(latestPrize).toBeVisible();
+
+    await expect(page.getByRole('button', { name: /weee/i })).toHaveCount(0);
+    await expect(page.locator('.advent-voucher-list__item')).toHaveCount(1);
+
+    const redeemButton = page.getByRole('button', { name: /redeem/i }).first();
+    await expect(redeemButton).toBeVisible();
+
+    const redeemResponse = page.waitForResponse((response) => response.url().includes('/advent/redeem_voucher') && response.status() < 400);
+    await redeemButton.click();
+    await redeemResponse;
+
+    await expect(page.getByRole('button', { name: /redeem/i })).toHaveCount(0);
   });
 });

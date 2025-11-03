@@ -1,7 +1,17 @@
 ---
-2025-10-30:
-  checked_in: true
-  stars: 1
-2025-10-31:
-  checked_in: false
-  stars: 0
+days:
+  2025-10-28:
+    checked_in: true
+    stars: 1
+  2025-10-29:
+    checked_in: true
+    stars: 1
+  2025-10-30:
+    checked_in: true
+    stars: 1
+  2025-10-31:
+    checked_in: false
+    stars: 0
+spent_stars: 0
+voucher_awards: []
+voucher_sequence: 1

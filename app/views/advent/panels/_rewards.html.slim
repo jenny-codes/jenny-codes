@@ -1,5 +1,84 @@
+- total_stars = @star_count
+- used_stars = @spent_stars
+- remaining_stars = @remaining_stars
+- voucher_cost = @voucher_cost
+- can_draw = @calendar.can_draw_voucher?
+- latest_award = flash[:voucher_award]
+- redeemed_flash = flash[:voucher_redeemed]
+- voucher_alert = flash[:alert]
+- awards = @voucher_awards
+- parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
+
 section.advent-section
-  h2.advent-section__title == "You have collected #{@star_count} stars! Here, have your stars:"
-  h2.advent-section__title == "#{"⭐️" * @star_count}"
-  p.advent-section__text Star vault is brimming. Claim consolation prizes, glittering stickers, and surprise hugs.
-  p.advent-section__text Rumor says ten check-ins unlock a secret animation.
+  h2.advent-section__title Star Treasury
+  .advent-voucher-stats
+    p.advent-section__text == "Total stars collected: <strong>#{total_stars}</strong>"
+    p.advent-section__text == "Stars spent so far: <strong>#{used_stars}</strong>"
+    p.advent-section__text == "Stars remaining: <strong>#{remaining_stars}</strong>"
+    p.advent-section__text.small-note == "Each draw costs #{voucher_cost} star#{'s' if voucher_cost != 1}."
+
+  - if voucher_alert.present?
+    .advent-voucher-alert role="status"
+      = voucher_alert
+
+  - if redeemed_flash.present?
+    - reward_title = redeemed_flash[:title] || redeemed_flash['title']
+    .advent-voucher-alert.advent-voucher-alert--success role="status"
+      == "Voucher '<strong>#{reward_title}</strong>' redeemed!"
+
+  - if latest_award.present?
+    - award_id = latest_award[:id] || latest_award['id']
+    - award_title = latest_award[:title] || latest_award['title']
+    - award_details = latest_award[:details] || latest_award['details']
+    - award_time = parse_time.call(latest_award[:awarded_at] || latest_award['awarded_at'])
+    - redeemed_time = parse_time.call(latest_award[:redeemed_at] || latest_award['redeemed_at'])
+    - already_redeemed = latest_award[:redeemed] || latest_award['redeemed']
+    .advent-voucher-card.advent-voucher-card--latest
+      h3.advent-voucher-card__title Congrats! You drew:
+      p.advent-voucher-card__prize = award_title
+      p.advent-voucher-card__details = award_details
+      - if award_time
+        p.advent-voucher-card__time == "Awarded at #{award_time.strftime('%b %d, %Y %H:%M')}"
+      - if already_redeemed
+        p.advent-voucher-card__status Redeemed
+        - if redeemed_time
+          p.advent-voucher-card__time == "on #{redeemed_time.strftime('%b %d, %Y %H:%M')}"
+      .advent-voucher-card__actions
+        - unless already_redeemed
+          = button_to "Redeem", advent_redeem_voucher_path, method: :post, params: { voucher_id: award_id }, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+
+  - if can_draw
+    .advent-voucher-draw
+      = button_to "weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", data: { advent_voucher_draw: true }
+      p.advent-section__text.small-note You feel lucky. Let's see what fate has in store.
+  - else
+    .advent-voucher-draw
+      p.advent-section__text Keep checking in to earn more stars. Three sparkles unlock a surprise.
+
+section.advent-section
+  h3.advent-section__title Your haul so far
+  - if awards.any?
+    ul.advent-voucher-list
+      - awards.each_with_index do |award, index|
+        - award_id = award[:id] || award['id']
+        - title = award[:title] || award['title']
+        - details = award[:details] || award['details']
+        - awarded_at = parse_time.call(award[:awarded_at] || award['awarded_at'])
+        - redeemed_at = parse_time.call(award[:redeemed_at] || award['redeemed_at'])
+        - redeemed = award[:redeemed] || award['redeemed']
+        li.advent-voucher-list__item
+          .advent-voucher-card class=(redeemed ? 'is-redeemed' : nil)
+            p.advent-voucher-card__badge == "##{index + 1}"
+            p.advent-voucher-card__prize = title
+            p.advent-voucher-card__details = details
+            - if awarded_at
+              p.advent-voucher-card__time == "Awarded on #{awarded_at.strftime('%b %d, %Y %H:%M')}"
+            - if redeemed
+              p.advent-voucher-card__status Redeemed
+              - if redeemed_at
+                p.advent-voucher-card__time == "on #{redeemed_at.strftime('%b %d, %Y %H:%M')}"
+            .advent-voucher-card__actions
+              - unless redeemed
+                = button_to "Redeem", advent_redeem_voucher_path, method: :post, params: { voucher_id: award_id }, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+  - else
+    p.advent-section__text You have not drawn any vouchers yet. The vault awaits your first spin.

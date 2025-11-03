@@ -1,19 +1,28 @@
 ---
-2025-10-30:
-  checked_in: true
-  stars: 1
-2025-10-31:
-  checked_in: false
-  stars: 0
-2025-11-01:
-  checked_in: true
-  stars: 1
-2025-11-02:
-  checked_in: true
-  stars: 1
-2025-11-03:
-  checked_in: false
-  stars: 0
-2025-12-25:
-  checked_in: true
-  stars: 1
+days:
+  2025-10-30:
+    checked_in: true
+    stars: 1
+  2025-10-31:
+    checked_in: false
+    stars: 0
+  2025-11-01:
+    checked_in: true
+    stars: 1
+  2025-11-02:
+    checked_in: true
+    stars: 1
+  2025-11-03:
+    checked_in: true
+    stars: 1
+  2025-12-25:
+    checked_in: true
+    stars: 1
+spent_stars: 3
+voucher_awards:
+- id: voucher-0001
+  title: a splendid date
+  details: we set a date, you show up, and enjoy
+  awarded_at: '2025-10-31T10:39:46-04:00'
+  redeemed_at: '2025-10-31T10:40:03-04:00'
+voucher_sequence: 2

@@ -10,6 +10,11 @@ class AdventController < ApplicationController
     @days_left = @calendar.days_left
     @star_count = @calendar.total_stars
     @total_check_ins = @calendar.total_check_ins
+    @spent_stars = @calendar.spent_stars
+    @remaining_stars = @calendar.remaining_stars
+    @voucher_awards = @calendar.voucher_awards
+    @voucher_cost = @calendar.voucher_cost
+    @active_tab = extract_active_tab
     @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end
@@ -22,6 +27,24 @@ class AdventController < ApplicationController
   def reset_check_in
     @calendar.reset_check_in
     redirect_to advent_path
+  end
+
+  def draw_voucher
+    award = @calendar.draw_voucher!
+    flash[:voucher_award] = award.to_h
+    redirect_to_wah
+  rescue Adapter::AdventCalendar::NotEnoughStarsError
+    flash[:alert] = "Not enough stars for a draw yet. Keep checking in!"
+    redirect_to_wah
+  end
+
+  def redeem_voucher
+    award = @calendar.redeem_voucher!(params.require(:voucher_id))
+    flash[:voucher_redeemed] = award.to_h
+    redirect_to_wah
+  rescue Adapter::AdventCalendar::VoucherNotFoundError, Adapter::AdventCalendar::VoucherAlreadyRedeemedError => e
+    flash[:alert] = e.message
+    redirect_to_wah
   end
 
   private
@@ -53,5 +76,16 @@ class AdventController < ApplicationController
         )
       }
     end
+  end
+
+  def extract_active_tab
+    requested = params[:tab].to_s
+    return requested if %w[main wah faq].include?(requested)
+
+    "main"
+  end
+
+  def redirect_to_wah
+    redirect_to advent_path(tab: "wah"), status: :see_other
   end
 end

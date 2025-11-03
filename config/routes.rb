@@ -20,4 +20,6 @@ Rails.application.routes.draw do
   get "advent", to: "advent#index"
   post "advent/check_in", to: "advent#check_in"
   post "advent/reset_check_in", to: "advent#reset_check_in"
+  post "advent/draw_voucher", to: "advent#draw_voucher"
+  post "advent/redeem_voucher", to: "advent#redeem_voucher"
 end

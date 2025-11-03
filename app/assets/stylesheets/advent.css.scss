@@ -283,6 +283,169 @@ pre.advent-section__text {
   transform: translateY(1px);
 }
 
+.advent-voucher-stats {
+  background: none;
+  border: 1px solid rgba(116, 255, 124, 0.28);
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.small-note {
+  font-size: 0.85rem;
+  color: rgba(218, 254, 228, 0.7);
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.advent-voucher-alert {
+  background: rgba(255, 94, 94, 0.12);
+  border: 1px solid rgba(255, 120, 120, 0.4);
+  border-radius: 8px;
+  color: #ffcccc;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.advent-voucher-alert--success {
+  background: rgba(132, 255, 195, 0.16);
+  border-color: rgba(132, 255, 195, 0.45);
+  color: #c9ffe6;
+}
+
+.advent-voucher-draw {
+  margin-bottom: 2rem;
+}
+
+.advent-voucher-card {
+  background-color: rgba(12, 32, 28, 0.84);
+  border: 1px solid rgba(94, 255, 178, 0.32);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 0 0 1px rgba(60, 180, 130, 0.16);
+  letter-spacing: 0.04em;
+  position: relative;
+  overflow: hidden;
+}
+
+.advent-voucher-card--latest {
+  animation: advent-voucher-pop 420ms ease;
+  background-color: rgba(16, 40, 32, 0.92);
+  border-color: rgba(148, 255, 200, 0.42);
+  box-shadow: 0 0 12px rgba(120, 255, 190, 0.24);
+  margin-bottom: 1.75rem;
+}
+
+.advent-voucher-card.is-redeemed {
+  border-color: rgba(160, 213, 190, 0.35);
+  background-color: rgba(12, 28, 26, 0.72);
+  opacity: 0.88;
+}
+
+.advent-voucher-card__title {
+  color: #bfffd0;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.advent-voucher-card__prize {
+  color: #ffffa5;
+  font-size: 1.35rem;
+  margin: 0 0 0.6rem;
+}
+
+.advent-voucher-card__details {
+  color: rgba(218, 254, 228, 0.85);
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.advent-voucher-card__time {
+  color: rgba(218, 254, 228, 0.55);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.advent-voucher-card__badge {
+  color: rgba(116, 255, 168, 0.8);
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  margin: 0 0 0.65rem;
+  text-transform: uppercase;
+}
+
+.advent-voucher-card__actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.advent-voucher-card:hover .advent-voucher-card__actions,
+.advent-voucher-card:focus-within .advent-voucher-card__actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.advent-voucher-card__status {
+  color: rgba(255, 255, 180, 0.85);
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.advent-button--voucher {
+  background: rgba(116, 255, 124, 0.18);
+  border: 1px solid rgba(116, 255, 124, 0.45);
+  box-shadow: none;
+  color: #dafee4;
+}
+
+.advent-button--voucher:hover,
+.advent-button--voucher:focus {
+  background-color: rgba(116, 255, 124, 0.28);
+  box-shadow: 0 0 10px rgba(116, 255, 150, 0.22);
+}
+
+.advent-button--voucher:active {
+  transform: translateY(1px);
+}
+
+.advent-voucher-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.advent-voucher-list__item {
+  margin: 0;
+}
+
+@keyframes advent-voucher-pop {
+  from {
+    transform: scale(0.96) translateY(6px);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
 .advent-footer {
   border-top: none;
   color: rgba(255, 255, 200, 0.7);

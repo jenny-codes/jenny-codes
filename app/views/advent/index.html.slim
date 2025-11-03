@@ -1,4 +1,4 @@
-- active_tab = 'main'
+- active_tab = @active_tab.presence || 'main'
 - primary_action ||= nil
 - main_partial ||= 'advent/panels/after_main'
 - rewards_partial ||= 'advent/panels/rewards'
@@ -21,12 +21,9 @@
     .advent-panels
       - panel_entries.each do |panel_id, partial_name|
         - is_active = panel_id == active_tab
+        - panel_primary_action = panel_id == 'main' ? primary_action : nil
         section.advent-panel data-advent-panel=panel_id class=(is_active ? nil : 'is-hidden')
-          = render partial_name
-
-    - if primary_action.present?
-      .advent-action
-        == primary_action
+          = render partial_name, primary_action: panel_primary_action
 
     - seconds_remaining = @seconds_until_midnight.to_i
     - hours = seconds_remaining / 3600

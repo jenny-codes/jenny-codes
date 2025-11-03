@@ -410,6 +410,40 @@ const initializeResetButton = (root) => {
   });
 };
 
+const bindVoucherActionButton = (button) => {
+  if (!button || button.dataset.voucherBound === 'true') return;
+
+  button.dataset.voucherBound = 'true';
+
+  button.addEventListener('click', (event) => {
+    if (button.dataset.voucherPending === 'true') return;
+
+    event.preventDefault();
+
+    button.dataset.voucherPending = 'true';
+    button.disabled = true;
+
+    const form = button.closest('form');
+
+    submitAdventForm(form, { skipHeadlineAnimation: true })
+      .catch((error) => {
+        console.error('[advent] voucher action fallback submission', error);
+        form?.submit();
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.dataset.voucherPending = 'false';
+      });
+  });
+};
+
+const initializeVoucherActions = (root) => {
+  if (!root) return;
+
+  root.querySelectorAll('[data-advent-voucher-draw]').forEach(bindVoucherActionButton);
+  root.querySelectorAll('[data-advent-voucher-redeem]').forEach(bindVoucherActionButton);
+};
+
 const bootstrapAdvent = (rootOverride, options = {}) => {
   document.documentElement.classList.add('has-js');
 
@@ -436,6 +470,7 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
   });
   initializeCheckInButton(root);
   initializeResetButton(root);
+  initializeVoucherActions(root);
 };
 
 if (document.readyState === "loading") {
