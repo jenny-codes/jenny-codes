@@ -31,7 +31,7 @@
     = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }
 - else
   section.advent-section.advent-done
-    p.advent-section__text.advent-done-message Good. You just got one more star because you have provided the correct information. The story will continue tomorrow :)
+    p.advent-section__text Good. You just got one more star because you have provided the correct information. The story will continue tomorrow :)
 
   .advent-dev-controls
     = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }

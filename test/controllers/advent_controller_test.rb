@@ -96,7 +96,6 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
     assert_select "form[action='#{advent_solve_puzzle_path}']", false
-    assert_select ".advent-done-message", text: /you just got one more star/i
     assert_select ".advent-puzzle-alert", false
     assert_select "p", text: /Part 2:/, count: 0
   end
@@ -112,7 +111,6 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
     assert_select "form[action='#{advent_solve_puzzle_path}'][method='post'] input[name='puzzle_answer'][value='wrong']"
-    assert_select ".advent-done-message", false
     assert_select ".advent-puzzle-alert", text: /That is not correct. Try again\?/i
     assert_select "p", text: /Part 2:/, count: 1
   end

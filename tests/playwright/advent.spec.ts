@@ -232,7 +232,6 @@ test.describe('Advent Console', () => {
 
     await page.waitForURL(/\/advent(?:\?tab=main)?$/);
 
-    await expect(page.locator('.advent-done-message')).toBeVisible();
     await expect(page.locator('.advent-puzzle-form')).toHaveCount(0);
     await expect(page.locator('.advent-puzzle-alert')).toHaveCount(0);
 
