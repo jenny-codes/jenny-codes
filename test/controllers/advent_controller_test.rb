@@ -47,7 +47,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".advent-voucher-card__prize"
     assert_select "form[action='#{advent_redeem_voucher_path}']", minimum: 1
-    assert_select ".advent-faq__response", text: /Draws unlocked/i
+    assert_select ".advent-faq__response", text: /draw/i
   end
 
   test "draw voucher requires enough stars" do

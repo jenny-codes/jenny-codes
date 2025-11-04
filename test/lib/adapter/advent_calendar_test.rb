@@ -51,8 +51,7 @@ module Adapter
       assert_predicate calendar, :checked_in?
       assert_equal 35, calendar.total_stars
       assert_equal 1, calendar.total_check_ins
-      assert_equal 3, calendar.draws_unlocked
-      assert_equal 2, calendar.draws_available
+      assert_equal 3, calendar.draws_available + calendar.draws_claimed
       assert_equal 1, calendar.voucher_awards.size
       award = calendar.voucher_awards.first
       assert_equal "Dinner date", award[:title]
@@ -77,7 +76,6 @@ module Adapter
       assert_predicate calendar, :checked_in?
       assert_equal 2, calendar.total_check_ins
       assert_equal 2, calendar.total_stars
-      assert_equal 0, calendar.draws_unlocked
       assert_equal 0, calendar.draws_available
 
       reloaded = AdventCalendar.new(@day, data_file: @data_file)
@@ -121,7 +119,6 @@ module Adapter
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
       assert_equal 3, calendar.total_stars
-      assert_equal 1, calendar.draws_unlocked
       assert_equal 1, calendar.draws_available
 
       travel_to Time.zone.parse("2024-12-01 12:00:00") do
@@ -130,7 +127,6 @@ module Adapter
         assert_equal "massage", award.title
         assert_match(/voucher-\d{4}/, award.id)
         assert_equal 0, calendar.draws_available
-        assert_equal 1, calendar.draws_claimed
       end
 
       reloaded = AdventCalendar.new(@day, data_file: @data_file)

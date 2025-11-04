@@ -1,6 +1,4 @@
 - total_stars = @star_count
-- draws_unlocked = @draws_unlocked
-- draws_claimed = @draws_claimed
 - draws_available = @draws_available
 - next_milestone = @next_milestone
 - stars_until_next = @stars_until_next_milestone
@@ -14,29 +12,16 @@
 section.advent-section.advent-faq
   dl.advent-faq
     .advent-faq__pair
-      dt.advent-faq__question Checking in stats
       dd.advent-faq__answer
         span.advent-faq__response == "You have successfully checked in <strong>#{@total_check_ins}</strong> days, and collected <strong>#{total_stars}</strong> stars."
 
-    .advent-faq__pair
-      dt.advent-faq__question Draw progress
-      dd.advent-faq__answer
-        span.advent-faq__response == "Draws unlocked: <strong>#{draws_unlocked}</strong>. Draws claimed: <strong>#{draws_claimed}</strong>. Draws available: <strong>#{draws_available}</strong>."
-
-    - if stars_until_next.present?
+    - if !stars_until_next.present?
       .advent-faq__pair
-        dt.advent-faq__question Next milestone
         dd.advent-faq__answer
-          span.advent-faq__response == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw at <strong>#{next_milestone}</strong> total."
-    - else
-      .advent-faq__pair
-        dt.advent-faq__question Next milestone
-        dd.advent-faq__answer
-          span.advent-faq__response You have unlocked every draw milestone. Legendary!
+          span.advent-faq__response You have unlocked every draw milestone :)
 
     - if voucher_alert.present?
       .advent-faq__pair
-        dt.advent-faq__question Anything I should know?
         dd.advent-faq__answer
           span.advent-faq__response
             .advent-voucher-alert role="status"
@@ -45,30 +30,27 @@ section.advent-section.advent-faq
     - if redeemed_flash.present?
       - reward_title = redeemed_flash[:title] || redeemed_flash['title']
       .advent-faq__pair
-        dt.advent-faq__question Did I redeem anything?
         dd.advent-faq__answer
-          span.advent-faq__response
+        span.advent-faq__response
             .advent-voucher-alert.advent-voucher-alert--success role="status"
               == "Voucher '<strong>#{reward_title}</strong>' redeemed!"
 
-    - if can_draw
-      .advent-faq__pair
-        dt.advent-faq__question Ready for a surprise?
-        dd.advent-faq__answer
+    .advent-faq__pair
+      dd.advent-faq__answer
+        - if can_draw
           span.advent-faq__response
             = button_to "weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", data: { advent_voucher_draw: true }
-            p.advent-section__text.small-note You feel lucky. Let's see what fate has in store.
-    - else
-      .advent-faq__pair
-        dt.advent-faq__question When can I draw?
-        dd.advent-faq__answer
-          - if next_milestone
-            span.advent-faq__response == "Keep checking in to reach <strong>#{next_milestone}</strong> stars for the next draw."
-          - else
-            span.advent-faq__response You have already unlocked every draw milestone.
+          p.advent-section__text.small-note You feel lucky. Let's see what fate has in store.
+        - elsif next_milestone
+          span.advent-faq__response == "Keep checking in to reach <strong>#{next_milestone}</strong> stars for the next draw."
+        - else
+          span.advent-faq__response You have already unlocked every draw milestone.
+
+    .advent-faq__pair
+      dd.advent-faq__answer
 
 section.advent-section.advent-faq
-  h3.advent-section__title Your haul so far
+  h3.advent-section__title Your vouchers so far
   - if latest_award.present?
     - award_id = latest_award[:id] || latest_award['id']
     - award_title = latest_award[:title] || latest_award['title']
@@ -78,7 +60,6 @@ section.advent-section.advent-faq
     - already_redeemed = latest_award[:redeemed] || latest_award['redeemed']
     dl.advent-faq
       .advent-faq__pair
-        dt.advent-faq__question What did I just get?
         dd.advent-faq__answer
           span.advent-faq__response
             .advent-voucher-card.advent-voucher-card--latest
@@ -97,7 +78,6 @@ section.advent-section.advent-faq
 
   - if awards.any?
     section.advent-section.advent-faq
-      h3.advent-section__title Archive
       dl.advent-faq
         - awards.each_with_index do |award, index|
           - award_id = award[:id] || award['id']
@@ -107,10 +87,10 @@ section.advent-section.advent-faq
           - redeemed_at = parse_time.call(award[:redeemed_at] || award['redeemed_at'])
           - redeemed = award[:redeemed] || award['redeemed']
           .advent-faq__pair
-            dt.advent-faq__question == "Voucher ##{index + 1}"
             dd.advent-faq__answer
               span.advent-faq__response
                 .advent-voucher-card class=(redeemed ? 'is-redeemed' : nil)
+                  p.advent-voucher-card__badge == "##{index + 1}"
                   p.advent-voucher-card__prize = title
                   p.advent-voucher-card__details = details
                   - if awarded_at

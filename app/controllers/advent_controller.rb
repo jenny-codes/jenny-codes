@@ -79,8 +79,6 @@ class AdventController < ApplicationController
   def assign_star_stats
     @star_count = @calendar.total_stars
     @total_check_ins = @calendar.total_check_ins
-    @draws_unlocked = @calendar.draws_unlocked
-    @draws_claimed = @calendar.draws_claimed
     @draws_available = @calendar.draws_available
     @next_milestone = @calendar.next_milestone
     @stars_until_next_milestone = @calendar.stars_until_next_milestone
