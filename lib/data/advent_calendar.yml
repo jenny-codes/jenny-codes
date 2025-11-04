@@ -18,7 +18,6 @@ days:
   2025-12-25:
     checked_in: true
     stars: 1
-spent_stars: 3
 voucher_awards:
 - id: voucher-0001
   title: a splendid date

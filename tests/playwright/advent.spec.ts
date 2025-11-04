@@ -36,7 +36,6 @@ const resetCalendarState = () => {
     `  ${todayKey}:`,
     '    checked_in: false',
     '    stars: 0',
-    'spent_stars: 0',
     'voucher_awards: []',
     'voucher_sequence: 1',
     ''

@@ -30,8 +30,13 @@ class AdventController < ApplicationController
     award = @calendar.draw_voucher!
     flash[:voucher_award] = award.to_h
     redirect_to_wah
-  rescue Adapter::AdventCalendar::NotEnoughStarsError
-    flash[:alert] = "Not enough stars for a draw yet. Keep checking in!"
+  rescue Adapter::AdventCalendar::NoEligibleDrawsError
+    next_goal = @calendar.next_milestone
+    flash[:alert] = if next_goal
+                      "Next draw unlocks at #{next_goal} stars. Keep checking in!"
+                    else
+                      "You have already unlocked every draw milestone."
+                    end
     redirect_to_wah
   end
 
@@ -74,13 +79,16 @@ class AdventController < ApplicationController
   def assign_star_stats
     @star_count = @calendar.total_stars
     @total_check_ins = @calendar.total_check_ins
-    @spent_stars = @calendar.spent_stars
-    @remaining_stars = @calendar.remaining_stars
+    @draws_unlocked = @calendar.draws_unlocked
+    @draws_claimed = @calendar.draws_claimed
+    @draws_available = @calendar.draws_available
+    @next_milestone = @calendar.next_milestone
+    @stars_until_next_milestone = @calendar.stars_until_next_milestone
   end
 
   def assign_voucher_stats
     @voucher_awards = @calendar.voucher_awards
-    @voucher_cost = @calendar.voucher_cost
+    @voucher_milestones = @calendar.voucher_milestones
   end
 
   def assign_secret_state

@@ -39,7 +39,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "draw voucher spends stars and shows award" do
+  test "draw voucher uses unlocked draw and shows award" do
     post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
     follow_redirect!
@@ -47,17 +47,17 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".advent-voucher-card__prize"
     assert_select "form[action='#{advent_redeem_voucher_path}']", minimum: 1
-    assert_select ".advent-faq__response", text: /Stars spent/i
+    assert_select ".advent-faq__response", text: /Draws unlocked/i
   end
 
   test "draw voucher requires enough stars" do
-    write_calendar_data(spent_stars: 3)
+    write_calendar_data(days: insufficient_days)
 
     post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
     follow_redirect!
 
-    assert_select ".advent-voucher-alert", text: /Not enough stars/i
+    assert_select ".advent-voucher-alert", text: /Next draw unlocks at/i
   end
 
   test "redeem voucher marks voucher as redeemed" do
@@ -79,7 +79,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
     assert_select "form[action='#{advent_reveal_secret_path}']", false
-    assert_select ".advent-done-message", text: /Now you have gathered one more star!/i
+    assert_select ".advent-done-message", text: /you are rewarded one more star/i
     assert_select ".advent-secret-alert", false
     assert_select "p", text: /Part 2:/, count: 0
   end
@@ -99,23 +99,32 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def write_calendar_data(spent_stars: 0, awards: [])
-    today = Time.zone.today
-    days = {
-      (today - 3).iso8601 => { "checked_in" => true, "stars" => 1 },
-      (today - 2).iso8601 => { "checked_in" => true, "stars" => 1 },
-      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
-      today.iso8601 => { "checked_in" => false, "stars" => 0 }
-    }
-
+  def write_calendar_data(days: default_days, awards: [])
     payload = {
       "days" => days,
-      "spent_stars" => spent_stars,
       "voucher_awards" => awards,
       "voucher_sequence" => 1
     }
 
     File.write(Adapter::AdventCalendar::DATA_FILE, payload.to_yaml)
+  end
+
+  def default_days
+    today = Time.zone.today
+    {
+      (today - 3).iso8601 => { "checked_in" => true, "stars" => 1 },
+      (today - 2).iso8601 => { "checked_in" => true, "stars" => 1 },
+      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
+      today.iso8601 => { "checked_in" => false, "stars" => 0 }
+    }
+  end
+
+  def insufficient_days
+    today = Time.zone.today
+    {
+      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
+      today.iso8601 => { "checked_in" => false, "stars" => 0 }
+    }
   end
 
   def current_calendar

@@ -16,9 +16,9 @@ module Adapter
         Rails.root.join("lib", "data", "advent_calendar.yml")
       end
     VOUCHER_FILE = Rails.root.join("lib", "data", "advent_calendar_voucher.yml")
-    VOUCHER_COST = 3
+    VOUCHER_MILESTONES = [3, 13, 33, 53, 73, 94].freeze
 
-    NotEnoughStarsError = Class.new(StandardError)
+    NoEligibleDrawsError = Class.new(StandardError)
     VoucherNotFoundError = Class.new(StandardError)
     VoucherAlreadyRedeemedError = Class.new(StandardError)
 
@@ -66,7 +66,7 @@ module Adapter
       end
     end
 
-    attr_reader :total_stars, :total_check_ins, :spent_stars
+    attr_reader :total_stars, :total_check_ins
 
     def self.on(day)
       new(day)
@@ -78,7 +78,6 @@ module Adapter
 
       state = load_state(@data_file)
       @calendar_data = state.fetch(:days)
-      @spent_stars = state.fetch(:spent_stars)
       @voucher_awards = state.fetch(:voucher_awards)
       @voucher_sequence = state.fetch(:voucher_sequence)
 
@@ -120,28 +119,43 @@ module Adapter
       checked_in? ? :after : :before
     end
 
-    def remaining_stars
-      [@total_stars - @spent_stars, 0].max
+    def draws_unlocked
+      VOUCHER_MILESTONES.count { |threshold| @total_stars >= threshold }
     end
 
-    def used_stars
-      @spent_stars
+    def draws_claimed
+      @voucher_awards.length
+    end
+
+    def draws_available
+      [draws_unlocked - draws_claimed, 0].max
     end
 
     def voucher_awards
       @voucher_awards.map(&:to_h)
     end
 
-    def voucher_cost
-      VOUCHER_COST
+    def voucher_milestones
+      VOUCHER_MILESTONES
+    end
+
+    def next_milestone
+      VOUCHER_MILESTONES.find { |threshold| threshold > @total_stars }
+    end
+
+    def stars_until_next_milestone
+      threshold = next_milestone
+      return nil unless threshold
+
+      [threshold - @total_stars, 0].max
     end
 
     def can_draw_voucher?
-      remaining_stars >= VOUCHER_COST
+      draws_available.positive?
     end
 
     def draw_voucher!(random: nil, catalog: nil)
-      raise NotEnoughStarsError, "Not enough stars" unless can_draw_voucher?
+      raise NoEligibleDrawsError, "No draw unlocked yet" unless can_draw_voucher?
 
       rng = random || Random.new
       pool = Array(catalog || voucher_catalog)
@@ -150,7 +164,6 @@ module Adapter
 
       award = VoucherAward.new(next_voucher_id, prize.fetch(:title), prize.fetch(:details), current_timestamp, nil)
 
-      @spent_stars += VOUCHER_COST
       @voucher_awards << award
 
       persist_state!
@@ -192,7 +205,6 @@ module Adapter
 
       payload = {
         "days" => days_payload,
-        "spent_stars" => @spent_stars,
         "voucher_awards" => @voucher_awards.map(&:serialize),
         "voucher_sequence" => @voucher_sequence
       }
@@ -205,14 +217,12 @@ module Adapter
 
       raw = YAML.safe_load(File.read(file), permitted_classes: [Date], symbolize_names: true) || {}
       days_raw = extract_days(raw)
-      spent_stars = extract_spent_stars(raw)
       awards_raw = extract_awards(raw)
 
       awards = build_awards(awards_raw)
 
       {
         days: build_calendar(days_raw),
-        spent_stars: spent_stars,
         voucher_awards: awards,
         voucher_sequence: extract_voucher_sequence(raw, awards)
       }
@@ -226,11 +236,6 @@ module Adapter
       else
         raw
       end
-    end
-
-    def extract_spent_stars(raw)
-      value = value_for(raw, :spent_stars) || 0
-      [value.to_i, 0].max
     end
 
     def extract_awards(raw)

@@ -34,26 +34,25 @@ module Adapter
       refute_predicate calendar, :checked_in?
       assert_equal 0, calendar.total_stars
       assert_equal 0, calendar.total_check_ins
-      assert_equal 0, calendar.remaining_stars
-      assert_equal 0, calendar.used_stars
+      assert_equal 0, calendar.draws_unlocked
+      assert_equal 0, calendar.draws_available
     end
 
     test "loads checked in day with stars" do
       write_calendar(
         days: {
-          @day => { checked_in: true, stars: 2 }
+          @day => { checked_in: true, stars: 35 }
         },
-        spent_stars: 3,
         awards: [build_award("Dinner date")]
       )
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
 
       assert_predicate calendar, :checked_in?
-      assert_equal 2, calendar.total_stars
+      assert_equal 35, calendar.total_stars
       assert_equal 1, calendar.total_check_ins
-      assert_equal 3, calendar.used_stars
-      assert_equal 0, calendar.remaining_stars
+      assert_equal 3, calendar.draws_unlocked
+      assert_equal 2, calendar.draws_available
       assert_equal 1, calendar.voucher_awards.size
       award = calendar.voucher_awards.first
       assert_equal "Dinner date", award[:title]
@@ -78,7 +77,8 @@ module Adapter
       assert_predicate calendar, :checked_in?
       assert_equal 2, calendar.total_check_ins
       assert_equal 2, calendar.total_stars
-      assert_equal 2, calendar.remaining_stars
+      assert_equal 0, calendar.draws_unlocked
+      assert_equal 0, calendar.draws_available
 
       reloaded = AdventCalendar.new(@day, data_file: @data_file)
       assert_predicate reloaded, :checked_in?
@@ -102,7 +102,7 @@ module Adapter
       refute_predicate calendar, :checked_in?
       assert_equal 1, calendar.total_check_ins
       assert_equal 1, calendar.total_stars
-      assert_equal 1, calendar.remaining_stars
+      assert_equal 0, calendar.draws_unlocked
 
       reloaded = AdventCalendar.new(@day, data_file: @data_file)
       refute_predicate reloaded, :checked_in?
@@ -110,7 +110,7 @@ module Adapter
       assert_equal 1, reloaded.total_stars
     end
 
-    test "draw_voucher consumes stars and persists" do
+    test "draw_voucher consumes unlocked opportunity and persists" do
       write_calendar(
         days: {
           (@day - 2) => { checked_in: true, stars: 1 },
@@ -120,19 +120,22 @@ module Adapter
       )
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
+      assert_equal 3, calendar.total_stars
+      assert_equal 1, calendar.draws_unlocked
+      assert_equal 1, calendar.draws_available
 
       travel_to Time.zone.parse("2024-12-01 12:00:00") do
         award = calendar.draw_voucher!(random: Random.new(42), catalog: [{ title: "massage", details: "relax" }])
 
         assert_equal "massage", award.title
         assert_match(/voucher-\d{4}/, award.id)
-        assert_equal 3, calendar.used_stars
-        assert_equal 0, calendar.remaining_stars
+        assert_equal 0, calendar.draws_available
+        assert_equal 1, calendar.draws_claimed
       end
 
       reloaded = AdventCalendar.new(@day, data_file: @data_file)
-      assert_equal 3, reloaded.used_stars
-      assert_equal 0, reloaded.remaining_stars
+      assert_equal 0, reloaded.draws_available
+      assert_equal 1, reloaded.draws_claimed
       assert_equal 1, reloaded.voucher_awards.size
       reloaded_award = reloaded.voucher_awards.first
       assert_equal "massage", reloaded_award[:title]
@@ -148,7 +151,7 @@ module Adapter
 
       calendar = AdventCalendar.new(@day, data_file: @data_file)
 
-      assert_raises(Adapter::AdventCalendar::NotEnoughStarsError) do
+      assert_raises(Adapter::AdventCalendar::NoEligibleDrawsError) do
         calendar.draw_voucher!
       end
     end
@@ -204,10 +207,9 @@ module Adapter
 
     private
 
-    def write_calendar(days:, spent_stars: 0, awards: [])
+    def write_calendar(days:, awards: [])
       payload = {
         "days" => build_days_payload(days),
-        "spent_stars" => spent_stars,
         "voucher_awards" => awards,
         "voucher_sequence" => 1
       }
