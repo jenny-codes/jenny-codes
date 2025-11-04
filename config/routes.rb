@@ -22,5 +22,5 @@ Rails.application.routes.draw do
   post "advent/reset_check_in", to: "advent#reset_check_in"
   post "advent/draw_voucher", to: "advent#draw_voucher"
   post "advent/redeem_voucher", to: "advent#redeem_voucher"
-  post "advent/reveal_secret", to: "advent#reveal_secret"
+  post "advent/solve_puzzle", to: "advent#solve_puzzle"
 end

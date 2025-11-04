@@ -4,6 +4,7 @@
 require "test_helper"
 require "yaml"
 
+# rubocop:disable Metrics/ClassLength
 class AdventControllerTest < ActionDispatch::IntegrationTest
   setup { write_calendar_data }
   teardown { write_calendar_data }
@@ -46,7 +47,6 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_select ".advent-voucher-card__prize"
-    assert_select "form[action='#{advent_redeem_voucher_path}']", minimum: 1
     assert_select ".advent-faq__response", text: /draw/i
   end
 
@@ -68,32 +68,38 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to advent_path(tab: "wah")
     follow_redirect!
 
-    assert_select ".advent-voucher-card__status", text: /Redeemed/i
+    assert_select ".advent-voucher-alert", text: /not redeemable/i
   end
 
-  test "after view reveals done message when secret code matches" do
+  test "after view reveals done message when puzzle answer matches" do
+    baseline_stars = current_calendar.total_stars
     post advent_check_in_url
 
-    post advent_reveal_secret_url, params: { secret_code: "hooters" }
+    post advent_solve_puzzle_url, params: { puzzle_answer: "hooters" }
     assert_redirected_to advent_path(tab: "main")
 
+    assert_equal baseline_stars + 2, current_calendar.total_stars
+
     follow_redirect!
-    assert_select "form[action='#{advent_reveal_secret_path}']", false
+    assert_select "form[action='#{advent_solve_puzzle_path}']", false
     assert_select ".advent-done-message", text: /you are rewarded one more star/i
-    assert_select ".advent-secret-alert", false
+    assert_select ".advent-puzzle-alert", false
     assert_select "p", text: /Part 2:/, count: 0
   end
 
-  test "after view keeps puzzle when secret code does not match" do
+  test "after view keeps puzzle when puzzle answer does not match" do
+    baseline_stars = current_calendar.total_stars
     post advent_check_in_url
 
-    post advent_reveal_secret_url, params: { secret_code: "wrong" }
+    post advent_solve_puzzle_url, params: { puzzle_answer: "wrong" }
     assert_redirected_to advent_path(tab: "main")
 
+    assert_equal baseline_stars + 1, current_calendar.total_stars
+
     follow_redirect!
-    assert_select "form[action='#{advent_reveal_secret_path}'][method='post'] input[name='secret_code'][value='wrong']"
+    assert_select "form[action='#{advent_solve_puzzle_path}'][method='post'] input[name='puzzle_answer'][value='wrong']"
     assert_select ".advent-done-message", false
-    assert_select ".advent-secret-alert", text: /That is not correct. Try again\?/i
+    assert_select ".advent-puzzle-alert", text: /That is not correct. Try again\?/i
     assert_select "p", text: /Part 2:/, count: 1
   end
 
@@ -112,18 +118,18 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   def default_days
     today = Time.zone.today
     {
-      (today - 3).iso8601 => { "checked_in" => true, "stars" => 1 },
-      (today - 2).iso8601 => { "checked_in" => true, "stars" => 1 },
-      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
-      today.iso8601 => { "checked_in" => false, "stars" => 0 }
+      (today - 3).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
+      (today - 2).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
+      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
+      today.iso8601 => { "checked_in" => false, "stars" => 0, "puzzle_answer" => "hooters" }
     }
   end
 
   def insufficient_days
     today = Time.zone.today
     {
-      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1 },
-      today.iso8601 => { "checked_in" => false, "stars" => 0 }
+      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
+      today.iso8601 => { "checked_in" => false, "stars" => 0, "puzzle_answer" => "hooters" }
     }
   end
 
@@ -131,3 +137,4 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     Adapter::AdventCalendar.on(Time.zone.today)
   end
 end
+# rubocop:enable Metrics/ClassLength

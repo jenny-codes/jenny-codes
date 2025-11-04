@@ -4,7 +4,6 @@
 - stars_until_next = @stars_until_next_milestone
 - can_draw = @calendar.can_draw_voucher?
 - latest_award = flash[:voucher_award]
-- redeemed_flash = flash[:voucher_redeemed]
 - voucher_alert = flash[:alert]
 - awards = @voucher_awards
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
@@ -32,14 +31,6 @@ section.advent-section.advent-faq
           span.advent-faq__response
             .advent-voucher-alert role="status"
               = voucher_alert
-
-    - if redeemed_flash.present?
-      - reward_title = redeemed_flash[:title] || redeemed_flash['title']
-      .advent-faq__pair
-        dd.advent-faq__answer
-          span.advent-faq__response
-            .advent-voucher-alert.advent-voucher-alert--success role="status"
-              == "Voucher '<strong>#{reward_title}</strong>' redeemed!"
 
     .advent-faq__pair
       dd.advent-faq__answer
@@ -80,7 +71,7 @@ section.advent-section.advent-faq
                   p.advent-voucher-card__time == "on #{redeemed_time.strftime('%b %d, %Y %H:%M')}"
               .advent-voucher-card__actions
                 - unless already_redeemed
-                  = button_to "Redeem", advent_redeem_voucher_path, method: :post, params: { voucher_id: award_id }, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+                  = button_tag "Redeem", type: :button, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
 
   - if awards.any?
     section.advent-section.advent-faq
@@ -107,6 +98,6 @@ section.advent-section.advent-faq
                       p.advent-voucher-card__time == "on #{redeemed_at.strftime('%b %d, %Y %H:%M')}"
                   .advent-voucher-card__actions
                     - unless redeemed
-                      = button_to "Redeem", advent_redeem_voucher_path, method: :post, params: { voucher_id: award_id }, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+                      = button_tag "Redeem", type: :button, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
   - else
     p.advent-section__text You have not drawn any vouchers yet. The vault awaits your first spin.

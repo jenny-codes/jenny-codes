@@ -108,6 +108,59 @@ module Adapter
       assert_equal 1, reloaded.total_stars
     end
 
+    test "attempt_puzzle awards second star when answer matches" do
+      write_calendar(
+        days: {
+          @day => { checked_in: false, stars: 0, puzzle_answer: "hooters" }
+        }
+      )
+
+      calendar = AdventCalendar.new(@day, data_file: @data_file)
+
+      refute calendar.checked_in?
+      assert_equal 0, calendar.total_stars
+
+      assert calendar.attempt_puzzle!("hooters"), "expected puzzle attempt to succeed"
+      assert_equal 1, calendar.total_stars
+      refute calendar.puzzle_completed?, "puzzle should not be marked complete until check-in star is earned"
+
+      calendar.check_in
+      assert_equal 2, calendar.total_stars
+      assert calendar.puzzle_completed?
+    end
+
+    test "attempt_puzzle does not add star on incorrect answer" do
+      write_calendar(
+        days: {
+          @day => { checked_in: false, stars: 0, puzzle_answer: "hooters" }
+        }
+      )
+
+      calendar = AdventCalendar.new(@day, data_file: @data_file)
+
+      refute calendar.attempt_puzzle!("wrong")
+      assert_equal 0, calendar.total_stars
+      refute calendar.puzzle_completed?
+    end
+
+    test "attempt_puzzle only awards once" do
+      write_calendar(
+        days: {
+          @day => { checked_in: true, stars: 1, puzzle_answer: "hooters" }
+        }
+      )
+
+      calendar = AdventCalendar.new(@day, data_file: @data_file)
+      assert_equal 1, calendar.total_stars
+
+      assert calendar.attempt_puzzle!("hooters")
+      assert_equal 2, calendar.total_stars
+      assert calendar.puzzle_completed?
+
+      assert calendar.attempt_puzzle!("hooters")
+      assert_equal 2, calendar.total_stars
+    end
+
     test "draw_voucher consumes unlocked opportunity and persists" do
       write_calendar(
         days: {
@@ -216,16 +269,27 @@ module Adapter
     def build_days_payload(days)
       days.each_with_object({}) do |(date, attrs), memo|
         key = date.is_a?(Date) ? date.iso8601 : date.to_s
-        memo[key] = sanitize_day_attributes(attrs)
+        memo[key] = sanitize_day_attributes(attrs, key)
       end
     end
 
-    def sanitize_day_attributes(attrs)
-      return { "checked_in" => false, "stars" => 0 } unless attrs.is_a?(Hash)
+    def sanitize_day_attributes(attrs, date_key)
+      return default_day_payload(date_key) unless attrs.is_a?(Hash)
+
+      answer = value_for(attrs, :puzzle_answer)
 
       {
         "checked_in" => truthy?(value_for(attrs, :checked_in)),
-        "stars" => (value_for(attrs, :stars) || 0).to_i
+        "stars" => (value_for(attrs, :stars) || 0).to_i,
+        "puzzle_answer" => answer&.to_s || default_puzzle_answer_for(date_key)
+      }
+    end
+
+    def default_day_payload(date_key)
+      {
+        "checked_in" => false,
+        "stars" => 0,
+        "puzzle_answer" => default_puzzle_answer_for(date_key)
       }
     end
 
@@ -245,6 +309,10 @@ module Adapter
         "awarded_at" => "2024-11-30T10:00:00Z",
         "redeemed_at" => redeemed ? "2024-12-02T09:00:00Z" : nil
       }
+    end
+
+    def default_puzzle_answer_for(date_key)
+      date_key.to_s == @day.iso8601 ? "hooters" : "ember"
     end
   end
   # rubocop:enable Metrics/ClassLength

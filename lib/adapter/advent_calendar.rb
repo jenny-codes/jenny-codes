@@ -22,7 +22,7 @@ module Adapter
     VoucherNotFoundError = Class.new(StandardError)
     VoucherAlreadyRedeemedError = Class.new(StandardError)
 
-    DayEntry = Data.define(:checked_in, :stars) do
+    DayEntry = Data.define(:checked_in, :stars, :puzzle_answer) do
       def checked_in?
         !!checked_in
       end
@@ -31,11 +31,32 @@ module Adapter
         [stars.to_i, 0].max
       end
 
+      def puzzle_answer_value
+        value = puzzle_answer
+        return nil if value.nil?
+
+        value.to_s.strip
+      end
+
+      def puzzle_answer_matches?(attempt)
+        expected = puzzle_answer_value
+        return false if expected.nil? || expected.empty?
+
+        attempt.to_s.strip.casecmp?(expected)
+      end
+
+      def puzzle_completed?
+        stars_amount >= 2
+      end
+
       def serialize
         {
           "checked_in" => checked_in?,
-          "stars" => stars_amount
-        }
+          "stars" => stars_amount,
+          "puzzle_answer" => puzzle_answer_value
+        }.tap do |hash|
+          hash.delete("puzzle_answer") if hash["puzzle_answer"].nil? || hash["puzzle_answer"].empty?
+        end
       end
     end
 
@@ -88,7 +109,9 @@ module Adapter
     def check_in
       return if checked_in?
 
-      @calendar_data[@day] = DayEntry.new(true, 1)
+      entry = day_entry
+      updated_stars = [entry.stars_amount + 1, 2].min
+      @calendar_data[@day] = entry.with(checked_in: true, stars: updated_stars)
       sync_totals!
       persist_state!
     end
@@ -98,7 +121,7 @@ module Adapter
       entry = day_entry
       return unless entry.checked_in? || entry.stars_amount.positive?
 
-      @calendar_data[@day] = DayEntry.new(false, 0)
+      @calendar_data[@day] = entry.with(checked_in: false, stars: 0)
       sync_totals!
       persist_state!
     end
@@ -129,6 +152,22 @@ module Adapter
 
     def draws_available
       [draws_unlocked - draws_claimed, 0].max
+    end
+
+    def puzzle_answer
+      day_entry.puzzle_answer_value
+    end
+
+    def puzzle_completed?
+      day_entry.puzzle_completed?
+    end
+
+    def attempt_puzzle!(attempt)
+      entry = day_entry
+      return false unless entry.puzzle_answer_matches?(attempt)
+
+      award_puzzle_star!(entry)
+      true
     end
 
     def voucher_awards
@@ -188,7 +227,7 @@ module Adapter
     end
 
     def ensure_day_entry!
-      @calendar_data[@day] ||= DayEntry.new(false, 0)
+      @calendar_data[@day] ||= DayEntry.new(false, 0, nil)
     end
 
     def sync_totals!
@@ -249,11 +288,12 @@ module Adapter
     end
 
     def coerce_day_attrs(attrs)
-      return { checked_in: false, stars: 0 } unless attrs.is_a?(Hash)
+      return { checked_in: false, stars: 0, puzzle_answer: nil } unless attrs.is_a?(Hash)
 
       {
         checked_in: normalize_boolean(value_for(attrs, :checked_in)),
-        stars: normalize_integer(value_for(attrs, :stars))
+        stars: normalize_integer(value_for(attrs, :stars)),
+        puzzle_answer: normalize_puzzle_answer(value_for(attrs, :puzzle_answer))
       }
     end
 
@@ -303,6 +343,13 @@ module Adapter
       value.to_i
     end
 
+    def normalize_puzzle_answer(value)
+      return nil if value.nil?
+
+      stripped = value.to_s.strip
+      stripped.empty? ? nil : stripped
+    end
+
     def extract_voucher_sequence(raw, awards)
       explicit = value_for(raw, :voucher_sequence)
       return explicit.to_i if explicit
@@ -330,6 +377,15 @@ module Adapter
 
     def current_timestamp
       (Time.zone ? Time.zone.now : Time.now).iso8601
+    end
+
+    def award_puzzle_star!(entry)
+      return if entry.puzzle_completed?
+
+      new_stars = [entry.stars_amount + 1, 2].min
+      @calendar_data[@day] = entry.with(stars: new_stars)
+      sync_totals!
+      persist_state!
     end
 
     class << self

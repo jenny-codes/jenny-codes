@@ -21,15 +21,19 @@ const resetCalendarState = () => {
     '  2025-10-31:',
     '    checked_in: true',
     '    stars: 1',
+    '    puzzle_answer: comet',
     '  2025-11-02:',
     '    checked_in: true',
     '    stars: 1',
+    '    puzzle_answer: aurora',
     '  2025-11-01:',
     '    checked_in: true',
     '    stars: 1',
+    '    puzzle_answer: lantern',
     '  2025-11-03:',
     '    checked_in: false',
     '    stars: 0',
+    '    puzzle_answer: hooters',
     'voucher_awards: []',
     'voucher_sequence: 1',
     ''
@@ -167,6 +171,33 @@ test.describe('Advent Console', () => {
     }
   });
 
+  test('daily puzzle awards an extra star when solved', async ({ page }) => {
+    const checkInButton = page.getByRole('button', { name: /check in/i });
+    await expect(checkInButton).toBeVisible();
+
+    const checkInResponse = page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400);
+    await checkInButton.click();
+    await checkInResponse;
+
+    const puzzleInput = page.getByLabel(/daily puzzle/i);
+    await expect(puzzleInput).toBeVisible();
+
+    await puzzleInput.fill('hooters');
+
+    const confirmButton = page.getByRole('button', { name: /confirm/i });
+    const puzzleResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400);
+    await confirmButton.click();
+    await puzzleResponse;
+    await page.waitForURL(/\/advent(?:\?tab=main)?$/);
+
+    await expect(page.locator('.advent-done-message')).toBeVisible();
+    await expect(page.locator('.advent-puzzle-form')).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'wah' }).click();
+    const statsLine = page.locator('.advent-faq__response').filter({ hasText: /^You have successfully checked in/ }).first();
+    await expect(statsLine).toContainText(/collected .*5.* stars/i);
+  });
+
   test('voucher draw dispenses a surprise and hides the button', async ({ page }) => {
     await page.getByRole('link', { name: 'wah' }).click();
 
@@ -188,10 +219,18 @@ test.describe('Advent Console', () => {
     const redeemButton = page.getByRole('button', { name: /redeem/i }).first();
     await expect(redeemButton).toBeVisible();
 
-    const redeemResponse = page.waitForResponse((response) => response.url().includes('/advent/redeem_voucher') && response.status() < 400);
-    await redeemButton.click();
-    await redeemResponse;
+    await page.evaluate(() => {
+      (window as any).__adventLastAlert = null;
+      window.alert = (message?: string) => {
+        (window as any).__adventLastAlert = message;
+      };
+    });
 
-    await expect(page.getByRole('button', { name: /redeem/i })).toHaveCount(0);
+    await redeemButton.click();
+
+    const lastAlert = await page.evaluate(() => (window as any).__adventLastAlert as string | null);
+    expect(lastAlert).toMatch(/not redeemable/i);
+
+    await expect(redeemButton).toBeVisible();
   });
 });

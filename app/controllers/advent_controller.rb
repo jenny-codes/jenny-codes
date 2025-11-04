@@ -11,7 +11,7 @@ class AdventController < ApplicationController
     assign_star_stats
     assign_voucher_stats
     @active_tab = extract_active_tab
-    assign_secret_state
+    assign_puzzle_state
     @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end
@@ -41,21 +41,17 @@ class AdventController < ApplicationController
   end
 
   def redeem_voucher
-    award = @calendar.redeem_voucher!(params.require(:voucher_id))
-    flash[:voucher_redeemed] = award.to_h
-    redirect_to_wah
-  rescue Adapter::AdventCalendar::VoucherNotFoundError, Adapter::AdventCalendar::VoucherAlreadyRedeemedError => e
-    flash[:alert] = e.message
+    flash[:alert] = "Oops this voucher is not redeemable until later ;)"
     redirect_to_wah
   end
 
-  def reveal_secret
-    secret_code = params.require(:secret_code).to_s
+  def solve_puzzle
+    attempt = params.require(:puzzle_answer).to_s
 
-    if secret_code_correct?(secret_code)
-      mark_secret_unlocked
+    if @calendar.attempt_puzzle!(attempt)
+      mark_puzzle_completed
     else
-      remember_secret_attempt(secret_code)
+      remember_puzzle_attempt(attempt)
     end
 
     redirect_to advent_path(tab: "main"), status: :see_other
@@ -63,7 +59,6 @@ class AdventController < ApplicationController
 
   private
 
-  SECRET_CODE = "hooters"
   DAILY_TEMPLATE_DIR = "advent/panels/days"
   DEFAULT_DAILY_TEMPLATE = "20251108"
 
@@ -91,25 +86,27 @@ class AdventController < ApplicationController
     @voucher_milestones = @calendar.voucher_milestones
   end
 
-  def assign_secret_state
-    @secret_revealed = session[:advent_secret_unlocked] == true
-    @secret_attempt = flash[:advent_secret_attempt]
-    @secret_error = flash[:advent_secret_error]
+  def assign_puzzle_state
+    if @calendar.puzzle_completed?
+      session[:advent_puzzle_completed] = true
+      flash.delete(:advent_puzzle_attempt)
+      flash.delete(:advent_puzzle_error)
+    end
+
+    @puzzle_completed = session[:advent_puzzle_completed] == true
+    @puzzle_attempt = flash[:advent_puzzle_attempt]
+    @puzzle_error = flash[:advent_puzzle_error]
   end
 
-  def secret_code_correct?(secret_code)
-    secret_code.strip.casecmp?(SECRET_CODE)
+  def mark_puzzle_completed
+    session[:advent_puzzle_completed] = true
+    flash.delete(:advent_puzzle_attempt)
+    flash.delete(:advent_puzzle_error)
   end
 
-  def mark_secret_unlocked
-    session[:advent_secret_unlocked] = true
-    flash.delete(:advent_secret_attempt)
-    flash.delete(:advent_secret_error)
-  end
-
-  def remember_secret_attempt(secret_code)
-    flash[:advent_secret_attempt] = secret_code
-    flash[:advent_secret_error] = "That is not correct. Try again?"
+  def remember_puzzle_attempt(answer)
+    flash[:advent_puzzle_attempt] = answer
+    flash[:advent_puzzle_error] = "That is not correct. Try again?"
   end
 
   def seconds_until_midnight

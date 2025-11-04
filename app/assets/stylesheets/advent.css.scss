@@ -316,7 +316,7 @@ pre.advent-section__text {
   letter-spacing: 0.01em;
 }
 
-.advent-secret-alert {
+.advent-puzzle-alert {
   background: rgba(255, 120, 120, 0.12);
   border: 1px solid rgba(255, 120, 120, 0.35);
   border-radius: 8px;
@@ -327,18 +327,18 @@ pre.advent-section__text {
   padding: 0.85rem 1rem;
 }
 
-.advent-secret-form {
+.advent-puzzle-form {
   display: grid;
   gap: 0.75rem;
   margin: 1.5rem 0 2rem;
 }
 
-.advent-secret-form__field {
+.advent-puzzle-form__field {
   display: grid;
   gap: 0.45rem;
 }
 
-.advent-secret-form__label {
+.advent-puzzle-form__label {
   color: rgba(218, 254, 228, 0.8);
   font-size: 0.95rem;
   letter-spacing: 0.08em;

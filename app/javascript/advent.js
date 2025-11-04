@@ -62,7 +62,7 @@ function initializeTabs(consoleEl) {
     try {
       const url = new URL(window.location.href);
       url.searchParams.set('tab', targetId);
-      url.searchParams.delete('secret_code');
+      url.searchParams.delete('puzzle_answer');
       url.searchParams.delete('commit');
 
       const nextSearch = url.searchParams.toString();
@@ -458,11 +458,29 @@ const bindVoucherActionButton = (button) => {
   });
 };
 
+const REDEEM_ALERT_MESSAGE = "oops this voucher is not redeemable until later ;)";
+
+const bindVoucherRedeemButton = (button) => {
+  if (!button || button.dataset.voucherRedeemBound === 'true') return;
+
+  button.dataset.voucherRedeemBound = 'true';
+
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+      window.alert(REDEEM_ALERT_MESSAGE);
+    } else {
+      console.info('[advent] voucher not redeemable yet');
+    }
+  });
+};
+
 const initializeVoucherActions = (root) => {
   if (!root) return;
 
   root.querySelectorAll('[data-advent-voucher-draw]').forEach(bindVoucherActionButton);
-  root.querySelectorAll('[data-advent-voucher-redeem]').forEach(bindVoucherActionButton);
+  root.querySelectorAll('[data-advent-voucher-redeem]').forEach(bindVoucherRedeemButton);
 };
 
 const bootstrapAdvent = (rootOverride, options = {}) => {

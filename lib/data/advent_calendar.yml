@@ -3,21 +3,31 @@ days:
   2025-10-30:
     checked_in: true
     stars: 1
+    puzzle_answer: sunrise
   2025-10-31:
     checked_in: false
     stars: 0
+    puzzle_answer: lantern
   2025-11-01:
     checked_in: true
     stars: 1
+    puzzle_answer: comet
   2025-11-02:
     checked_in: true
     stars: 1
+    puzzle_answer: aurora
   2025-11-03:
     checked_in: true
     stars: 1
+    puzzle_answer: nebula
+  2025-11-08:
+    checked_in: false
+    stars: 0
+    puzzle_answer: hooters
   2025-12-25:
     checked_in: true
     stars: 1
+    puzzle_answer: starlight
 voucher_awards:
 - id: voucher-0001
   title: a splendid date
