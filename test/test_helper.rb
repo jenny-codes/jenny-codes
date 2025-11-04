@@ -4,9 +4,12 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "action_mailer/test_helper"
 
 module ActiveSupport
   class TestCase
+    include ActionMailer::TestHelper
+
     def assert_cache_queries(expected_hits, &block)
       queries = []
 

@@ -1,6 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    actionmailer (8.1.0)
+      actionpack (= 8.1.0)
+      actionview (= 8.1.0)
+      activejob (= 8.1.0)
+      activesupport (= 8.1.0)
+      mail (>= 2.8.0)
+      rails-dom-testing (~> 2.2)
     actionpack (8.1.0)
       actionview (= 8.1.0)
       activesupport (= 8.1.0)
@@ -17,6 +24,9 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
+    activejob (8.1.0)
+      activesupport (= 8.1.0)
+      globalid (>= 0.3.6)
     activesupport (8.1.0)
       base64
       bigdecimal
@@ -46,6 +56,16 @@ GEM
     drb (2.2.3)
     erb (5.1.1)
     erubi (1.13.1)
+    faraday (2.14.0)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.1.1)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.1)
+      net-http (>= 0.5.0)
+    globalid (1.3.0)
+      activesupport (>= 6.1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.1)
@@ -62,8 +82,31 @@ GEM
     loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
+    mail (2.9.0)
+      logger
+      mini_mime (>= 0.1.1)
+      net-imap
+      net-pop
+      net-smtp
+    mailgun-ruby (1.4.0)
+      faraday (~> 2.1)
+      faraday-multipart (~> 1.1.0)
+      mini_mime
+    mini_mime (1.1.5)
     minitest (5.26.0)
     msgpack (1.8.0)
+    multipart-post (2.4.1)
+    net-http (0.7.0)
+      uri
+    net-imap (0.5.12)
+      date
+      net-protocol
+    net-pop (0.1.2)
+      net-protocol
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
     netrc (0.11.0)
     nio4r (2.7.4)
     nokogiri (1.18.10-aarch64-linux-gnu)
@@ -203,6 +246,7 @@ GEM
     temple (0.10.4)
     thor (1.4.0)
     tilt (2.6.1)
+    timeout (0.4.4)
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -231,12 +275,14 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  actionmailer (~> 8.0)
   actionpack (~> 8.0)
   actionview (~> 8.0)
   activesupport (~> 8.0)
   bootsnap (>= 1.1.0)
   cssbundling-rails
   jsbundling-rails
+  mailgun-ruby (~> 1.4)
   propshaft
   puma (~> 6.0)
   railties (~> 8.0)

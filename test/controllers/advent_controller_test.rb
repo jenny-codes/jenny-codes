@@ -3,10 +3,14 @@
 
 require "test_helper"
 require "yaml"
+require "action_mailer"
 
 # rubocop:disable Metrics/ClassLength
 class AdventControllerTest < ActionDispatch::IntegrationTest
-  setup { write_calendar_data }
+  setup do
+    ActionMailer::Base.deliveries.clear
+    write_calendar_data
+  end
   teardown { write_calendar_data }
 
   test "index should get index view when not checked in" do
@@ -18,6 +22,16 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     post advent_check_in_url
     get advent_url
     assert_response :success
+  end
+
+  test "check in sends notification email" do
+    assert_emails 1 do
+      post advent_check_in_url
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal "[Advent Calendar] Checked in for #{Time.zone.today.iso8601}", email.subject
+    assert_includes email.body.to_s, Time.zone.today.iso8601
   end
 
   test "after view shows reset button when checked in" do
@@ -101,6 +115,20 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_select ".advent-done-message", false
     assert_select ".advent-puzzle-alert", text: /That is not correct. Try again\?/i
     assert_select "p", text: /Part 2:/, count: 1
+  end
+
+  test "puzzle attempt emails include attempt" do
+    post advent_check_in_url
+    ActionMailer::Base.deliveries.clear
+
+    assert_emails 1 do
+      post advent_solve_puzzle_url, params: { puzzle_answer: "wrong" }
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal "[Advent Calendar] Puzzle attempt made for #{Time.zone.today.iso8601}", email.subject
+    assert_includes email.body.to_s, "wrong"
+    assert_includes email.body.to_s, "Incorrect"
   end
 
   private

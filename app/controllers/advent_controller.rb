@@ -18,7 +18,9 @@ class AdventController < ApplicationController
   end
 
   def check_in
+    already_checked = @calendar.checked_in?
     @calendar.check_in
+    send_check_in_email unless already_checked
     redirect_to advent_path
   end
 
@@ -49,6 +51,7 @@ class AdventController < ApplicationController
   def solve_puzzle
     attempt = params.require(:puzzle_answer).to_s
     result = apply_puzzle_attempt(attempt, persist_flash: !request.format.json?)
+    send_puzzle_attempt_email(attempt: attempt, solved: result[:solved])
 
     respond_to do |format|
       format.html { redirect_to advent_path(tab: "main"), status: :see_other }
@@ -175,6 +178,10 @@ class AdventController < ApplicationController
     )
   end
 
+  def send_check_in_email
+    AdventNotifierMailer.check_in(day: @calendar.day).deliver_now
+  end
+
   def apply_puzzle_attempt(attempt, persist_flash: true)
     if @calendar.attempt_puzzle!(attempt)
       mark_puzzle_completed
@@ -207,6 +214,10 @@ class AdventController < ApplicationController
 
   def puzzle_error_message
     "That is not correct. Try again?"
+  end
+
+  def send_puzzle_attempt_email(attempt:, solved: false)
+    AdventNotifierMailer.puzzle_attempt(day: @calendar.day, attempt: attempt, solved: solved).deliver_now
   end
 end
 # rubocop:enable Metrics/ClassLength

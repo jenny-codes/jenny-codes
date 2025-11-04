@@ -87,7 +87,7 @@ module Adapter
       end
     end
 
-    attr_reader :total_stars, :total_check_ins
+    attr_reader :total_stars, :total_check_ins, :day
 
     def self.on(day)
       new(day)

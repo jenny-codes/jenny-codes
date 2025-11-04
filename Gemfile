@@ -5,6 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.3.4"
 
+gem "actionmailer", "~> 8.0"
 gem "actionpack", "~> 8.0"
 gem "actionview", "~> 8.0"
 gem "activesupport", "~> 8.0"
@@ -34,3 +35,5 @@ group :test, :development do
   gem "ruby-lsp", require: false
   gem "tapioca", require: false
 end
+
+gem "mailgun-ruby", "~> 1.4"
