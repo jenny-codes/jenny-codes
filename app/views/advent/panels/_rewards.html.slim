@@ -13,16 +13,16 @@ section.advent-section.advent-faq
   dl.advent-faq
     .advent-faq__pair
       dd.advent-faq__answer
-        span.advent-faq__response == "You have successfully checked in <strong>#{@total_check_ins}</strong> day#{'s' if @total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
+        p.advent-section__text == "You have successfully checked in <strong>#{@total_check_ins}</strong> day#{'s' if @total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
 
     .advent-faq__pair
       dd.advent-faq__answer
         - if next_milestone == 3
-          span.advent-faq__response == "Ahh...Something good awaits when you collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} 👀"
+          p.advent-section__text == "Ahh...Something good awaits when you collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} 👀"
         - elsif stars_until_next.present?
-          span.advent-faq__response == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw at <strong>#{next_milestone}</strong> total."
+          p.advent-section__text == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw at <strong>#{next_milestone}</strong> total."
         - else
-          span.advent-faq__response You have unlocked every draw milestone.
+          p.advent-section__text You have unlocked every draw milestone.
 
     - if voucher_alert.present?
       .advent-faq__pair
@@ -34,7 +34,7 @@ section.advent-section.advent-faq
     .advent-faq__pair
       dd.advent-faq__answer
         - if can_draw
-          span.advent-faq__response
+          div.advent-section__text.advent-section__text--inline
             = button_to "weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", data: { advent_voucher_draw: true }
           p.advent-section__text.small-note You feel lucky. Let's see what fate has in store.
 

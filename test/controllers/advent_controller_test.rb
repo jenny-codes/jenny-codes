@@ -47,7 +47,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_select ".advent-voucher-card__prize"
-    assert_select ".advent-faq__response", text: /draw/i
+    assert_select ".advent-section__text", text: /draw/i
   end
 
   test "draw voucher requires enough stars" do

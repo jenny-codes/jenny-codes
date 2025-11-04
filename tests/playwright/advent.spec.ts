@@ -16,7 +16,6 @@ const formatDateKey = (date: Date) => {
 
 const resetCalendarState = () => {
   const todayKey = formatDateKey(new Date());
-  const staticKeys = new Set(['2025-10-31', '2025-11-02', '2025-11-01', '2025-11-03']);
 
   const lines = [
     '---',
@@ -42,7 +41,7 @@ const resetCalendarState = () => {
     ''
   ];
 
-  if (!staticKeys.has(todayKey)) {
+  if (!lines.includes(`  ${todayKey}:`)) {
     const insertAt = lines.findIndex((line) => line === 'voucher_awards: []');
     lines.splice(insertAt, 0,
       `  ${todayKey}:`,
@@ -241,7 +240,7 @@ test.describe('Advent Console', () => {
     expect(puzzleStatuses).toEqual([200, 200]);
 
     await page.getByRole('link', { name: 'wah' }).click();
-    const statsLine = page.locator('.advent-faq__response').filter({ hasText: /^You have successfully checked in/ }).first();
+    const statsLine = page.locator('.advent-section__text').filter({ hasText: /^You have successfully checked in/ }).first();
     await expect(statsLine).toContainText(/collected .*5.* stars/i);
   });
 
