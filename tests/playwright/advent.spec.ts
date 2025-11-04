@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { writeFileSync } from 'fs';
+import { renameSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 const ADVENT_PATH = '/advent';
@@ -15,7 +15,10 @@ const formatDateKey = (date: Date) => {
 };
 
 const resetCalendarState = () => {
-  const state = [
+  const todayKey = formatDateKey(new Date());
+  const staticKeys = new Set(['2025-10-31', '2025-11-02', '2025-11-01', '2025-11-03']);
+
+  const lines = [
     '---',
     'days:',
     '  2025-10-31:',
@@ -37,9 +40,23 @@ const resetCalendarState = () => {
     'voucher_awards: []',
     'voucher_sequence: 1',
     ''
-  ].join('\n');
+  ];
 
-  writeFileSync(DATA_PATH, state);
+  if (!staticKeys.has(todayKey)) {
+    const insertAt = lines.findIndex((line) => line === 'voucher_awards: []');
+    lines.splice(insertAt, 0,
+      `  ${todayKey}:`,
+      '    checked_in: false',
+      '    stars: 0',
+      '    puzzle_answer: hooters'
+    );
+  }
+
+  const state = lines.join('\n');
+  const tempPath = `${DATA_PATH}.${process.pid}.${Math.random().toString(16).slice(2)}`;
+  const finalState = state.endsWith('\n') ? state : `${state}\n`;
+  writeFileSync(tempPath, finalState);
+  renameSync(tempPath, DATA_PATH);
 };
 
 const waitForHeadlineCompletion = async (page: Page) => {
@@ -52,6 +69,7 @@ const waitForHeadlineCompletion = async (page: Page) => {
 };
 
 test.describe('Advent Console', () => {
+  test.describe.configure({ mode: 'serial' });
   test.beforeEach(async ({ page, baseURL }) => {
     resetCalendarState();
     const target = baseURL ? ADVENT_PATH : `${FALLBACK_BASE_URL}${ADVENT_PATH}`;

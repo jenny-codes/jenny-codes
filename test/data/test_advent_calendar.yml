@@ -16,5 +16,9 @@ days:
     checked_in: false
     stars: 0
     puzzle_answer: hooters
+  2025-11-04:
+    checked_in: false
+    stars: 0
+    puzzle_answer: hooters
 voucher_awards: []
 voucher_sequence: 1

@@ -1,35 +1,37 @@
-- state = local_assigns.fetch(:state, :before).to_sym
+- stage = local_assigns.fetch(:stage, :part1).to_sym
 - primary_action = local_assigns[:primary_action]
-- puzzle_completed = @puzzle_completed
 - puzzle_attempt = (@puzzle_attempt || "").to_s.strip
 - puzzle_error = @puzzle_error
 
-- if state == :before
+- case stage
+- when :part1
   section.advent-section
     pre.advent-section__text Yoohoo. Welcome to the advent calendar. This is where adventures begin, bugs vanquished and starts appear. Every day you come here, you will see a check in button:
 
-  - if primary_action.present?
-    .advent-action
-      == primary_action
+    - if primary_action.present?
+      .advent-action
+        == primary_action
+- when :part2
+  section.advent-section
+    p.advent-section__text Wah. Now you have gathered one star ⭐️!
+    p.advent-section__text Part 2:
+    p.advent-section__text ...Once upon a time, there was a traveller. Her name is Joyce. She has travelled in different places, and have settled down in this city called Toronto. After living in a few different parts of town, she settled into the heart of downtown, in this apartment in a skyscraper. The first time she walks toward the building, the first thing she noticed was this shiny two-storey, orange signed establishment at the intersection. When she walks near, she saw that the text glowing on the sign says ___
+
+    - if puzzle_error.present?
+      .advent-puzzle-alert
+        = puzzle_error
+
+    = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
+      .advent-puzzle-form__field
+        = form.label :puzzle_answer, "What does the sign say?", class: "advent-puzzle-form__label"
+        = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off", placeholder: "Enter your guess"
+      = form.submit "Confirm", class: "advent-button advent-button--ghost"
+
+  .advent-dev-controls
+    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }
 - else
-  - if puzzle_completed
-    section.advent-section.advent-done
-      p.advent-section__text.advent-done-message Good. Because you have provided the story with correct information you are rewarded one more star! The story will continue tomorrow :)
-  - else
-    section.advent-section
-      p.advent-section__text Wah. Now you have gathered one star ⭐️!
-      p.advent-section__text Part 2:
-      p.advent-section__text ...Once upon a time, there was a traveller. Her name is Joyce. She has travelled in different places, and have settled down in this city called Toronto. After living in a few different parts of town, she settled into the heart of downtown, in this apartment in a skyscraper. The first time she walks toward the building, the first thing she noticed was this shiny two-storey, orange signed establishment at the intersection. When she walks near, she saw that the text glowing on the sign says ___
-
-      - if puzzle_error.present?
-        .advent-puzzle-alert
-          = puzzle_error
-
-      = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
-        .advent-puzzle-form__field
-          = form.label :puzzle_answer, "Daily puzzle: what do you think the sign says?", class: "advent-puzzle-form__label"
-          = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off", placeholder: "Enter your guess"
-        = form.submit "Confirm", class: "advent-button advent-button--ghost"
+  section.advent-section.advent-done
+    p.advent-section__text.advent-done-message Good. You just got one more star because you have provided the correct information. The story will continue tomorrow :)
 
   .advent-dev-controls
     = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }

@@ -12,6 +12,7 @@ class AdventController < ApplicationController
     assign_voucher_stats
     @active_tab = extract_active_tab
     assign_puzzle_state
+    @story_state = story_state
     @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end
@@ -117,27 +118,15 @@ class AdventController < ApplicationController
 
   def layout_locals
     daily_partial = daily_template_partial
+    stage = story_state
 
-    if @calendar.checked_in?
-      {
-        main_partial: daily_partial,
-        main_locals: { state: :after, primary_action: nil }
-      }
-    else
-      {
-        main_partial: daily_partial,
-        main_locals: {
-          state: :before,
-          primary_action: view_context.button_to(
-            "Check in",
-            advent_check_in_path,
-            method: :post,
-            class: "advent-button",
-            data: { advent_check_in: true }
-          )
-        }
-      }
-    end
+    {
+      main_partial: daily_partial,
+      main_locals: {
+        stage: stage,
+        primary_action: (stage == :part1 ? check_in_button : nil)
+      }.compact
+    }
   end
 
   def extract_active_tab
@@ -174,6 +163,23 @@ class AdventController < ApplicationController
     Dir.glob(Rails.root.join("app", "views", DAILY_TEMPLATE_DIR, "_*.html.*"))
        .map { |path| File.basename(path).split(".").first.delete_prefix("_") }
        .sort
+  end
+
+  def story_state
+    return :completed if @calendar.puzzle_completed?
+    return :part2 if @calendar.checked_in?
+
+    :part1
+  end
+
+  def check_in_button
+    view_context.button_to(
+      "Check in",
+      advent_check_in_path,
+      method: :post,
+      class: "advent-button",
+      data: { advent_check_in: true }
+    )
   end
 end
 # rubocop:enable Metrics/ClassLength
