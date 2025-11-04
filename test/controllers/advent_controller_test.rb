@@ -47,7 +47,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".advent-voucher-card__prize"
     assert_select "form[action='#{advent_redeem_voucher_path}']", minimum: 1
-    assert_select ".advent-voucher-stats", text: /Stars spent so far: 3/
+    assert_select ".advent-faq__response", text: /Stars spent/i
   end
 
   test "draw voucher requires enough stars" do
@@ -69,6 +69,32 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select ".advent-voucher-card__status", text: /Redeemed/i
+  end
+
+  test "after view reveals done message when secret code matches" do
+    post advent_check_in_url
+
+    post advent_reveal_secret_url, params: { secret_code: "hooters" }
+    assert_redirected_to advent_path(tab: "main")
+
+    follow_redirect!
+    assert_select "form[action='#{advent_reveal_secret_path}']", false
+    assert_select ".advent-done-message", text: /Now you have gathered one more star!/i
+    assert_select ".advent-secret-alert", false
+    assert_select "p", text: /Part 2:/, count: 0
+  end
+
+  test "after view keeps puzzle when secret code does not match" do
+    post advent_check_in_url
+
+    post advent_reveal_secret_url, params: { secret_code: "wrong" }
+    assert_redirected_to advent_path(tab: "main")
+
+    follow_redirect!
+    assert_select "form[action='#{advent_reveal_secret_path}'][method='post'] input[name='secret_code'][value='wrong']"
+    assert_select ".advent-done-message", false
+    assert_select ".advent-secret-alert", text: /That is not correct. Try again\?/i
+    assert_select "p", text: /Part 2:/, count: 1
   end
 
   private

@@ -9,14 +9,13 @@
   header.advent-header
     .advent-title
       span.advent-title__line data-text="Today is #{@today.strftime('%b %d')}..."
-      span.advent-title__line data-text="#{@days_left} days to go."
+      span.advent-title__line data-text="#{@days_left} days to go"
 
   .advent-console__body
     nav.advent-tabs
       - panel_entries.each_key do |tab_id|
         - is_active = tab_id == active_tab
-        a.advent-tab href="#" data-advent-tab=tab_id class=(is_active ? 'is-active' : nil)
-          = tab_id
+        = link_to tab_id, advent_path(tab: tab_id), class: ["advent-tab", (is_active ? "is-active" : nil)].compact.join(" "), data: { advent_tab: tab_id }
 
     .advent-panels
       - panel_entries.each do |panel_id, partial_name|

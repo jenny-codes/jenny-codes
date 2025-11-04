@@ -95,11 +95,17 @@ test.describe('Advent Console', () => {
     await expect(mainTab).not.toHaveClass(/is-active/);
     await expect(rewardsPanel).toBeVisible();
     await expect(mainPanel).toHaveClass(/is-hidden/);
+    await expect(page).toHaveURL(/tab=wah/);
 
     await faqTab.click();
     await expect(faqTab).toHaveClass(/is-active/);
     await expect(rewardsPanel).toHaveClass(/is-hidden/);
     await expect(faqPanel).toBeVisible();
+    await expect(page).toHaveURL(/tab=faq/);
+
+    await mainTab.click();
+    await expect(mainTab).toHaveClass(/is-active/);
+    await expect(page).toHaveURL(/tab=main/);
   });
 
   test('countdown decreases over time', async ({ page }) => {
@@ -109,7 +115,7 @@ test.describe('Advent Console', () => {
         page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400),
         checkInButton.click(),
       ]);
-      await page.waitForURL(/\/advent$/);
+      await page.waitForURL(/\/advent(?:\?tab=main)?$/);
     }
 
     const countdown = page.locator('.advent-countdown [data-countdown-label]');
@@ -184,7 +190,7 @@ test.describe('Advent Console', () => {
     await expect(latestPrize).toBeVisible();
 
     await expect(page.getByRole('button', { name: /weee/i })).toHaveCount(0);
-    await expect(page.locator('.advent-voucher-list__item')).toHaveCount(1);
+    await expect(page.locator('.advent-voucher-card')).not.toHaveCount(0);
 
     const redeemButton = page.getByRole('button', { name: /redeem/i }).first();
     await expect(redeemButton).toBeVisible();

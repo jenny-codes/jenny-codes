@@ -54,6 +54,25 @@ function initializeTabs(consoleEl) {
     tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.adventTab ||
     tabs[0].dataset.adventTab;
 
+  const updateTabQuery = (targetId) => {
+    if (!targetId || typeof window === 'undefined' || typeof window.history === 'undefined') {
+      return;
+    }
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', targetId);
+      url.searchParams.delete('secret_code');
+      url.searchParams.delete('commit');
+
+      const nextSearch = url.searchParams.toString();
+      const nextUrl = nextSearch ? `${url.pathname}?${nextSearch}` : url.pathname;
+      window.history.replaceState({}, '', nextUrl);
+    } catch (error) {
+      console.warn('[advent] unable to update tab query', error);
+    }
+  };
+
   const activate = (targetId) => {
     if (!targetId) {
       return;
@@ -70,6 +89,8 @@ function initializeTabs(consoleEl) {
       const isMatch = tab.dataset.adventTab === targetId;
       tab.classList.toggle("is-active", isMatch);
     });
+
+    updateTabQuery(targetId);
   };
 
   tabs.forEach((tab) => {

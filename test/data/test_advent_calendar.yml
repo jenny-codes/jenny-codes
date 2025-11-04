@@ -1,15 +1,15 @@
 ---
 days:
-  2025-10-28:
-    checked_in: true
-    stars: 1
-  2025-10-29:
-    checked_in: true
-    stars: 1
-  2025-10-30:
-    checked_in: true
-    stars: 1
   2025-10-31:
+    checked_in: true
+    stars: 1
+  2025-11-01:
+    checked_in: true
+    stars: 1
+  2025-11-02:
+    checked_in: true
+    stars: 1
+  2025-11-03:
     checked_in: false
     stars: 0
 spent_stars: 0

@@ -1,20 +1,17 @@
 # typed: false
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class AdventController < ApplicationController
   before_action :set_calendar
   layout "advent"
 
   def index
-    @prompt = @calendar.prompt
-    @days_left = @calendar.days_left
-    @star_count = @calendar.total_stars
-    @total_check_ins = @calendar.total_check_ins
-    @spent_stars = @calendar.spent_stars
-    @remaining_stars = @calendar.remaining_stars
-    @voucher_awards = @calendar.voucher_awards
-    @voucher_cost = @calendar.voucher_cost
+    assign_prompt_data
+    assign_star_stats
+    assign_voucher_stats
     @active_tab = extract_active_tab
+    assign_secret_state
     @seconds_until_midnight = seconds_until_midnight
     render "advent/index", locals: layout_locals
   end
@@ -47,12 +44,64 @@ class AdventController < ApplicationController
     redirect_to_wah
   end
 
+  def reveal_secret
+    secret_code = params.require(:secret_code).to_s
+
+    if secret_code_correct?(secret_code)
+      mark_secret_unlocked
+    else
+      remember_secret_attempt(secret_code)
+    end
+
+    redirect_to advent_path(tab: "main"), status: :see_other
+  end
+
   private
+
+  SECRET_CODE = "hooters"
 
   def set_calendar
     @today = Time.zone.today
     @calendar = Adapter::AdventCalendar.on(@today)
     @advent_year = Adapter::AdventCalendar::END_DATE.year
+  end
+
+  def assign_prompt_data
+    @prompt = @calendar.prompt
+    @days_left = @calendar.days_left
+  end
+
+  def assign_star_stats
+    @star_count = @calendar.total_stars
+    @total_check_ins = @calendar.total_check_ins
+    @spent_stars = @calendar.spent_stars
+    @remaining_stars = @calendar.remaining_stars
+  end
+
+  def assign_voucher_stats
+    @voucher_awards = @calendar.voucher_awards
+    @voucher_cost = @calendar.voucher_cost
+  end
+
+  def assign_secret_state
+    @secret_revealed = session[:advent_secret_unlocked] == true
+    @secret_attempt = flash[:advent_secret_attempt]
+    @secret_error = flash[:advent_secret_error]
+  end
+
+  def secret_code_correct?(secret_code)
+    secret_code.strip.casecmp?(SECRET_CODE)
+  end
+
+  def mark_secret_unlocked
+    session[:advent_secret_unlocked] = true
+    flash.delete(:advent_secret_attempt)
+    flash.delete(:advent_secret_error)
+  end
+
+  def remember_secret_attempt(secret_code)
+    flash[:advent_secret_attempt] = secret_code
+    flash[:advent_secret_error] = "That is not correct. Try again?"
   end
 
   def seconds_until_midnight
@@ -89,3 +138,4 @@ class AdventController < ApplicationController
     redirect_to advent_path(tab: "wah"), status: :see_other
   end
 end
+# rubocop:enable Metrics/ClassLength

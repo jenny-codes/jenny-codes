@@ -1,9 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap");
 
+:root {
+  --advent-surface: #050516;
+  --advent-font: "Source Code Pro", "Lucida Console", Monaco, monospace;
+}
+
+html,
 body.advent-shell {
-  background-color: #0f0f23;
+  background: var(--advent-surface);
   color: #00e060;
-  font-family: "Source Code Pro", "Lucida Console", Monaco, monospace;
+  font-family: var(--advent-font);
   margin: 0;
   min-height: 100vh;
   padding: 0;
@@ -18,9 +24,8 @@ body.advent-shell {
 }
 
 .advent-console {
-  background: rgba(12, 12, 32, 0.82);
+  background-color: var(--advent-surface);
   border: none;
-  box-shadow: 0 0 25px rgba(0, 224, 96, 0.2);
   max-width: 840px;
   padding: 3rem 2.5rem 2.75rem;
   width: 100%;
@@ -114,7 +119,7 @@ body.advent-shell {
 
 .advent-tab {
   color: rgba(255, 255, 200, 0.75);
-  font-family: "Source Code Pro", "Lucida Console", Monaco, monospace;
+  font-family: var(--advent-font);
   font-size: 1rem;
   letter-spacing: 0.18em;
   text-decoration: none;
@@ -161,7 +166,7 @@ body.advent-shell {
 
 .advent-section__text {
   color: #dafee4;
-  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  font-family: var(--advent-font);
   font-size: 1.05rem;
   letter-spacing: 0.02em;
   line-height: 1.8;
@@ -273,6 +278,96 @@ pre.advent-section__text {
   margin-bottom: 0;
 }
 
+.advent-faq {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.advent-faq__pair {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0;
+}
+
+.advent-faq__question,
+.advent-faq__answer {
+  align-items: baseline;
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: auto 1fr;
+  margin: 0;
+}
+
+.advent-faq__question {
+  color: #ffffa5;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.advent-faq__answer {
+  color: rgba(218, 254, 228, 0.85);
+  line-height: 1.7;
+}
+
+.advent-faq__response {
+  letter-spacing: 0.01em;
+}
+
+.advent-secret-alert {
+  background: rgba(255, 120, 120, 0.12);
+  border: 1px solid rgba(255, 120, 120, 0.35);
+  border-radius: 8px;
+  color: #ffcece;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.advent-secret-form {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.advent-secret-form__field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.advent-secret-form__label {
+  color: rgba(218, 254, 228, 0.8);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.advent-input {
+  appearance: none;
+  background: rgba(12, 32, 28, 0.72);
+  border: 1px solid rgba(116, 255, 124, 0.32);
+  border-radius: 6px;
+  color: #dafee4;
+  font-family: var(--advent-font);
+  font-size: 1rem;
+  padding: 0.75rem 0.85rem;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.advent-input:focus {
+  outline: none;
+  border-color: rgba(148, 255, 200, 0.55);
+  box-shadow: 0 0 0 2px rgba(116, 255, 124, 0.22);
+}
+
+.advent-done-message {
+  color: #c9ffe6;
+  font-weight: 600;
+}
+
 .advent-button:hover,
 .advent-button:focus {
   box-shadow: 0 0 18px rgba(255, 255, 102, 0.45);
@@ -284,10 +379,6 @@ pre.advent-section__text {
 }
 
 .advent-voucher-stats {
-  background: none;
-  border: 1px solid rgba(116, 255, 124, 0.28);
-  border-radius: 10px;
-  box-shadow: none;
   padding: 1.2rem 1.4rem;
   margin-bottom: 1.5rem;
   display: grid;
