@@ -226,10 +226,16 @@ test.describe('Advent Console', () => {
     const correctResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400);
     await confirmButton.click();
     await correctResponse;
+
+    await page.waitForTimeout(200);
+    const starCount = await page.locator('.advent-starfield__star').count();
+    expect(starCount).toBeGreaterThan(0);
+
     await page.waitForURL(/\/advent(?:\?tab=main)?$/);
 
     await expect(page.locator('.advent-done-message')).toBeVisible();
     await expect(page.locator('.advent-puzzle-form')).toHaveCount(0);
+    await expect(page.locator('.advent-puzzle-alert')).toHaveCount(0);
 
     page.off('response', responseListener);
     expect(puzzleStatuses).toEqual([200, 200]);
