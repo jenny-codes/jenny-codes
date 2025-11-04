@@ -15,10 +15,16 @@ section.advent-section.advent-faq
       dd.advent-faq__answer
         span.advent-faq__response == "You have successfully checked in <strong>#{@total_check_ins}</strong> days, and collected <strong>#{total_stars}</strong> stars."
 
-    - if !stars_until_next.present?
-      .advent-faq__pair
-        dd.advent-faq__answer
-          span.advent-faq__response You have unlocked every draw milestone :)
+    .advent-faq__pair
+      dd.advent-faq__answer
+        - if stars_until_next.present?
+          span.advent-faq__response == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw at <strong>#{next_milestone}</strong> total."
+        - else
+          span.advent-faq__response You have unlocked every draw milestone.
+
+    .advent-faq__pair
+      dd.advent-faq__answer
+        span.advent-faq__response == "Draw opportunities waiting: <strong>#{draws_available}</strong>."
 
     - if voucher_alert.present?
       .advent-faq__pair
@@ -31,7 +37,7 @@ section.advent-section.advent-faq
       - reward_title = redeemed_flash[:title] || redeemed_flash['title']
       .advent-faq__pair
         dd.advent-faq__answer
-        span.advent-faq__response
+          span.advent-faq__response
             .advent-voucher-alert.advent-voucher-alert--success role="status"
               == "Voucher '<strong>#{reward_title}</strong>' redeemed!"
 

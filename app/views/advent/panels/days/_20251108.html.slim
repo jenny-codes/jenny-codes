@@ -1,0 +1,35 @@
+- state = local_assigns.fetch(:state, :before).to_sym
+- primary_action = local_assigns[:primary_action]
+- secret_revealed = @secret_revealed
+- secret_attempt = (@secret_attempt || "").to_s.strip
+- secret_error = @secret_error
+
+- if state == :before
+  section.advent-section
+    pre.advent-section__text Yoohoo. Welcome to the advent calendar. This is where adventures begin, bugs vanquished and starts appear. Every day you come here, you will see a check in button:
+
+  - if primary_action.present?
+    .advent-action
+      == primary_action
+- else
+  - if secret_revealed
+    section.advent-section.advent-done
+      p.advent-section__text.advent-done-message Good. Because you have provided the story with correct information you are rewarded one more star! The story will continue tomorrow :)
+  - else
+    section.advent-section
+      p.advent-section__text Wah. Now you have gathered one star ⭐️!
+      p.advent-section__text Part 2:
+      p.advent-section__text ...Once upon a time, there was a traveller. Her name is Joyce. She has travelled in different places, and have settled down in this city called Toronto. After living in a few different parts of town, she settled into the heart of downtown, in this apartment in a skyscraper. The first time she walks toward the building, the first thing she noticed was this shiny two-storey, orange signed establishment at the intersection. When she walks near, she saw that the text glowing on the sign says ___
+
+      - if secret_error.present?
+        .advent-secret-alert
+          = secret_error
+
+      = form_with url: advent_reveal_secret_path, method: :post, local: true, html: { class: "advent-secret-form" } do |form|
+        .advent-secret-form__field
+          = form.label :secret_code, "What do you think the sign says?", class: "advent-secret-form__label"
+          = form.text_field :secret_code, value: (secret_attempt.presence || ""), class: "advent-input", autocomplete: "off", placeholder: "Enter your guess"
+        = form.submit "Confirm", class: "advent-button advent-button--ghost"
+
+  .advent-dev-controls
+    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }

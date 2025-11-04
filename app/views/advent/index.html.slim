@@ -1,9 +1,12 @@
 - active_tab = @active_tab.presence || 'main'
-- primary_action ||= nil
-- main_partial ||= 'advent/panels/after_main'
+- main_partial ||= 'advent/panels/days/20251108'
+- main_locals ||= {}
 - rewards_partial ||= 'advent/panels/rewards'
 - faq_partial ||= 'advent/panels/faq'
-- panel_entries = { 'main' => main_partial, 'wah' => rewards_partial, 'faq' => faq_partial }
+- panel_entries = {}
+- panel_entries['main'] = { partial: main_partial, locals: main_locals }
+- panel_entries['wah'] = { partial: rewards_partial, locals: {} }
+- panel_entries['faq'] = { partial: faq_partial, locals: {} }
 
 .advent-console
   header.advent-header
@@ -18,11 +21,12 @@
         = link_to tab_id, advent_path(tab: tab_id), class: ["advent-tab", (is_active ? "is-active" : nil)].compact.join(" "), data: { advent_tab: tab_id }
 
     .advent-panels
-      - panel_entries.each do |panel_id, partial_name|
+      - panel_entries.each do |panel_id, entry|
         - is_active = panel_id == active_tab
-        - panel_primary_action = panel_id == 'main' ? primary_action : nil
+        - partial_name = entry[:partial]
+        - locals = entry[:locals] || {}
         section.advent-panel data-advent-panel=panel_id class=(is_active ? nil : 'is-hidden')
-          = render partial_name, primary_action: panel_primary_action
+          = render partial: partial_name, locals: locals
 
     - seconds_remaining = @seconds_until_midnight.to_i
     - hours = seconds_remaining / 3600

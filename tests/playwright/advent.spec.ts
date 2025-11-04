@@ -15,25 +15,19 @@ const formatDateKey = (date: Date) => {
 };
 
 const resetCalendarState = () => {
-  const today = new Date();
-  const todayKey = formatDateKey(today);
-  const yesterdayKey = formatDateKey(new Date(today.getTime() - 24 * 60 * 60 * 1000));
-  const twoDaysAgoKey = formatDateKey(new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000));
-  const threeDaysAgoKey = formatDateKey(new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000));
-
   const state = [
     '---',
     'days:',
-    `  ${threeDaysAgoKey}:`,
+    '  2025-10-31:',
     '    checked_in: true',
     '    stars: 1',
-    `  ${twoDaysAgoKey}:`,
+    '  2025-11-02:',
     '    checked_in: true',
     '    stars: 1',
-    `  ${yesterdayKey}:`,
+    '  2025-11-01:',
     '    checked_in: true',
     '    stars: 1',
-    `  ${todayKey}:`,
+    '  2025-11-03:',
     '    checked_in: false',
     '    stars: 0',
     'voucher_awards: []',

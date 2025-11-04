@@ -64,6 +64,8 @@ class AdventController < ApplicationController
   private
 
   SECRET_CODE = "hooters"
+  DAILY_TEMPLATE_DIR = "advent/panels/days"
+  DEFAULT_DAILY_TEMPLATE = "20251108"
 
   def set_calendar
     @today = Time.zone.today
@@ -117,18 +119,26 @@ class AdventController < ApplicationController
   end
 
   def layout_locals
+    daily_partial = daily_template_partial
+
     if @calendar.checked_in?
-      { main_partial: "advent/panels/after_main", primary_action: nil }
+      {
+        main_partial: daily_partial,
+        main_locals: { state: :after, primary_action: nil }
+      }
     else
       {
-        main_partial: "advent/panels/before_main",
-        primary_action: view_context.button_to(
-          "Check in",
-          advent_check_in_path,
-          method: :post,
-          class: "advent-button",
-          data: { advent_check_in: true }
-        )
+        main_partial: daily_partial,
+        main_locals: {
+          state: :before,
+          primary_action: view_context.button_to(
+            "Check in",
+            advent_check_in_path,
+            method: :post,
+            class: "advent-button",
+            data: { advent_check_in: true }
+          )
+        }
       }
     end
   end
@@ -142,6 +152,31 @@ class AdventController < ApplicationController
 
   def redirect_to_wah
     redirect_to advent_path(tab: "wah"), status: :see_other
+  end
+
+  def daily_template_partial
+    "#{DAILY_TEMPLATE_DIR}/#{daily_template_name}"
+  end
+
+  def daily_template_name
+    @daily_template_name ||= begin
+      preferred = @today.strftime("%Y%m%d")
+      if template_exists_for?(preferred)
+        preferred
+      else
+        available_daily_templates.first || DEFAULT_DAILY_TEMPLATE
+      end
+    end
+  end
+
+  def template_exists_for?(name)
+    lookup_context.exists?("#{DAILY_TEMPLATE_DIR}/#{name}", [], true)
+  end
+
+  def available_daily_templates
+    Dir.glob(Rails.root.join("app", "views", DAILY_TEMPLATE_DIR, "_*.html.*"))
+       .map { |path| File.basename(path).split(".").first.delete_prefix("_") }
+       .sort
   end
 end
 # rubocop:enable Metrics/ClassLength
