@@ -48,14 +48,12 @@ class AdventController < ApplicationController
 
   def solve_puzzle
     attempt = params.require(:puzzle_answer).to_s
+    result = apply_puzzle_attempt(attempt, persist_flash: !request.format.json?)
 
-    if @calendar.attempt_puzzle!(attempt)
-      mark_puzzle_completed
-    else
-      remember_puzzle_attempt(attempt)
+    respond_to do |format|
+      format.html { redirect_to advent_path(tab: "main"), status: :see_other }
+      format.json { render_puzzle_attempt_json(result) }
     end
-
-    redirect_to advent_path(tab: "main"), status: :see_other
   end
 
   private
@@ -103,11 +101,6 @@ class AdventController < ApplicationController
     session[:advent_puzzle_completed] = true
     flash.delete(:advent_puzzle_attempt)
     flash.delete(:advent_puzzle_error)
-  end
-
-  def remember_puzzle_attempt(answer)
-    flash[:advent_puzzle_attempt] = answer
-    flash[:advent_puzzle_error] = "That is not correct. Try again?"
   end
 
   def seconds_until_midnight
@@ -180,6 +173,40 @@ class AdventController < ApplicationController
       class: "advent-button",
       data: { advent_check_in: true }
     )
+  end
+
+  def apply_puzzle_attempt(attempt, persist_flash: true)
+    if @calendar.attempt_puzzle!(attempt)
+      mark_puzzle_completed
+      { solved: true, message: nil, attempt: attempt }
+    else
+      error_message = puzzle_error_message
+      remember_puzzle_attempt(attempt, persist_flash: persist_flash, message: error_message)
+      { solved: false, message: error_message, attempt: attempt }
+    end
+  end
+
+  def render_puzzle_attempt_json(result)
+    if result[:solved]
+      render json: { status: "ok", redirect_to: advent_path(tab: "main") }
+    else
+      render json: {
+        status: "error",
+        message: result[:message] || puzzle_error_message,
+        attempt: result[:attempt]
+      }, status: :ok
+    end
+  end
+
+  def remember_puzzle_attempt(attempt, persist_flash: true, message: puzzle_error_message)
+    return unless persist_flash
+
+    flash[:advent_puzzle_attempt] = attempt
+    flash[:advent_puzzle_error] = message
+  end
+
+  def puzzle_error_message
+    "That is not correct. Try again?"
   end
 end
 # rubocop:enable Metrics/ClassLength

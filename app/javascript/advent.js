@@ -355,6 +355,57 @@ const submitAdventForm = async (form, options = {}) => {
   swapConsoleContent(currentConsole, nextConsole.innerHTML, { skipHeadlineAnimation });
 };
 
+const refreshAdventConsole = async (targetUrl, options = {}) => {
+  const { skipHeadlineAnimation = false } = options;
+  const currentConsole = document.querySelector('.advent-console');
+  if (!currentConsole) return;
+
+  const response = await fetch(targetUrl, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Refresh failed with status ${response.status}`);
+  }
+
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const nextConsole = doc.querySelector('.advent-console');
+  if (!nextConsole) {
+    throw new Error('Unable to locate updated console content');
+  }
+
+  swapConsoleContent(currentConsole, nextConsole.innerHTML, { skipHeadlineAnimation });
+};
+
+const showPuzzleError = (form, message) => {
+  if (!form) return;
+
+  let alert = form.previousElementSibling;
+  if (!(alert instanceof HTMLElement) || !alert.classList.contains('advent-puzzle-alert')) {
+    alert = document.createElement('div');
+    alert.className = 'advent-puzzle-alert';
+    form.parentElement?.insertBefore(alert, form);
+  }
+
+  alert.textContent = message;
+  alert.setAttribute('role', 'alert');
+};
+
+const clearPuzzleError = (form) => {
+  if (!form) return;
+  const alert = form.previousElementSibling;
+  if (alert instanceof HTMLElement && alert.classList.contains('advent-puzzle-alert')) {
+    alert.remove();
+  }
+};
+
 const initializeCheckInButton = (root) => {
   if (!root) return;
 
@@ -428,6 +479,80 @@ const initializeResetButton = (root) => {
         button.disabled = false;
         button.dataset.resetPending = 'false';
       });
+  });
+};
+
+const initializePuzzleForm = (root) => {
+  if (!root) return;
+
+  const form = root.querySelector('.advent-puzzle-form');
+  if (!form || form.dataset.puzzleBound === 'true') return;
+
+  form.dataset.puzzleBound = 'true';
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (form.dataset.puzzlePending === 'true') return;
+    form.dataset.puzzlePending = 'true';
+
+    const submitButton = form.querySelector('[type="submit"]');
+    submitButton?.setAttribute('disabled', 'true');
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: (form.method || 'POST').toUpperCase(),
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch (error) {
+        console.error('[advent] puzzle submission response parse error', error);
+      }
+
+      if (payload?.status === 'ok') {
+        const redirectUrl = payload.redirect_to || `${window.location.pathname}?tab=main`;
+        clearPuzzleError(form);
+
+        try {
+          const url = new URL(redirectUrl, window.location.origin);
+          url.searchParams.set('tab', 'main');
+          window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}`);
+          await refreshAdventConsole(url.toString(), { skipHeadlineAnimation: true });
+        } catch (error) {
+          console.error('[advent] puzzle refresh fallback', error);
+          window.location.assign(redirectUrl);
+        }
+        return;
+      } else if (payload?.status === 'error') {
+        showPuzzleError(form, payload.message || 'That is not correct. Try again?');
+        const input = form.querySelector('.advent-input');
+        if (input instanceof HTMLInputElement && typeof payload.attempt === 'string') {
+          input.value = payload.attempt;
+          input.focus();
+          input.setSelectionRange(payload.attempt.length, payload.attempt.length);
+        }
+      } else if (!response.ok) {
+        throw new Error(`Unexpected response status ${response.status}`);
+      } else {
+        showPuzzleError(form, 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error('[advent] puzzle submission fallback', error);
+      form.submit();
+    } finally {
+      submitButton?.removeAttribute('disabled');
+      form.dataset.puzzlePending = 'false';
+    }
   });
 };
 
@@ -509,6 +634,7 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
   });
   initializeCheckInButton(root);
   initializeResetButton(root);
+  initializePuzzleForm(root);
   initializeVoucherActions(root);
 };
 
