@@ -3,11 +3,11 @@
 - next_milestone = @next_milestone
 - stars_until_next = @stars_until_next_milestone
 - can_draw = @calendar.can_draw_voucher?
-- latest_award = flash[:voucher_award]
+- latest_voucher = flash[:voucher_award]
 - voucher_alert = flash[:alert]
-- awards = @voucher_awards
+- vouchers = @vouchers
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
-- has_vouchers = latest_award.present? || awards.any?
+- has_vouchers = latest_voucher.present? || vouchers.any?
 
 section.advent-section.advent-faq
   dl.advent-faq
@@ -44,23 +44,22 @@ section.advent-section.advent-faq
 - if has_vouchers
   section.advent-section.advent-faq
     h3.advent-section__title Your vouchers
-    - if latest_award.present?
-      - award_id = latest_award[:id] || latest_award['id']
-      - award_title = latest_award[:title] || latest_award['title']
-      - award_details = latest_award[:details] || latest_award['details']
-      - award_time = parse_time.call(latest_award[:awarded_at] || latest_award['awarded_at'])
-      - redeemed_time = parse_time.call(latest_award[:redeemed_at] || latest_award['redeemed_at'])
-      - already_redeemed = latest_award[:redeemed] || latest_award['redeemed']
+    - if latest_voucher.present?
+      - voucher_title = latest_voucher[:title] || latest_voucher['title']
+      - voucher_details = latest_voucher[:details] || latest_voucher['details']
+      - voucher_time = parse_time.call(latest_voucher[:awarded_at] || latest_voucher['awarded_at'])
+      - redeemed_time = parse_time.call(latest_voucher[:redeemed_at] || latest_voucher['redeemed_at'])
+      - already_redeemed = latest_voucher[:redeemed] || latest_voucher['redeemed']
       dl.advent-faq
         .advent-faq__pair
           dd.advent-faq__answer
             span.advent-faq__response
               .advent-voucher-card.advent-voucher-card--latest
                 h3.advent-voucher-card__title Congrats! You drew:
-                p.advent-voucher-card__prize = award_title
-                p.advent-voucher-card__details = award_details
-                - if award_time
-                  p.advent-voucher-card__time == "Awarded at #{award_time.strftime('%b %d, %Y %H:%M')}"
+                p.advent-voucher-card__prize = voucher_title
+                p.advent-voucher-card__details = voucher_details
+                - if voucher_time
+                  p.advent-voucher-card__time == "Awarded at #{voucher_time.strftime('%b %d, %Y %H:%M')}"
                 - if already_redeemed
                   p.advent-voucher-card__status Redeemed
                   - if redeemed_time
@@ -69,16 +68,15 @@ section.advent-section.advent-faq
                   - unless already_redeemed
                     = button_tag "Redeem", type: :button, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
 
-    - if awards.any?
+    - if vouchers.any?
       section.advent-section.advent-faq
         dl.advent-faq
-          - awards.each_with_index do |award, index|
-            - award_id = award[:id] || award['id']
-            - title = award[:title] || award['title']
-            - details = award[:details] || award['details']
-            - awarded_at = parse_time.call(award[:awarded_at] || award['awarded_at'])
-            - redeemed_at = parse_time.call(award[:redeemed_at] || award['redeemed_at'])
-            - redeemed = award[:redeemed] || award['redeemed']
+          - vouchers.each_with_index do |voucher, index|
+            - title = voucher[:title] || voucher['title']
+            - details = voucher[:details] || voucher['details']
+            - awarded_at = parse_time.call(voucher[:awarded_at] || voucher['awarded_at'])
+            - redeemed_at = parse_time.call(voucher[:redeemed_at] || voucher['redeemed_at'])
+            - redeemed = voucher[:redeemed] || voucher['redeemed']
             .advent-faq__pair
               dd.advent-faq__answer
                 span.advent-faq__response

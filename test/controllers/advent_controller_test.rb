@@ -2,16 +2,14 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "yaml"
 require "action_mailer"
+require "pathname"
 
-# rubocop:disable Metrics/ClassLength
 class AdventControllerTest < ActionDispatch::IntegrationTest
   setup do
     ActionMailer::Base.deliveries.clear
     write_calendar_data
   end
-  teardown { write_calendar_data }
 
   test "index should get index view when not checked in" do
     get advent_url
@@ -76,7 +74,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   test "redeem voucher marks voucher as redeemed" do
     post advent_draw_voucher_url
-    voucher_id = current_calendar.voucher_awards.first[:id]
+    voucher_id = current_calendar.vouchers.first[:id]
 
     post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
     assert_redirected_to advent_path(tab: "wah")
@@ -131,36 +129,76 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def write_calendar_data(days: default_days, awards: [])
-    payload = {
-      "days" => days,
-      "voucher_awards" => awards,
-      "voucher_sequence" => 1
-    }
+  def write_calendar_data(days: default_days, vouchers: [])
+    CalendarDay.delete_all
+    Voucher.delete_all
 
-    File.write(Adapter::AdventCalendar::DATA_FILE, payload.to_yaml)
+    puzzle_answers = {}
+
+    days.each do |iso_day, attrs|
+      attributes = attrs.transform_keys(&:to_s)
+      day = Date.iso8601(iso_day.to_s)
+
+      record = CalendarDay.find_or_initialize_by(day: day)
+      record.update!(stars: attributes.fetch("stars", 0))
+
+      answer = attributes["puzzle_answer"]
+      puzzle_answers[day.to_s] = answer if answer.present?
+    end
+
+    write_puzzle_answers(puzzle_answers)
+
+    vouchers.each do |entry|
+      data = entry.transform_keys(&:to_s)
+      awarded_time = parse_time(data["awarded_at"])
+      attrs = {
+        title: data.fetch("title"),
+        details: data.fetch("details"),
+        redeemed_at: parse_time(data["redeemed_at"])
+      }
+      attrs[:created_at] = attrs[:updated_at] = awarded_time if awarded_time
+
+      Voucher.create!(attrs)
+    end
+
+    Adapter::AdventCalendar.reload_puzzle_answers!
   end
 
   def default_days
-    today = Time.zone.today
+    base_date = Time.zone.today
     {
-      (today - 3).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
-      (today - 2).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
-      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
-      today.iso8601 => { "checked_in" => false, "stars" => 0, "puzzle_answer" => "hooters" }
+      (base_date - 3).iso8601 => { "stars" => 1, "puzzle_answer" => "ember" },
+      (base_date - 2).iso8601 => { "stars" => 1, "puzzle_answer" => "ember" },
+      (base_date - 1).iso8601 => { "stars" => 1, "puzzle_answer" => "ember" },
+      base_date.iso8601 => { "stars" => 0, "puzzle_answer" => "hooters" }
     }
   end
 
   def insufficient_days
-    today = Time.zone.today
+    base_date = Time.zone.today
     {
-      (today - 1).iso8601 => { "checked_in" => true, "stars" => 1, "puzzle_answer" => "ember" },
-      today.iso8601 => { "checked_in" => false, "stars" => 0, "puzzle_answer" => "hooters" }
+      (base_date - 1).iso8601 => { "stars" => 1, "puzzle_answer" => "ember" },
+      base_date.iso8601 => { "stars" => 0, "puzzle_answer" => "hooters" }
     }
   end
 
   def current_calendar
     Adapter::AdventCalendar.on(Time.zone.today)
   end
+
+  def parse_time(value)
+    return nil if value.blank?
+
+    case value
+    when Time then value
+    else
+      Time.zone.parse(value.to_s)
+    end
+  end
+
+  def write_puzzle_answers(mapping)
+    path = Pathname.new(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH"))
+    payload = mapping.compact.transform_values(&:to_s)
+    path.write(payload.to_yaml)
+  end
 end
-# rubocop:enable Metrics/ClassLength

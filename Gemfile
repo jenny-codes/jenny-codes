@@ -8,6 +8,7 @@ ruby "3.3.4"
 gem "actionmailer", "~> 8.0"
 gem "actionpack", "~> 8.0"
 gem "actionview", "~> 8.0"
+gem "activerecord", "~> 8.0"
 gem "activesupport", "~> 8.0"
 gem "railties", "~> 8.0"
 
@@ -25,6 +26,9 @@ gem "cssbundling-rails"
 gem "jsbundling-rails"
 gem "propshaft"
 
+gem "mailgun-ruby", "~> 1.4"
+gem "pg"
+
 gem "sorbet-static-and-runtime"
 
 group :test, :development do
@@ -35,5 +39,3 @@ group :test, :development do
   gem "ruby-lsp", require: false
   gem "tapioca", require: false
 end
-
-gem "mailgun-ruby", "~> 1.4"

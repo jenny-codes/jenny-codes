@@ -1,7 +1,6 @@
 # typed: false
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ClassLength
 class AdventController < ApplicationController
   before_action :set_calendar
   layout "advent"
@@ -84,7 +83,7 @@ class AdventController < ApplicationController
   end
 
   def assign_voucher_stats
-    @voucher_awards = @calendar.voucher_awards
+    @vouchers = @calendar.vouchers
     @voucher_milestones = @calendar.voucher_milestones
   end
 
@@ -220,4 +219,3 @@ class AdventController < ApplicationController
     AdventNotifierMailer.puzzle_attempt(day: @calendar.day, attempt: attempt, solved: solved).deliver_now
   end
 end
-# rubocop:enable Metrics/ClassLength

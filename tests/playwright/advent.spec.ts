@@ -1,61 +1,25 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { renameSync, writeFileSync } from 'fs';
+import { execSync } from 'child_process';
 import { resolve } from 'path';
 
 const ADVENT_PATH = '/advent';
 const FALLBACK_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
-const DATA_PATH = resolve(process.cwd(), 'test/data/test_advent_calendar.yml');
+const PUZZLE_ANSWERS_PATH = process.env.ADVENT_PUZZLE_ANSWERS_PATH ?? resolve(process.cwd(), 'tmp', 'playwright_puzzle_answers.yml');
+const PLAYWRIGHT_DATABASE_URL = process.env.PLAYWRIGHT_DATABASE_URL ?? 'postgresql://localhost/jennycodes_playwright';
 
-const formatDateKey = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+process.env.ADVENT_PUZZLE_ANSWERS_PATH = PUZZLE_ANSWERS_PATH;
 
 const resetCalendarState = () => {
-  const todayKey = formatDateKey(new Date());
-
-  const lines = [
-    '---',
-    'days:',
-    '  2025-10-31:',
-    '    checked_in: true',
-    '    stars: 1',
-    '    puzzle_answer: comet',
-    '  2025-11-02:',
-    '    checked_in: true',
-    '    stars: 1',
-    '    puzzle_answer: aurora',
-    '  2025-11-01:',
-    '    checked_in: true',
-    '    stars: 1',
-    '    puzzle_answer: lantern',
-    '  2025-11-03:',
-    '    checked_in: false',
-    '    stars: 0',
-    '    puzzle_answer: hooters',
-    'voucher_awards: []',
-    'voucher_sequence: 1',
-    ''
-  ];
-
-  if (!lines.includes(`  ${todayKey}:`)) {
-    const insertAt = lines.findIndex((line) => line === 'voucher_awards: []');
-    lines.splice(insertAt, 0,
-      `  ${todayKey}:`,
-      '    checked_in: false',
-      '    stars: 0',
-      '    puzzle_answer: hooters'
-    );
-  }
-
-  const state = lines.join('\n');
-  const tempPath = `${DATA_PATH}.${process.pid}.${Math.random().toString(16).slice(2)}`;
-  const finalState = state.endsWith('\n') ? state : `${state}\n`;
-  writeFileSync(tempPath, finalState);
-  renameSync(tempPath, DATA_PATH);
+  execSync('bin/rails runner test/support/reset_calendar_state.rb', {
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      RAILS_ENV: 'test',
+      ADVENT_PUZZLE_ANSWERS_PATH: PUZZLE_ANSWERS_PATH,
+      DATABASE_URL: PLAYWRIGHT_DATABASE_URL,
+    },
+  });
 };
 
 const waitForHeadlineCompletion = async (page: Page) => {

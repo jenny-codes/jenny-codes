@@ -27,6 +27,12 @@ GEM
     activejob (8.1.0)
       activesupport (= 8.1.0)
       globalid (>= 0.3.6)
+    activemodel (8.1.0)
+      activesupport (= 8.1.0)
+    activerecord (8.1.0)
+      activemodel (= 8.1.0)
+      activesupport (= 8.1.0)
+      timeout (>= 0.4.0)
     activesupport (8.1.0)
       base64
       bigdecimal
@@ -125,6 +131,12 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
+    pg (1.6.2-aarch64-linux)
+    pg (1.6.2-aarch64-linux-musl)
+    pg (1.6.2-arm64-darwin)
+    pg (1.6.2-x86_64-darwin)
+    pg (1.6.2-x86_64-linux)
+    pg (1.6.2-x86_64-linux-musl)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -278,11 +290,13 @@ DEPENDENCIES
   actionmailer (~> 8.0)
   actionpack (~> 8.0)
   actionview (~> 8.0)
+  activerecord (~> 8.0)
   activesupport (~> 8.0)
   bootsnap (>= 1.1.0)
   cssbundling-rails
   jsbundling-rails
   mailgun-ruby (~> 1.4)
+  pg
   propshaft
   puma (~> 6.0)
   railties (~> 8.0)

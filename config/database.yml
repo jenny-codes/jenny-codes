@@ -1,0 +1,23 @@
+# typed: false
+# frozen_string_literal: true
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+
+development:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "postgresql://localhost/jennycodes_development") %>
+
+test:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_TEST_URL", "postgresql://localhost/jennycodes_test") %>
+
+playwright:
+  <<: *default
+  url: <%= ENV.fetch("PLAYWRIGHT_DATABASE_URL", "postgresql://localhost/jennycodes_playwright") %>
+
+production:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "postgresql://localhost/jennycodes_production") %>

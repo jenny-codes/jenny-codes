@@ -6,15 +6,9 @@ require "date"
 require "time"
 
 module Adapter
-  # rubocop:disable Metrics/ClassLength
   class AdventCalendar
     END_DATE = Date.parse("2025-12-25")
-    DATA_FILE =
-      if Rails.env.test?
-        Rails.root.join("test", "data", "test_advent_calendar.yml")
-      else
-        Rails.root.join("lib", "data", "advent_calendar.yml")
-      end
+    PUZZLE_ANSWERS_FILE = Rails.root.join("lib", "data", "advent_calendar_puzzle_answers.yml")
     VOUCHER_FILE = Rails.root.join("lib", "data", "advent_calendar_voucher.yml")
     VOUCHER_MILESTONES = [3, 13, 33, 53, 73, 94].freeze
 
@@ -22,20 +16,21 @@ module Adapter
     VoucherNotFoundError = Class.new(StandardError)
     VoucherAlreadyRedeemedError = Class.new(StandardError)
 
-    DayEntry = Data.define(:checked_in, :stars, :puzzle_answer) do
-      def checked_in?
-        !!checked_in
-      end
-
+    DayEntry = Data.define(:stars, :puzzle_answer) do
       def stars_amount
         [stars.to_i, 0].max
+      end
+
+      def checked_in?
+        stars_amount.positive?
       end
 
       def puzzle_answer_value
         value = puzzle_answer
         return nil if value.nil?
 
-        value.to_s.strip
+        stripped = value.to_s.strip
+        stripped.empty? ? nil : stripped
       end
 
       def puzzle_answer_matches?(attempt)
@@ -48,31 +43,11 @@ module Adapter
       def puzzle_completed?
         stars_amount >= 2
       end
-
-      def serialize
-        {
-          "checked_in" => checked_in?,
-          "stars" => stars_amount,
-          "puzzle_answer" => puzzle_answer_value
-        }.tap do |hash|
-          hash.delete("puzzle_answer") if hash["puzzle_answer"].nil? || hash["puzzle_answer"].empty?
-        end
-      end
     end
 
-    VoucherAward = Data.define(:id, :title, :details, :awarded_at, :redeemed_at) do
+    VoucherPayload = Data.define(:id, :title, :details, :awarded_at, :redeemed_at) do
       def redeemed?
         redeemed_at.present? && !redeemed_at.to_s.strip.empty?
-      end
-
-      def serialize
-        {
-          "id" => id,
-          "title" => title.to_s,
-          "details" => details.to_s,
-          "awarded_at" => awarded_at,
-          "redeemed_at" => redeemed_at
-        }
       end
 
       def to_h
@@ -87,43 +62,32 @@ module Adapter
       end
     end
 
-    attr_reader :total_stars, :total_check_ins, :day
+    attr_reader :day, :total_stars, :total_check_ins
 
     def self.on(day)
       new(day)
     end
 
-    def initialize(day, data_file: DATA_FILE)
+    def initialize(day)
       @day = day.to_date
-      @data_file = data_file
-
-      state = load_state(@data_file)
-      @calendar_data = state.fetch(:days)
-      @voucher_awards = state.fetch(:voucher_awards)
-      @voucher_sequence = state.fetch(:voucher_sequence)
-
       ensure_day_entry!
-      sync_totals!
+      refresh_totals!
     end
 
     def check_in
-      return if checked_in?
+      record = day_record
+      return if record.stars.positive?
 
-      entry = day_entry
-      updated_stars = [entry.stars_amount + 1, 2].min
-      @calendar_data[@day] = entry.with(checked_in: true, stars: updated_stars)
-      sync_totals!
-      persist_state!
+      record.update!(stars: 1)
+      refresh_totals!
     end
 
-    # This is for development purpose
     def reset_check_in
-      entry = day_entry
-      return unless entry.checked_in? || entry.stars_amount.positive?
+      record = day_record
+      return unless record.stars.positive?
 
-      @calendar_data[@day] = entry.with(checked_in: false, stars: 0)
-      sync_totals!
-      persist_state!
+      record.update!(stars: 0)
+      refresh_totals!
     end
 
     def days_left
@@ -143,11 +107,11 @@ module Adapter
     end
 
     def draws_unlocked
-      VOUCHER_MILESTONES.count { |threshold| @total_stars >= threshold }
+      VOUCHER_MILESTONES.count { |threshold| total_stars >= threshold }
     end
 
     def draws_claimed
-      @voucher_awards.length
+      Voucher.count
     end
 
     def draws_available
@@ -170,8 +134,8 @@ module Adapter
       true
     end
 
-    def voucher_awards
-      @voucher_awards.map(&:to_h)
+    def vouchers
+      Voucher.order(:created_at, :id).map { |record| wrap_voucher(record).to_h }
     end
 
     def voucher_milestones
@@ -179,14 +143,14 @@ module Adapter
     end
 
     def next_milestone
-      VOUCHER_MILESTONES.find { |threshold| threshold > @total_stars }
+      VOUCHER_MILESTONES.find { |threshold| threshold > total_stars }
     end
 
     def stars_until_next_milestone
       threshold = next_milestone
       return nil unless threshold
 
-      [threshold - @total_stars, 0].max
+      [threshold - total_stars, 0].max
     end
 
     def can_draw_voucher?
@@ -201,191 +165,97 @@ module Adapter
       prize = pool.sample(random: rng)
       raise "Voucher catalogue is empty" if prize.nil?
 
-      award = VoucherAward.new(next_voucher_id, prize.fetch(:title), prize.fetch(:details), current_timestamp, nil)
+      record = Voucher.create!(
+        title: prize.fetch(:title),
+        details: prize.fetch(:details),
+        created_at: current_timestamp,
+        updated_at: current_timestamp
+      )
 
-      @voucher_awards << award
-
-      persist_state!
-      award
+      refresh_totals!
+      wrap_voucher(record)
     end
 
     def redeem_voucher!(voucher_id)
-      award = @voucher_awards.find { |entry| entry.id == voucher_id.to_s }
-      raise VoucherNotFoundError, "Voucher not found" unless award
-      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if award.redeemed?
+      record = find_voucher_record(voucher_id)
+      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if record.redeemed_at.present?
 
-      updated = award.with(redeemed_at: current_timestamp)
-      @voucher_awards = @voucher_awards.map { |entry| entry.id == updated.id ? updated : entry }
-      persist_state!
-      updated
+      record.update!(redeemed_at: current_timestamp)
+      wrap_voucher(record)
+    end
+
+    def puzzle_answers_path
+      self.class.puzzle_answers_path
     end
 
     private
 
+    def day_record
+      CalendarDay.find_by!(day: @day)
+    end
+
     def day_entry
-      @calendar_data.fetch(@day)
+      DayEntry.new(day_record.stars, puzzle_answer_for(@day))
     end
 
     def ensure_day_entry!
-      @calendar_data[@day] ||= DayEntry.new(false, 0, nil)
-    end
-
-    def sync_totals!
-      entries = @calendar_data.values
-      @total_check_ins = entries.count(&:checked_in?)
-      @total_stars = entries.sum(&:stars_amount)
-    end
-
-    def persist_state!
-      days_payload = @calendar_data
-                     .sort_by(&:first)
-                     .to_h
-                     .transform_values(&:serialize)
-
-      payload = {
-        "days" => days_payload,
-        "voucher_awards" => @voucher_awards.map(&:serialize),
-        "voucher_sequence" => @voucher_sequence
-      }
-
-      File.write(@data_file, YAML.dump(payload))
-    end
-
-    def load_state(file)
-      raise Errno::ENOENT unless File.exist?(file)
-
-      raw = YAML.safe_load(File.read(file), permitted_classes: [Date], symbolize_names: true) || {}
-      days_raw = extract_days(raw)
-      awards_raw = extract_awards(raw)
-
-      awards = build_awards(awards_raw)
-
-      {
-        days: build_calendar(days_raw),
-        voucher_awards: awards,
-        voucher_sequence: extract_voucher_sequence(raw, awards)
-      }
-    end
-
-    def extract_days(raw)
-      if raw.key?(:days)
-        raw[:days] || {}
-      elsif raw.key?("days")
-        raw["days"] || {}
-      else
-        raw
+      CalendarDay.find_or_create_by!(day: @day) do |record|
+        record.stars = 0
       end
     end
 
-    def extract_awards(raw)
-      value_for(raw, :voucher_awards) || []
-    end
-
-    def build_calendar(raw)
-      raw.each_with_object({}) do |(date, attrs), memo|
-        memo[coerce_date_key(date)] = DayEntry.new(**coerce_day_attrs(attrs))
-      end
-    end
-
-    def coerce_day_attrs(attrs)
-      return { checked_in: false, stars: 0, puzzle_answer: nil } unless attrs.is_a?(Hash)
-
-      {
-        checked_in: normalize_boolean(value_for(attrs, :checked_in)),
-        stars: normalize_integer(value_for(attrs, :stars)),
-        puzzle_answer: normalize_puzzle_answer(value_for(attrs, :puzzle_answer))
-      }
-    end
-
-    def build_awards(raw)
-      Array(raw).filter_map { |attrs| build_award_entry(attrs) }
-    end
-
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def build_award_entry(attrs)
-      return unless attrs.is_a?(Hash)
-
-      title = value_for(attrs, :title)
-      details = value_for(attrs, :details)
-      return if title.nil? || title.to_s.strip.empty? || details.nil? || details.to_s.strip.empty?
-
-      awarded_at = value_for(attrs, :awarded_at)
-      redeemed_at = value_for(attrs, :redeemed_at)
-      id = (value_for(attrs, :id) || SecureRandom.uuid).to_s
-
-      VoucherAward.new(id, title.to_s, details.to_s, (awarded_at || "").to_s, redeemed_at&.to_s)
-    end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-
-    def coerce_date_key(key)
-      return key if key.is_a?(Date)
-
-      Date.iso8601(key.to_s)
-    rescue ArgumentError
-      raise "Malformed yml file"
-    end
-
-    def value_for(attrs, key)
-      return unless attrs.respond_to?(:[])
-
-      attrs[key] || attrs[key.to_s]
-    end
-
-    def normalize_boolean(value)
-      case value
-      when true, "true", "1", 1 then true
-      else
-        false
-      end
-    end
-
-    def normalize_integer(value)
-      value.to_i
-    end
-
-    def normalize_puzzle_answer(value)
-      return nil if value.nil?
-
-      stripped = value.to_s.strip
-      stripped.empty? ? nil : stripped
-    end
-
-    def extract_voucher_sequence(raw, awards)
-      explicit = value_for(raw, :voucher_sequence)
-      return explicit.to_i if explicit
-
-      next_sequence(awards)
-    end
-
-    def next_sequence(awards)
-      max_numeric = awards.filter_map do |award|
-        award.id.to_s[/voucher-(\d+)/, 1]&.to_i
-      end.max
-
-      (max_numeric || 0) + 1
-    end
-
-    def next_voucher_id
-      id = format("voucher-%04d", @voucher_sequence)
-      @voucher_sequence += 1
-      id
-    end
-
-    def voucher_catalog
-      @voucher_catalog ||= self.class.voucher_catalog
-    end
-
-    def current_timestamp
-      (Time.zone ? Time.zone.now : Time.now).iso8601
+    def refresh_totals!
+      table = CalendarDay.arel_table
+      @total_check_ins = CalendarDay.where(table[:stars].gt(0)).count
+      @total_stars = CalendarDay.sum(:stars)
     end
 
     def award_puzzle_star!(entry)
       return if entry.puzzle_completed?
 
-      new_stars = [entry.stars_amount + 1, 2].min
-      @calendar_data[@day] = entry.with(stars: new_stars)
-      sync_totals!
-      persist_state!
+      record = day_record
+      return if record.stars.zero?
+
+      record.update!(stars: 2)
+      refresh_totals!
+    end
+
+    def puzzle_answer_for(day)
+      answers = self.class.puzzle_answers
+      answers[day.to_s] || answers[day.iso8601]
+    end
+
+    def wrap_voucher(record)
+      VoucherPayload.new(
+        format_voucher_identifier(record.id),
+        record.title,
+        record.details,
+        format_time(record.created_at),
+        format_time(record.redeemed_at)
+      )
+    end
+
+    def find_voucher_record(identifier)
+      numeric_id = identifier.to_s[/voucher-(\d+)/, 1]&.to_i
+      raise VoucherNotFoundError, "Voucher not found" if numeric_id.nil? || numeric_id.zero?
+
+      Voucher.find_by(id: numeric_id) || raise(VoucherNotFoundError, "Voucher not found")
+    end
+
+    def format_voucher_identifier(id)
+      format("voucher-%04d", id)
+    end
+
+    def format_time(value)
+      value&.iso8601
+    end
+
+    def current_timestamp
+      (Time.zone ? Time.zone.now : Time.now)
+    end
+
+    def voucher_catalog
+      @voucher_catalog ||= self.class.voucher_catalog
     end
 
     class << self
@@ -398,7 +268,51 @@ module Adapter
           }
         end
       end
+
+      def puzzle_answers_path
+        Pathname.new(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH", PUZZLE_ANSWERS_FILE.to_s))
+      end
+
+      def puzzle_answers
+        @puzzle_answers ||= load_puzzle_answers
+      end
+
+      def reload_puzzle_answers!
+        @puzzle_answers = nil
+      end
+
+      private
+
+      def load_puzzle_answers
+        path = puzzle_answers_path
+        return {} unless path.exist?
+
+        raw = YAML.safe_load(
+          path.read,
+          permitted_classes: [Date],
+          permitted_symbols: [],
+          aliases: false
+        ) || {}
+
+        raw.each_with_object({}) do |(date_value, answer), memo|
+          date = parse_date(date_value)
+          next unless date
+
+          cleaned = answer.to_s.strip
+          memo[date.to_s] = cleaned unless cleaned.empty?
+        end
+      end
+
+      def parse_date(value)
+        case value
+        when Date
+          value
+        else
+          Date.iso8601(value.to_s)
+        end
+      rescue ArgumentError
+        nil
+      end
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
