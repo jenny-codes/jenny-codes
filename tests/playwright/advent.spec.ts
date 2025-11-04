@@ -227,9 +227,9 @@ test.describe('Advent Console', () => {
     await confirmButton.click();
     await correctResponse;
 
-    await page.waitForTimeout(200);
-    const starCount = await page.locator('.advent-starfield__star').count();
-    expect(starCount).toBeGreaterThan(0);
+    await expect
+      .poll(async () => page.locator('.advent-starfield__star').count(), { message: 'expected starburst after puzzle' })
+      .toBeGreaterThan(0);
 
     await page.waitForURL(/\/advent(?:\?tab=main)?$/);
 

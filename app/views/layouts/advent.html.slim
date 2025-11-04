@@ -6,7 +6,7 @@ html
     title Wah Advent Calendar
     = csrf_meta_tags
     = csp_meta_tag
-    = stylesheet_link_tag 'advent', 'data-turbo-track': 'reload', 'data-turbo-preload': 'false'
+    = stylesheet_link_tag 'advent', 'data-turbo-track': 'reload', preload: false
     = javascript_include_tag 'advent', 'data-turbo-track': 'reload', type: 'module'
     - advent_favicon_svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><text y='1em' font-size='90'>🌟</text></svg>"
     = tag.link rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml," + ERB::Util.url_encode(advent_favicon_svg)

@@ -259,6 +259,17 @@ const triggerFireworks = () => {
   }, removalDelay);
 };
 
+const triggerFireworksAsync = async () => {
+  triggerFireworks();
+  if (!prefersReducedMotion()) {
+    await sleep(3100);
+  }
+};
+
+const sleep = (ms) => new Promise((resolve) => {
+  window.setTimeout(resolve, ms);
+});
+
 const swapConsoleContent = (currentConsole, nextMarkup, options = {}) => {
   const { skipHeadlineAnimation = false } = options;
   if (!currentConsole) return;
@@ -527,9 +538,18 @@ const initializePuzzleForm = (root) => {
           const url = new URL(redirectUrl, window.location.origin);
           url.searchParams.set('tab', 'main');
           window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}`);
+
+          triggerFireworks();
+          if (!prefersReducedMotion()) {
+            await sleep(3100);
+          }
           await refreshAdventConsole(url.toString(), { skipHeadlineAnimation: true });
         } catch (error) {
           console.error('[advent] puzzle refresh fallback', error);
+          triggerFireworks();
+          if (!prefersReducedMotion()) {
+            await sleep(3100);
+          }
           window.location.assign(redirectUrl);
         }
         return;
