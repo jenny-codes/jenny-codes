@@ -10,7 +10,7 @@ module Adapter
     END_DATE = Date.parse("2025-12-25")
     PUZZLE_ANSWERS_FILE = Rails.root.join("lib", "data", "advent_calendar_puzzle_answers.yml")
     VOUCHER_FILE = Rails.root.join("lib", "data", "advent_calendar_voucher.yml")
-    VOUCHER_MILESTONES = [3, 13, 33, 53, 73, 94].freeze
+    VOUCHER_MILESTONES = [3, 13, 23, 33, 43, 53, 63, 73, 83, 94].freeze
 
     NoEligibleDrawsError = Class.new(StandardError)
     VoucherNotFoundError = Class.new(StandardError)

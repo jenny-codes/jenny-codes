@@ -38,8 +38,8 @@ module Adapter
       assert_predicate calendar, :checked_in?
       assert_equal 35, calendar.total_stars
       assert_equal 1, calendar.total_check_ins
-      assert_equal 3, calendar.draws_unlocked
-      assert_equal 3 - Voucher.count, calendar.draws_available
+      assert_equal 4, calendar.draws_unlocked
+      assert_equal 4 - Voucher.count, calendar.draws_available
       assert_equal 1, calendar.vouchers.size
       award = calendar.vouchers.first
       assert_equal "Dinner date", award[:title]
