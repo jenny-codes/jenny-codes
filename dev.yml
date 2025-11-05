@@ -1,24 +1,12 @@
 name: jennycodes
 type: rails
 
-services:
-  - postgres
-
 up:
   - ruby
   - bundler:
       gemfile: Gemfile
   - node:
       version: v22.11.0
-  - database:
-      bootstrap: bin/rails db:create db:migrate db:seed
-      migrate: bin/rails db:migrate db:test:prepare
-      vendor: postgres
-      host: 127.0.0.1
-      port: 5432
-      user: postgres
-      password: ''
-      database: jennycodes_development
 
 open:
   app: http://127.0.0.1:3333/advent

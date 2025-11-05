@@ -6,21 +6,21 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "action_mailer/test_helper"
 require "fileutils"
+require Rails.root.join("test", "support", "temp_file_store")
 
-ActiveRecord::Migration.maintain_test_schema!
-
-ENV["ADVENT_PUZZLE_ANSWERS_PATH"] ||= Rails.root.join("tmp", "test_advent_puzzle_answers.yml").to_s
-FileUtils.mkdir_p(File.dirname(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH")))
-File.write(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH"), "{}\n") unless File.exist?(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH"))
-Adapter::AdventCalendar.reload_puzzle_answers!
+test_store_path = Rails.root.join("tmp", "advent_store.test.yml")
+FileUtils.rm_f(test_store_path)
+ENV["ADVENT_CALENDAR_FILE_PATH"] = test_store_path.to_s
+Adapter::AdventCalendar::Store.use!(
+  Adapter::AdventCalendar::Store::TempFileStore.new(path: test_store_path)
+)
 
 module ActiveSupport
   class TestCase
     include ActionMailer::TestHelper
 
     setup do
-      CalendarDay.delete_all
-      Voucher.delete_all
+      Adapter::AdventCalendar::Store.instance.reset!(calendar_days: {}, vouchers: [])
     end
 
     def assert_cache_queries(expected_hits, &block)

@@ -141,41 +141,50 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_includes email.body.to_s, "Incorrect"
   end
 
+  test "puzzle attempt with empty response shows validation message" do
+    post advent_check_in_url
+    ActionMailer::Base.deliveries.clear
+
+    assert_emails 1 do
+      post advent_solve_puzzle_url, params: { puzzle_answer: "" }
+    end
+
+    assert_redirected_to advent_path(tab: "main")
+    follow_redirect!
+
+    assert_select ".advent-puzzle-alert", text: /Please enter an answer before submitting/i
+    assert_select "form[action='#{advent_solve_puzzle_path}'][method='post'] input[name='puzzle_answer'][value='']"
+
+    email = ActionMailer::Base.deliveries.last
+    assert_includes email.body.to_s, "Attempted answer:"
+    assert_includes email.body.to_s, "Result: Incorrect"
+  end
+
   private
 
   def write_calendar_data(days: default_days, vouchers: [])
-    CalendarDay.delete_all
-    Voucher.delete_all
+    store = Adapter::AdventCalendar::Store.instance
 
-    puzzle_answers = {}
-
-    days.each do |iso_day, attrs|
+    normalized_days = days.each_with_object({}) do |(iso_day, attrs), memo|
       attributes = attrs.transform_keys(&:to_s)
-      day = Date.iso8601(iso_day.to_s)
-
-      record = CalendarDay.find_or_initialize_by(day: day)
-      record.update!(stars: attributes.fetch("stars", 0))
-
-      answer = attributes["puzzle_answer"]
-      puzzle_answers[day.to_s] = answer if answer.present?
-    end
-
-    write_puzzle_answers(puzzle_answers)
-
-    vouchers.each do |entry|
-      data = entry.transform_keys(&:to_s)
-      awarded_time = parse_time(data["awarded_at"])
-      attrs = {
-        title: data.fetch("title"),
-        details: data.fetch("details"),
-        redeemed_at: parse_time(data["redeemed_at"])
+      memo[iso_day.to_s] = {
+        "stars" => attributes.fetch("stars", 0),
+        "puzzle_answer" => attributes["puzzle_answer"]
       }
-      attrs[:created_at] = attrs[:updated_at] = awarded_time if awarded_time
-
-      Voucher.create!(attrs)
     end
 
-    Adapter::AdventCalendar.reload_puzzle_answers!
+    normalized_vouchers = Array(vouchers).map do |entry|
+      data = entry.transform_keys(&:to_s)
+      {
+        "id" => data["id"],
+        "title" => data["title"],
+        "details" => data["details"],
+        "awarded_at" => data["awarded_at"],
+        "redeemed_at" => data["redeemed_at"]
+      }.compact
+    end
+
+    store.reset!(calendar_days: normalized_days, vouchers: normalized_vouchers)
   end
 
   def default_days
@@ -198,21 +207,5 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   def current_calendar
     Adapter::AdventCalendar.on(Time.zone.today)
-  end
-
-  def parse_time(value)
-    return nil if value.blank?
-
-    case value
-    when Time then value
-    else
-      Time.zone.parse(value.to_s)
-    end
-  end
-
-  def write_puzzle_answers(mapping)
-    path = Pathname.new(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH"))
-    payload = mapping.compact.transform_values(&:to_s)
-    path.write(payload.to_yaml)
   end
 end

@@ -8,7 +8,6 @@ ruby "3.3.4"
 gem "actionmailer", "~> 8.0"
 gem "actionpack", "~> 8.0"
 gem "actionview", "~> 8.0"
-gem "activerecord", "~> 8.0"
 gem "activesupport", "~> 8.0"
 gem "railties", "~> 8.0"
 
@@ -26,8 +25,9 @@ gem "cssbundling-rails"
 gem "jsbundling-rails"
 gem "propshaft"
 
+gem "google-apis-sheets_v4", "~> 0.15"
+gem "googleauth", "~> 1.8"
 gem "mailgun-ruby", "~> 1.4"
-gem "pg"
 
 gem "sorbet-static-and-runtime"
 

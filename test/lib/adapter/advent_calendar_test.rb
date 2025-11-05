@@ -2,19 +2,15 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "pathname"
 
 module Adapter
   class AdventCalendarTest < ActiveSupport::TestCase
     def setup
-      super
       @day = Date.new(2025, 11, 4)
-      @puzzle_answers = {}
       travel_to Time.zone.local(2025, 11, 4, 9, 0, 0)
     end
 
     def teardown
-      super
       travel_back
     end
 
@@ -39,7 +35,7 @@ module Adapter
       assert_equal 35, calendar.total_stars
       assert_equal 1, calendar.total_check_ins
       assert_equal 4, calendar.draws_unlocked
-      assert_equal 4 - Voucher.count, calendar.draws_available
+      assert_equal 4 - Adapter::AdventCalendar::Store.instance.all_vouchers.count, calendar.draws_available
       assert_equal 1, calendar.vouchers.size
       award = calendar.vouchers.first
       assert_equal "Dinner date", award[:title]
@@ -200,28 +196,23 @@ module Adapter
     private
 
     def create_day(day, stars:, puzzle_answer: nil)
-      record = CalendarDay.find_or_initialize_by(day: day)
-      record.update!(stars: stars)
-
-      @puzzle_answers[day.to_s] = puzzle_answer if puzzle_answer
-      write_puzzle_answers
-    end
-
-    def create_award(title:, details:, awarded_at:, redeemed_at: nil)
-      Voucher.create!(
-        title: title,
-        details: details,
-        redeemed_at: redeemed_at,
-        created_at: awarded_at,
-        updated_at: awarded_at
+      Adapter::AdventCalendar::Store.instance.write_day(
+        day: day,
+        stars: stars,
+        puzzle_answer: puzzle_answer
       )
     end
 
-    def write_puzzle_answers
-      path = Pathname.new(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH"))
-      payload = @puzzle_answers.transform_values(&:to_s)
-      path.write(payload.to_yaml)
-      Adapter::AdventCalendar.reload_puzzle_answers!
+    def create_award(title:, details:, awarded_at:, redeemed_at: nil)
+      store = Adapter::AdventCalendar::Store.instance
+      voucher = store.append_voucher(
+        title: title,
+        details: details,
+        awarded_at: awarded_at.iso8601
+      )
+      return unless redeemed_at
+
+      store.update_voucher(voucher["id"], redeemed_at: redeemed_at.iso8601)
     end
   end
 end

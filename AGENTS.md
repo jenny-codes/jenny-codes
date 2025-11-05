@@ -6,6 +6,10 @@ project. Please follow these rules whenever you contribute.
 ## Workflow
 - **Always verify with `bin/rake check`** before pushing or opening a PR. It
   runs Rails tests, Playwright tests, and Rubocop in parallel.
+- When designing or implementing changes, apply the YAGNI principle—"you ain't
+  gonna need it." Do not introduce flexibility or additional abstractions
+  unless there is a confirmed requirement. Prioritize simple, direct solutions
+  and avoid complexity without a concrete payoff.
 - The following tasks are also available when you need finer control:
   - `bin/rake test_rails` – run only the Rails test suite.
   - `bin/rake test_js` – run only the Playwright suite.

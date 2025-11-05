@@ -5,10 +5,9 @@ import { resolve } from 'path';
 
 const ADVENT_PATH = '/advent';
 const FALLBACK_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
-const PUZZLE_ANSWERS_PATH = process.env.ADVENT_PUZZLE_ANSWERS_PATH ?? resolve(process.cwd(), 'tmp', 'playwright_puzzle_answers.yml');
-const PLAYWRIGHT_DATABASE_URL = process.env.PLAYWRIGHT_DATABASE_URL ?? 'postgresql://localhost/jennycodes_playwright';
+const PLAYWRIGHT_STORE_PATH = process.env.ADVENT_CALENDAR_FILE_PATH ?? resolve(process.cwd(), 'tmp', 'playwright_store.yml');
 
-process.env.ADVENT_PUZZLE_ANSWERS_PATH = PUZZLE_ANSWERS_PATH;
+process.env.ADVENT_CALENDAR_FILE_PATH = PLAYWRIGHT_STORE_PATH;
 
 const resetCalendarState = () => {
   execSync('bin/rails runner test/support/reset_calendar_state.rb', {
@@ -16,8 +15,7 @@ const resetCalendarState = () => {
     env: {
       ...process.env,
       RAILS_ENV: 'test',
-      ADVENT_PUZZLE_ANSWERS_PATH: PUZZLE_ANSWERS_PATH,
-      DATABASE_URL: PLAYWRIGHT_DATABASE_URL,
+      ADVENT_CALENDAR_FILE_PATH: PLAYWRIGHT_STORE_PATH,
     },
   });
 };

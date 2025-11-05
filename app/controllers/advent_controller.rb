@@ -49,8 +49,16 @@ class AdventController < ApplicationController
   end
 
   def solve_puzzle
-    attempt = params.require(:puzzle_answer).to_s
-    result = apply_puzzle_attempt(attempt, persist_flash: !request.format.json?)
+    attempt_param = params[:puzzle_answer]
+    attempt = attempt_param.to_s
+    persist_flash = !request.format.json?
+
+    result = if attempt_param.nil? || attempt.strip.empty?
+               handle_blank_puzzle_attempt(attempt, persist_flash: persist_flash)
+             else
+               apply_puzzle_attempt(attempt, persist_flash: persist_flash)
+             end
+
     send_puzzle_attempt_email(attempt: attempt, solved: result[:solved])
 
     respond_to do |format|
@@ -216,6 +224,10 @@ class AdventController < ApplicationController
     "That is not correct. Try again?"
   end
 
+  def puzzle_blank_message
+    "Please enter an answer before submitting."
+  end
+
   def send_puzzle_attempt_email(attempt:, solved: false)
     AdventNotifierMailer.puzzle_attempt(day: @calendar.day, attempt: attempt, solved: solved).deliver_now
   end
@@ -226,5 +238,11 @@ class AdventController < ApplicationController
       title: award.title,
       details: award.details
     ).deliver_now
+  end
+
+  def handle_blank_puzzle_attempt(attempt, persist_flash: true)
+    message = puzzle_blank_message
+    remember_puzzle_attempt(attempt, persist_flash: persist_flash, message: message)
+    { solved: false, message: message, attempt: attempt }
   end
 end

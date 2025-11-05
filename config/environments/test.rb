@@ -9,6 +9,15 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  config.before_initialize do
+    require Rails.root.join("lib", "adapter", "advent_calendar")
+    require Rails.root.join("test", "support", "temp_file_store")
+    path = Rails.root.join("tmp", "advent_store.test.yml").to_s
+    Adapter::AdventCalendar::Store.use!(
+      Adapter::AdventCalendar::Store::TempFileStore.new(path: path)
+    )
+  end
+
   # While tests run files are not watched, reloading is not necessary.
   config.enable_reloading = false
 

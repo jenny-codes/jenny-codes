@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
-const playwrightDatabaseUrl = process.env.PLAYWRIGHT_DATABASE_URL ?? 'postgresql://localhost/jennycodes_playwright';
+const playwrightStorePath = process.env.ADVENT_CALENDAR_FILE_PATH ?? 'tmp/playwright_store.yml';
 
 export default defineConfig({
   testDir: './tests/playwright',
@@ -30,7 +30,7 @@ export default defineConfig({
           RAILS_ENV: 'test',
           NODE_ENV: 'test',
           PORT: '3000',
-          DATABASE_URL: playwrightDatabaseUrl,
+          ADVENT_CALENDAR_FILE_PATH: playwrightStorePath,
         },
       },
 });

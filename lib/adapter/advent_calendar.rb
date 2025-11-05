@@ -4,12 +4,11 @@
 require "yaml"
 require "date"
 require "time"
+require_relative "advent_calendar/store"
 
 module Adapter
   class AdventCalendar
     END_DATE = Date.parse("2025-12-25")
-    PUZZLE_ANSWERS_FILE = Rails.root.join("lib", "data", "advent_calendar_puzzle_answers.yml")
-    VOUCHER_FILE = Rails.root.join("lib", "data", "advent_calendar_voucher.yml")
     VOUCHER_MILESTONES = [3, 13, 23, 33, 43, 53, 63, 73, 83, 94].freeze
 
     NoEligibleDrawsError = Class.new(StandardError)
@@ -75,18 +74,19 @@ module Adapter
     end
 
     def check_in
-      record = day_record
-      return if record.stars.positive?
+      entry = store.fetch_day(@day)
+      return if entry && entry["stars"].to_i.positive?
 
-      record.update!(stars: 1)
+      puzzle_answer = entry ? entry["puzzle_answer"] : nil
+      store.write_day(day: @day, stars: 1, puzzle_answer: puzzle_answer)
       refresh_totals!
     end
 
     def reset_check_in
-      record = day_record
-      return unless record.stars.positive?
+      entry = store.fetch_day(@day)
+      return unless entry && entry["stars"].to_i.positive?
 
-      record.update!(stars: 0)
+      store.write_day(day: @day, stars: 0, puzzle_answer: entry["puzzle_answer"])
       refresh_totals!
     end
 
@@ -111,7 +111,7 @@ module Adapter
     end
 
     def draws_claimed
-      Voucher.count
+      store.all_vouchers.count
     end
 
     def draws_available
@@ -135,7 +135,7 @@ module Adapter
     end
 
     def vouchers
-      Voucher.order(:created_at, :id).map { |record| wrap_voucher(record).to_h }
+      store.all_vouchers.map { |record| wrap_voucher(record).to_h }
     end
 
     def voucher_milestones
@@ -165,11 +165,10 @@ module Adapter
       prize = pool.sample(random: rng)
       raise "Voucher catalogue is empty" if prize.nil?
 
-      record = Voucher.create!(
+      record = store.append_voucher(
         title: prize.fetch(:title),
         details: prize.fetch(:details),
-        created_at: current_timestamp,
-        updated_at: current_timestamp
+        awarded_at: current_timestamp.iso8601
       )
 
       refresh_totals!
@@ -178,76 +177,74 @@ module Adapter
 
     def redeem_voucher!(voucher_id)
       record = find_voucher_record(voucher_id)
-      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if record.redeemed_at.present?
+      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if record["redeemed_at"].present?
 
-      record.update!(redeemed_at: current_timestamp)
-      wrap_voucher(record)
-    end
-
-    def puzzle_answers_path
-      self.class.puzzle_answers_path
+      updated = store.update_voucher(record["id"], redeemed_at: current_timestamp.iso8601)
+      wrap_voucher(updated)
     end
 
     private
 
-    def day_record
-      CalendarDay.find_by!(day: @day)
+    def store
+      Store.instance
     end
 
     def day_entry
-      DayEntry.new(day_record.stars, puzzle_answer_for(@day))
+      data = store.fetch_day(@day)
+      DayEntry.new(data["stars"], data["puzzle_answer"])
     end
 
     def ensure_day_entry!
-      CalendarDay.find_or_create_by!(day: @day) do |record|
-        record.stars = 0
-      end
+      return if store.fetch_day(@day)
+
+      store.write_day(day: @day, stars: 0, puzzle_answer: nil)
     end
 
     def refresh_totals!
-      table = CalendarDay.arel_table
-      @total_check_ins = CalendarDay.where(table[:stars].gt(0)).count
-      @total_stars = CalendarDay.sum(:stars)
+      days = store.all_days
+      @total_check_ins = days.count { |entry| entry["stars"].to_i.positive? }
+      @total_stars = days.sum { |entry| entry["stars"].to_i }
     end
 
     def award_puzzle_star!(entry)
       return if entry.puzzle_completed?
 
-      record = day_record
-      return if record.stars.zero?
+      data = store.fetch_day(@day)
+      return if data["stars"].to_i.zero?
 
-      record.update!(stars: 2)
+      store.write_day(day: @day, stars: 2, puzzle_answer: data["puzzle_answer"])
       refresh_totals!
-    end
-
-    def puzzle_answer_for(day)
-      answers = self.class.puzzle_answers
-      answers[day.to_s] || answers[day.iso8601]
     end
 
     def wrap_voucher(record)
       VoucherPayload.new(
-        format_voucher_identifier(record.id),
-        record.title,
-        record.details,
-        format_time(record.created_at),
-        format_time(record.redeemed_at)
+        format_voucher_identifier(record["id"]),
+        record["title"],
+        record["details"],
+        format_time(record["awarded_at"]),
+        format_time(record["redeemed_at"])
       )
     end
 
     def find_voucher_record(identifier)
-      numeric_id = identifier.to_s[/voucher-(\d+)/, 1]&.to_i
-      raise VoucherNotFoundError, "Voucher not found" if numeric_id.nil? || numeric_id.zero?
-
-      Voucher.find_by(id: numeric_id) || raise(VoucherNotFoundError, "Voucher not found")
+      store.find_voucher(identifier.to_s) || raise(VoucherNotFoundError, "Voucher not found")
     end
 
     def format_voucher_identifier(id)
-      format("voucher-%04d", id)
+      return id if id.to_s.start_with?("voucher-")
+
+      format("voucher-%04d", id.to_i)
     end
 
     def format_time(value)
-      value&.iso8601
+      case value
+      when Time, DateTime
+        value.iso8601
+      when String
+        value
+      else
+        value&.to_s
+      end
     end
 
     def current_timestamp
@@ -260,58 +257,12 @@ module Adapter
 
     class << self
       def voucher_catalog
-        raw = YAML.safe_load(File.read(VOUCHER_FILE), symbolize_names: true) || {}
-        Array(raw[:items]).map do |item|
+        Store.instance.voucher_options.map do |item|
           {
-            title: item[:title].to_s,
-            details: item[:details].to_s
+            title: item["title"].to_s,
+            details: item["details"].to_s
           }
         end
-      end
-
-      def puzzle_answers_path
-        Pathname.new(ENV.fetch("ADVENT_PUZZLE_ANSWERS_PATH", PUZZLE_ANSWERS_FILE.to_s))
-      end
-
-      def puzzle_answers
-        @puzzle_answers ||= load_puzzle_answers
-      end
-
-      def reload_puzzle_answers!
-        @puzzle_answers = nil
-      end
-
-      private
-
-      def load_puzzle_answers
-        path = puzzle_answers_path
-        return {} unless path.exist?
-
-        raw = YAML.safe_load(
-          path.read,
-          permitted_classes: [Date],
-          permitted_symbols: [],
-          aliases: false
-        ) || {}
-
-        raw.each_with_object({}) do |(date_value, answer), memo|
-          date = parse_date(date_value)
-          next unless date
-
-          cleaned = answer.to_s.strip
-          memo[date.to_s] = cleaned unless cleaned.empty?
-        end
-      end
-
-      def parse_date(value)
-        case value
-        when Date
-          value
-        else
-          Date.iso8601(value.to_s)
-        end
-      rescue ArgumentError
-        nil
       end
     end
   end
