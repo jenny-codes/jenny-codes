@@ -26,17 +26,11 @@
       .advent-puzzle-alert
         = puzzle_error
 
-    = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
+    = form_with url: advent_solve_puzzle_path(persistent_advent_params), method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
       .advent-puzzle-form__field
         = form.label :puzzle_answer, "What does the sign say?", class: "advent-puzzle-form__label"
         = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off"
       = form.submit "Confirm", class: "advent-button advent-button--ghost"
-
-  .advent-dev-controls
-    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }
 - else
   section.advent-section.advent-done
     p.advent-section__text Good. You just got one more star because you have provided the correct information. The story will continue tomorrow :)
-
-  .advent-dev-controls
-    = button_to "Reset check-in", advent_reset_check_in_path, method: :post, class: "advent-button advent-button--ghost", data: { advent_reset: true }

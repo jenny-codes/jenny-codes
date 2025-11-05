@@ -32,13 +32,22 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_includes email.body.to_s, Time.zone.today.iso8601
   end
 
-  test "after view shows reset button when checked in" do
+  test "check in respects inspect day parameter" do
+    inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
+    refute Adapter::AdventCalendar.on(inspected_date).checked_in?
+
+    post advent_check_in_url(inspect: "1108")
+
+    assert_redirected_to advent_path(inspect: "1108")
+    assert Adapter::AdventCalendar.on(inspected_date).checked_in?
+    refute Adapter::AdventCalendar.on(Time.zone.today).checked_in?
+  end
+
+  test "after view does not expose reset button when checked in" do
     post advent_check_in_url
     get advent_url
 
-    assert_select "form[action='#{advent_reset_check_in_path}'][method='post']" do
-      assert_select "button", text: /reset check-in/i
-    end
+    assert_select "button", text: /reset check-in/i, count: 0
   end
 
   test "reset check in returns calendar to before state" do
@@ -50,6 +59,20 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{advent_check_in_path}']" do
       assert_select "button", text: /check in/i
     end
+  end
+
+  test "reset_day query resets specified date" do
+    inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
+    calendar = Adapter::AdventCalendar.on(inspected_date)
+    calendar.check_in
+    assert Adapter::AdventCalendar.on(inspected_date).checked_in?
+
+    get advent_url(reset: "1108", inspect: "1108")
+    assert_redirected_to advent_path(inspect: "1108")
+
+    follow_redirect!
+    assert_response :success
+    refute Adapter::AdventCalendar.on(inspected_date).checked_in?
   end
 
   test "draw voucher uses unlocked draw and shows award" do

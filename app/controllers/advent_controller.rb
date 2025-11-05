@@ -2,7 +2,9 @@
 # frozen_string_literal: true
 
 class AdventController < ApplicationController
+  before_action :maybe_reset_day, only: :index
   before_action :set_calendar
+  helper_method :persistent_advent_params
   layout "advent"
 
   def index
@@ -20,12 +22,12 @@ class AdventController < ApplicationController
     already_checked = @calendar.checked_in?
     @calendar.check_in
     send_check_in_email unless already_checked
-    redirect_to advent_path
+    redirect_to advent_path_with_query
   end
 
   def reset_check_in
     @calendar.reset_check_in
-    redirect_to advent_path
+    redirect_to advent_path_with_query
   end
 
   def draw_voucher
@@ -62,7 +64,7 @@ class AdventController < ApplicationController
     send_puzzle_attempt_email(attempt: attempt, solved: result[:solved])
 
     respond_to do |format|
-      format.html { redirect_to advent_path(tab: "main"), status: :see_other }
+      format.html { redirect_to advent_path_with_query(tab: "main"), status: :see_other }
       format.json { render_puzzle_attempt_json(result) }
     end
   end
@@ -73,7 +75,7 @@ class AdventController < ApplicationController
   DEFAULT_DAILY_TEMPLATE = "20251108"
 
   def set_calendar
-    @today = Time.zone.today
+    @today = requested_calendar_day
     @calendar = Adapter::AdventCalendar.on(@today)
     @advent_year = Adapter::AdventCalendar::END_DATE.year
   end
@@ -141,7 +143,7 @@ class AdventController < ApplicationController
   end
 
   def redirect_to_wah
-    redirect_to advent_path(tab: "wah"), status: :see_other
+    redirect_to advent_path_with_query(tab: "wah"), status: :see_other
   end
 
   def daily_template_partial
@@ -179,7 +181,7 @@ class AdventController < ApplicationController
   def check_in_button
     view_context.button_to(
       "Check in",
-      advent_check_in_path,
+      advent_check_in_path(persistent_advent_params),
       method: :post,
       class: "advent-button",
       data: { advent_check_in: true }
@@ -203,7 +205,7 @@ class AdventController < ApplicationController
 
   def render_puzzle_attempt_json(result)
     if result[:solved]
-      render json: { status: "ok", redirect_to: advent_path(tab: "main") }
+      render json: { status: "ok", redirect_to: advent_path_with_query(tab: "main") }
     else
       render json: {
         status: "error",
@@ -238,6 +240,47 @@ class AdventController < ApplicationController
       title: award.title,
       details: award.details
     ).deliver_now
+  end
+
+  def maybe_reset_day
+    target_day = parse_calendar_day(params[:reset])
+    return unless target_day
+
+    Adapter::AdventCalendar.on(target_day).reset_check_in
+
+    remaining = request.query_parameters.except("reset")
+    redirect_to advent_path(remaining)
+    nil
+  end
+
+  def persistent_advent_params
+    @persistent_advent_params ||= begin
+      data = {}
+      inspected = params[:inspect].to_s.strip
+      data[:inspect] = inspected if inspected.present?
+      data
+    end
+  end
+
+  def advent_path_with_query(extra = {})
+    query = persistent_advent_params.merge(extra)
+    advent_path(query)
+  end
+
+  def requested_calendar_day
+    parse_calendar_day(params[:inspect]) || Time.zone.today
+  end
+
+  def parse_calendar_day(value)
+    return if value.blank?
+
+    token = value.to_s.strip
+    return if token.empty?
+
+    base = Date.strptime(token, "%m%d")
+    base.change(year: Adapter::AdventCalendar::END_DATE.year)
+  rescue ArgumentError
+    nil
   end
 
   def handle_blank_puzzle_attempt(attempt, persist_flash: true)

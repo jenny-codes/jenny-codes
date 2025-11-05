@@ -118,29 +118,35 @@ test.describe('Advent Console', () => {
     expect(starCount).toBeGreaterThan(0);
 
     await responsePromise;
-    await expect(page.getByRole('button', { name: /reset check-in/i })).toBeVisible({ timeout: 7000 });
 
     const afterLines = page.locator('.advent-title__line');
     await expect(afterLines.first()).toHaveClass(/is-complete/);
     await expect(afterLines.nth(1)).toHaveClass(/is-complete/);
   });
 
-  test('reset button returns console to check-in state', async ({ page }) => {
+  test('reset query parameter returns console to check-in state', async ({ page, baseURL }) => {
+    const inspectDay = '1108';
+    const target = baseURL ? `${ADVENT_PATH}?inspect=${inspectDay}` : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${inspectDay}`;
+
+    await page.goto(target, { waitUntil: 'networkidle' });
+
     const checkInButton = page.getByRole('button', { name: /check in/i });
-    if (await checkInButton.count()) {
-      const responsePromise = page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400);
-      await checkInButton.click();
-      await responsePromise;
-      await expect(page.getByRole('button', { name: /reset check-in/i })).toBeVisible({ timeout: 7000 });
-    }
+    await expect(checkInButton).toBeVisible();
 
-    const resetButton = page.getByRole('button', { name: /reset check-in/i });
-    await expect(resetButton).toBeVisible();
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400);
+    await checkInButton.click();
+    await responsePromise;
 
-    const resetResponsePromise = page.waitForResponse((response) => response.url().includes('/advent/reset_check_in') && response.status() < 400);
-    await resetButton.click();
-    await resetResponsePromise;
+    await expect(page.locator('.advent-puzzle-form')).toBeVisible({ timeout: 7000 });
 
+    const resetTarget = baseURL
+      ? `${ADVENT_PATH}?inspect=${inspectDay}&reset=${inspectDay}`
+      : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${inspectDay}&reset=${inspectDay}`;
+    await page.goto(resetTarget, { waitUntil: 'networkidle' });
+
+    const currentURL = page.url();
+    expect(currentURL).toContain(`inspect=${inspectDay}`);
+    expect(currentURL).not.toContain('reset=');
     await expect(page.getByRole('button', { name: /check in/i })).toBeVisible({ timeout: 5000 });
 
     const beforeLines = page.locator('.advent-title__line');
@@ -169,7 +175,7 @@ test.describe('Advent Console', () => {
 
     const puzzleForm = page.locator('.advent-puzzle-form');
     await puzzleForm.waitFor({ state: 'visible' });
-    const puzzleInput = puzzleForm.getByPlaceholder('Enter your guess');
+    const puzzleInput = puzzleForm.getByLabel('What does the sign say?');
     await expect(puzzleInput).toBeVisible();
 
     const confirmButton = page.getByRole('button', { name: /confirm/i });
