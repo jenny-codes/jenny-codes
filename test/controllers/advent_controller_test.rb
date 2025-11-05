@@ -120,67 +120,38 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_select ".advent-voucher-alert", text: /not redeemable/i
   end
 
-  test "after view reveals done message when puzzle answer matches" do
-    baseline_stars = current_calendar.total_stars
+  test "what happens button renders during part two" do
     post advent_check_in_url
+    get advent_url
 
-    post advent_solve_puzzle_url, params: { puzzle_answer: "hooters" }
-    assert_redirected_to advent_path(tab: "main")
-
-    assert_equal baseline_stars + 2, current_calendar.total_stars
-
-    follow_redirect!
-    assert_select "form[action='#{advent_solve_puzzle_path}']", false
-    assert_select ".advent-puzzle-alert", false
-    assert_select "p", text: /Part 2:/, count: 0
+    assert_select "button", text: /what happens\?/i
   end
 
-  test "after view keeps puzzle when puzzle answer does not match" do
-    baseline_stars = current_calendar.total_stars
-    post advent_check_in_url
+  test "what happens button awards second star" do
+    inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
+    post advent_check_in_url(inspect: "1108")
 
-    post advent_solve_puzzle_url, params: { puzzle_answer: "wrong" }
-    assert_redirected_to advent_path(tab: "main")
+    post advent_solve_puzzle_url, params: { auto_complete: true, inspect: "1108" }
+    assert_redirected_to advent_path(inspect: "1108", tab: "main")
 
-    assert_equal baseline_stars + 1, current_calendar.total_stars
+    assert Adapter::AdventCalendar.on(inspected_date).puzzle_completed?
 
     follow_redirect!
-    assert_select "form[action='#{advent_solve_puzzle_path}'][method='post'] input[name='puzzle_answer'][value='wrong']"
-    assert_select ".advent-puzzle-alert", text: /That is not correct. Try again\?/i
-    assert_select "p", text: /Part 2:/, count: 1
+    assert_select "button", text: /what happens\?/i, count: 0
   end
 
-  test "puzzle attempt emails include attempt" do
+  test "auto complete sends notification email" do
     post advent_check_in_url
     ActionMailer::Base.deliveries.clear
 
     assert_emails 1 do
-      post advent_solve_puzzle_url, params: { puzzle_answer: "wrong" }
+      post advent_solve_puzzle_url, params: { auto_complete: true }
     end
 
     email = ActionMailer::Base.deliveries.last
     assert_equal "[Advent Calendar] Puzzle attempt made for #{Time.zone.today.iso8601}", email.subject
-    assert_includes email.body.to_s, "wrong"
-    assert_includes email.body.to_s, "Incorrect"
-  end
-
-  test "puzzle attempt with empty response shows validation message" do
-    post advent_check_in_url
-    ActionMailer::Base.deliveries.clear
-
-    assert_emails 1 do
-      post advent_solve_puzzle_url, params: { puzzle_answer: "" }
-    end
-
-    assert_redirected_to advent_path(tab: "main")
-    follow_redirect!
-
-    assert_select ".advent-puzzle-alert", text: /Please enter an answer before submitting/i
-    assert_select "form[action='#{advent_solve_puzzle_path}'][method='post'] input[name='puzzle_answer'][value='']"
-
-    email = ActionMailer::Base.deliveries.last
-    assert_includes email.body.to_s, "Attempted answer:"
-    assert_includes email.body.to_s, "Result: Incorrect"
+    assert_includes email.body.to_s, "[auto]"
+    assert_includes email.body.to_s, "Correct"
   end
 
   private

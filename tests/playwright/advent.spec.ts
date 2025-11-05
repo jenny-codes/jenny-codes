@@ -137,7 +137,7 @@ test.describe('Advent Console', () => {
     await checkInButton.click();
     await responsePromise;
 
-    await expect(page.locator('.advent-puzzle-form')).toBeVisible({ timeout: 7000 });
+    await expect(page.getByRole('button', { name: /what happens\?/i })).toBeVisible({ timeout: 7000 });
 
     const resetTarget = baseURL
       ? `${ADVENT_PATH}?inspect=${inspectDay}&reset=${inspectDay}`
@@ -173,38 +173,19 @@ test.describe('Advent Console', () => {
     await checkInButton.click();
     await checkInResponse;
 
-    const puzzleForm = page.locator('.advent-puzzle-form');
-    await puzzleForm.waitFor({ state: 'visible' });
-    const puzzleInput = puzzleForm.getByLabel('What does the sign say?');
-    await expect(puzzleInput).toBeVisible();
+    const actionButton = page.getByRole('button', { name: /what happens\?/i });
+    await expect(actionButton).toBeVisible();
 
-    const confirmButton = page.getByRole('button', { name: /confirm/i });
-
-    await puzzleInput.fill('wrong');
-    const wrongResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle'));
-    await confirmButton.click();
-    await wrongResponse;
-
-    await expect(page.locator('.advent-puzzle-alert')).toHaveText(/That is not correct\. Try again\?/i);
-    await expect(page.locator('.advent-puzzle-form')).toBeVisible();
-    await expect(puzzleInput).toHaveValue('wrong');
-
-    await puzzleInput.fill('hooters');
     const correctResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400);
-    await confirmButton.click();
+    await actionButton.click();
     await correctResponse;
 
-    await expect
-      .poll(async () => page.locator('.advent-starfield__star').count(), { message: 'expected starburst after puzzle' })
-      .toBeGreaterThan(0);
+    await page.waitForURL(/\/advent\?tab=main$/);
 
-    await page.waitForURL(/\/advent(?:\?tab=main)?$/);
-
-    await expect(page.locator('.advent-puzzle-form')).toHaveCount(0);
-    await expect(page.locator('.advent-puzzle-alert')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /what happens\?/i })).toHaveCount(0);
 
     page.off('response', responseListener);
-    expect(puzzleStatuses).toEqual([200, 200]);
+    expect(puzzleStatuses).toEqual([303]);
 
     await page.getByRole('link', { name: 'wah' }).click();
     const statsLine = page.locator('.advent-section__text').filter({ hasText: /^You have successfully checked in/ }).first();

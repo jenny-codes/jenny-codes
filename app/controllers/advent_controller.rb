@@ -55,13 +55,15 @@ class AdventController < ApplicationController
     attempt = attempt_param.to_s
     persist_flash = !request.format.json?
 
-    result = if attempt_param.nil? || attempt.strip.empty?
+    result = if params[:auto_complete].present?
+               auto_complete_puzzle_result
+             elsif attempt_param.nil? || attempt.strip.empty?
                handle_blank_puzzle_attempt(attempt, persist_flash: persist_flash)
              else
                apply_puzzle_attempt(attempt, persist_flash: persist_flash)
              end
 
-    send_puzzle_attempt_email(attempt: attempt, solved: result[:solved])
+    send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved])
 
     respond_to do |format|
       format.html { redirect_to advent_path_with_query(tab: "main"), status: :see_other }
@@ -249,8 +251,7 @@ class AdventController < ApplicationController
     Adapter::AdventCalendar.on(target_day).reset_check_in
 
     remaining = request.query_parameters.except("reset")
-    redirect_to advent_path(remaining)
-    nil
+    redirect_to advent_path(remaining) and return
   end
 
   def persistent_advent_params
@@ -287,5 +288,14 @@ class AdventController < ApplicationController
     message = puzzle_blank_message
     remember_puzzle_attempt(attempt, persist_flash: persist_flash, message: message)
     { solved: false, message: message, attempt: attempt }
+  end
+
+  def auto_complete_puzzle_result
+    if @calendar.complete_puzzle!
+      mark_puzzle_completed
+      { solved: true, message: nil, attempt: "[auto]" }
+    else
+      { solved: false, message: puzzle_error_message, attempt: "[auto]" }
+    end
   end
 end

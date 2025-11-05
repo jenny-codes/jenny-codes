@@ -183,6 +183,17 @@ module Adapter
       wrap_voucher(updated)
     end
 
+    def complete_puzzle!
+      return false if day_entry.puzzle_completed?
+
+      data = store.fetch_day(@day)
+      return false unless data && data["stars"].to_i.positive?
+
+      store.write_day(day: @day, stars: 2, puzzle_answer: data["puzzle_answer"])
+      refresh_totals!
+      true
+    end
+
     private
 
     def store

@@ -1,0 +1,30 @@
+- stage = local_assigns.fetch(:stage, :part1).to_sym
+- primary_action = local_assigns[:primary_action]
+- puzzle_attempt = (@puzzle_attempt || "").to_s.strip
+- puzzle_error = @puzzle_error
+
+- case stage
+- when :part1
+  section.advent-section
+    pre.advent-section__text Welcome back! Come here often?
+
+    - if primary_action.present?
+      .advent-action
+        == primary_action
+- when :part2
+  section.advent-section
+    p.advent-section__text Wah. You have checked in for the day, which means you got a star ⭐️! and the story continues:
+    p.advent-section__story "Where am I?"
+
+    - if puzzle_error.present?
+      .advent-puzzle-alert
+        = puzzle_error
+
+    = form_with url: advent_solve_puzzle_path(persistent_advent_params), method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
+      .advent-puzzle-form__field
+        = form.label :puzzle_answer, "What does the sign say?", class: "advent-puzzle-form__label"
+        = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off"
+      = form.submit "Confirm", class: "advent-button advent-button--ghost"
+- else
+  section.advent-section.advent-done
+    p.advent-section__text Good. You just got one more star ⭐️ because you have provided the correct information. The story will continue tomorrow :)

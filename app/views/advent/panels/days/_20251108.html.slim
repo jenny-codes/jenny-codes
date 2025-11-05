@@ -22,15 +22,9 @@
 
     p.advent-section__story Suddenly, there was a great, pulling sensation from the sticker, as it grew larger and larger, until it became a room filled with dizzying current of stars. "...but surly there is a more efficient algorithm for the expansion" was her last coherent thought before she sank deep,  deep into the stars.
 
-    - if puzzle_error.present?
-      .advent-puzzle-alert
-        = puzzle_error
+    .advent-action
+      = button_to "what happens?", advent_solve_puzzle_path(persistent_advent_params), method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
 
-    = form_with url: advent_solve_puzzle_path(persistent_advent_params), method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
-      .advent-puzzle-form__field
-        = form.label :puzzle_answer, "What does the sign say?", class: "advent-puzzle-form__label"
-        = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off"
-      = form.submit "Confirm", class: "advent-button advent-button--ghost"
 - else
   section.advent-section.advent-done
-    p.advent-section__text Good. You just got one more star because you have provided the correct information. The story will continue tomorrow :)
+    p.advent-section__text Well. The story will continue tomorrow :) In the meantime, here, have one more star ⭐️ because you are cute 😙
