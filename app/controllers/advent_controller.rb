@@ -30,6 +30,7 @@ class AdventController < ApplicationController
 
   def draw_voucher
     award = @calendar.draw_voucher!
+    send_voucher_drawn_email(award)
     flash[:voucher_award] = award.to_h
     redirect_to_wah
   rescue Adapter::AdventCalendar::NoEligibleDrawsError
@@ -217,5 +218,13 @@ class AdventController < ApplicationController
 
   def send_puzzle_attempt_email(attempt:, solved: false)
     AdventNotifierMailer.puzzle_attempt(day: @calendar.day, attempt: attempt, solved: solved).deliver_now
+  end
+
+  def send_voucher_drawn_email(award)
+    AdventNotifierMailer.voucher_drawn(
+      day: @calendar.day,
+      title: award.title,
+      details: award.details
+    ).deliver_now
   end
 end

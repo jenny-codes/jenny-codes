@@ -58,8 +58,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
-    assert_select ".advent-voucher-card__prize"
-    assert_select ".advent-section__text", text: /draw/i
+    assert_select ".advent-voucher-card--latest .advent-voucher-card__prize"
+    assert_select "button", text: /press me weee!/i, count: 0
   end
 
   test "draw voucher requires enough stars" do
@@ -70,6 +70,20 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select ".advent-voucher-alert", text: /Next draw unlocks at/i
+  end
+
+  test "draw voucher sends notification email" do
+    assert_emails 1 do
+      post advent_draw_voucher_url
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    Time.zone.today.iso8601
+    voucher = Adapter::AdventCalendar.on(Time.zone.today).vouchers.first
+
+    assert_equal "[Advent Calendar] Voucher drawn!", email.subject
+    assert_includes email.body.to_s, voucher[:title]
+    assert_includes email.body.to_s, voucher[:details]
   end
 
   test "redeem voucher marks voucher as redeemed" do
