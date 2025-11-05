@@ -163,6 +163,14 @@ body.advent-shell {
   margin: 0 0 1rem;
 }
 
+.advent-section__story {
+  font-family: var(--advent-font);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+  margin: 0 0 1rem;
+  padding: 1.25rem 1rem;
+}
 
 .advent-section__text {
   color: #dafee4;
