@@ -32,9 +32,9 @@ module Adapter
       end
 
       class Sheets
-        CALENDAR_RANGE = "calendar_days!A2:C"
+        CALENDAR_TAB = "calendar_days"
         CALENDAR_HEADER = %w[day stars puzzle_answer].freeze
-        VOUCHER_RANGE = "vouchers!A2:E"
+        VOUCHER_TAB = "vouchers"
         VOUCHER_HEADER = %w[id title details awarded_at redeemed_at].freeze
         OPTIONS_RANGE = "voucher_options!A2:B"
         OPTIONS_HEADER = %w[title details].freeze
@@ -83,7 +83,7 @@ module Adapter
           value_range = Google::Apis::SheetsV4::ValueRange.new(values: [row])
           @service.append_spreadsheet_value(
             @spreadsheet_id,
-            "vouchers!A:E",
+            voucher_range("A:E"),
             value_range,
             value_input_option: "RAW",
             insert_data_option: "INSERT_ROWS"
@@ -127,8 +127,8 @@ module Adapter
         private
 
         def ensure_headers!
-          set_headers("calendar_days!A1:C1", CALENDAR_HEADER)
-          set_headers("vouchers!A1:E1", VOUCHER_HEADER)
+          set_headers(calendar_range("A1:C1"), CALENDAR_HEADER)
+          set_headers(voucher_range("A1:E1"), VOUCHER_HEADER)
           set_headers("voucher_options!A1:B1", OPTIONS_HEADER)
         end
 
@@ -144,7 +144,7 @@ module Adapter
 
         def calendar_rows
           @calendar_rows ||= begin
-            response = @service.get_spreadsheet_values(@spreadsheet_id, CALENDAR_RANGE)
+            response = @service.get_spreadsheet_values(@spreadsheet_id, calendar_range)
             Array(response.values).map do |values|
               day, stars, puzzle_answer = values
               {
@@ -158,7 +158,7 @@ module Adapter
 
         def voucher_rows
           @voucher_rows ||= begin
-            response = @service.get_spreadsheet_values(@spreadsheet_id, VOUCHER_RANGE)
+            response = @service.get_spreadsheet_values(@spreadsheet_id, voucher_range)
             Array(response.values).map do |values|
               values.fill(nil, values.length...5)
               values
@@ -179,12 +179,12 @@ module Adapter
           end
 
           if values.empty?
-            @service.clear_values(@spreadsheet_id, CALENDAR_RANGE, Google::Apis::SheetsV4::ClearValuesRequest.new)
+            @service.clear_values(@spreadsheet_id, calendar_range, Google::Apis::SheetsV4::ClearValuesRequest.new)
           else
             value_range = Google::Apis::SheetsV4::ValueRange.new(values: values)
             @service.update_spreadsheet_value(
               @spreadsheet_id,
-              CALENDAR_RANGE,
+              calendar_range,
               value_range,
               value_input_option: "RAW"
             )
@@ -195,12 +195,12 @@ module Adapter
 
         def write_voucher_rows(rows)
           if rows.empty?
-            @service.clear_values(@spreadsheet_id, VOUCHER_RANGE, Google::Apis::SheetsV4::ClearValuesRequest.new)
+            @service.clear_values(@spreadsheet_id, voucher_range, Google::Apis::SheetsV4::ClearValuesRequest.new)
           else
             value_range = Google::Apis::SheetsV4::ValueRange.new(values: rows)
             @service.update_spreadsheet_value(
               @spreadsheet_id,
-              VOUCHER_RANGE,
+              voucher_range,
               value_range,
               value_input_option: "RAW"
             )
@@ -222,6 +222,22 @@ module Adapter
             "awarded_at" => row[3],
             "redeemed_at" => row[4]
           }
+        end
+
+        def calendar_tab
+          Rails.env.development? ? "#{CALENDAR_TAB}_dev" : CALENDAR_TAB
+        end
+
+        def voucher_tab
+          Rails.env.development? ? "#{VOUCHER_TAB}_dev" : VOUCHER_TAB
+        end
+
+        def calendar_range(segment = "A2:C")
+          "#{calendar_tab}!#{segment}"
+        end
+
+        def voucher_range(segment = "A2:E")
+          "#{voucher_tab}!#{segment}"
         end
       end
     end
