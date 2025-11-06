@@ -11,20 +11,31 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     write_calendar_data
   end
 
-  test "index should get index view when not checked in" do
+  test "advent prompts for password when unauthenticated" do
     get advent_url
+    assert_response :unauthorized
+    assert_equal 'Basic realm="Advent Calendar"', response.headers["WWW-Authenticate"]
+  end
+
+  test "incorrect password returns unauthorized" do
+    auth_get advent_url, password: "wrong"
+    assert_response :unauthorized
+  end
+
+  test "index should get index view when not checked in" do
+    auth_get advent_url
     assert_response :success
   end
 
   test "index should get checked in view after checking in" do
-    post advent_check_in_url
-    get advent_url
+    auth_post advent_check_in_url
+    auth_get advent_url
     assert_response :success
   end
 
   test "check in sends notification email" do
     assert_emails 1 do
-      post advent_check_in_url
+      auth_post advent_check_in_url
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -36,7 +47,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
     refute Adapter::AdventCalendar.on(inspected_date).checked_in?
 
-    post advent_check_in_url(inspect: "1108")
+    auth_post advent_check_in_url(inspect: "1108")
 
     assert_redirected_to advent_path(inspect: "1108")
     assert Adapter::AdventCalendar.on(inspected_date).checked_in?
@@ -44,17 +55,17 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "after view does not expose reset button when checked in" do
-    post advent_check_in_url
-    get advent_url
+    auth_post advent_check_in_url
+    auth_get advent_url
 
     assert_select "button", text: /reset check-in/i, count: 0
   end
 
   test "reset check in returns calendar to before state" do
-    post advent_check_in_url
-    post advent_reset_check_in_url
+    auth_post advent_check_in_url
+    auth_post advent_reset_check_in_url
 
-    get advent_url
+    auth_get advent_url
 
     assert_select "form[action='#{advent_check_in_path}']" do
       assert_select "button", text: /check in/i
@@ -67,18 +78,18 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     calendar.check_in
     assert Adapter::AdventCalendar.on(inspected_date).checked_in?
 
-    get advent_url(reset: "1108", inspect: "1108")
+    auth_get advent_url(reset: "1108", inspect: "1108")
     assert_redirected_to advent_path(inspect: "1108")
 
-    follow_redirect!
+    auth_get advent_path(inspect: "1108")
     assert_response :success
     refute Adapter::AdventCalendar.on(inspected_date).checked_in?
   end
 
   test "draw voucher uses unlocked draw and shows award" do
-    post advent_draw_voucher_url
+    auth_post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
-    follow_redirect!
+    auth_get advent_path(tab: "wah")
     assert_response :success
 
     assert_select ".advent-voucher-card--latest .advent-voucher-card__prize"
@@ -88,16 +99,16 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   test "draw voucher requires enough stars" do
     write_calendar_data(days: insufficient_days)
 
-    post advent_draw_voucher_url
+    auth_post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
-    follow_redirect!
+    auth_get advent_path(tab: "wah")
 
     assert_select ".advent-voucher-alert", text: /Next draw unlocks at/i
   end
 
   test "draw voucher sends notification email" do
     assert_emails 1 do
-      post advent_draw_voucher_url
+      auth_post advent_draw_voucher_url
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -110,42 +121,42 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "redeem voucher marks voucher as redeemed" do
-    post advent_draw_voucher_url
+    auth_post advent_draw_voucher_url
     voucher_id = current_calendar.vouchers.first[:id]
 
-    post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
+    auth_post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
     assert_redirected_to advent_path(tab: "wah")
-    follow_redirect!
+    auth_get advent_path(tab: "wah")
 
     assert_select ".advent-voucher-alert", text: /not redeemable/i
   end
 
   test "what happens button renders during part two" do
-    post advent_check_in_url
-    get advent_url
+    auth_post advent_check_in_url
+    auth_get advent_url
 
     assert_select "button", text: /what happens\?/i
   end
 
   test "what happens button awards second star" do
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
-    post advent_check_in_url(inspect: "1108")
+    auth_post advent_check_in_url(inspect: "1108")
 
-    post advent_solve_puzzle_url, params: { auto_complete: true, inspect: "1108" }
+    auth_post advent_solve_puzzle_url, params: { auto_complete: true, inspect: "1108" }
     assert_redirected_to advent_path(inspect: "1108", tab: "main")
 
     assert Adapter::AdventCalendar.on(inspected_date).puzzle_completed?
 
-    follow_redirect!
+    auth_get advent_path(inspect: "1108", tab: "main")
     assert_select "button", text: /what happens\?/i, count: 0
   end
 
   test "auto complete sends notification email" do
-    post advent_check_in_url
+    auth_post advent_check_in_url
     ActionMailer::Base.deliveries.clear
 
     assert_emails 1 do
-      post advent_solve_puzzle_url, params: { auto_complete: true }
+      auth_post advent_solve_puzzle_url, params: { auto_complete: true }
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -201,5 +212,21 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   def current_calendar
     Adapter::AdventCalendar.on(Time.zone.today)
+  end
+
+  def auth_headers(password: AdventController::ADVENT_PASSWORD)
+    {
+      "HTTP_AUTHORIZATION" => ActionController::HttpAuthentication::Basic.encode_credentials("advent", password)
+    }
+  end
+
+  def auth_get(path, password: AdventController::ADVENT_PASSWORD, **kwargs)
+    headers = auth_headers(password: password).merge(kwargs.delete(:headers) || {})
+    get(path, **kwargs.merge(headers: headers))
+  end
+
+  def auth_post(path, password: AdventController::ADVENT_PASSWORD, **kwargs)
+    headers = auth_headers(password: password).merge(kwargs.delete(:headers) || {})
+    post(path, **kwargs.merge(headers: headers))
   end
 end

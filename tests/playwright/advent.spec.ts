@@ -6,6 +6,7 @@ import { resolve } from 'path';
 const ADVENT_PATH = '/advent';
 const FALLBACK_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 const PLAYWRIGHT_STORE_PATH = process.env.ADVENT_CALENDAR_FILE_PATH ?? resolve(process.cwd(), 'tmp', 'playwright_store.yml');
+const ADVENT_PASSWORD_VALUE = 'cremebrulee';
 
 process.env.ADVENT_CALENDAR_FILE_PATH = PLAYWRIGHT_STORE_PATH;
 
@@ -20,6 +21,10 @@ const resetCalendarState = () => {
   });
 };
 
+const visitAdvent = async (page: Page, target: string) => {
+  await page.goto(target, { waitUntil: 'networkidle' });
+};
+
 const waitForHeadlineCompletion = async (page: Page) => {
   await page.waitForFunction(() => {
     const lines = document.querySelectorAll<HTMLSpanElement>('.advent-title__line');
@@ -31,10 +36,11 @@ const waitForHeadlineCompletion = async (page: Page) => {
 
 test.describe('Advent Console', () => {
   test.describe.configure({ mode: 'serial' });
-  test.beforeEach(async ({ page, baseURL }) => {
+  test.beforeEach(async ({ page, baseURL, context }) => {
     resetCalendarState();
+    await context.setHTTPCredentials({ username: 'advent', password: ADVENT_PASSWORD_VALUE });
     const target = baseURL ? ADVENT_PATH : `${FALLBACK_BASE_URL}${ADVENT_PATH}`;
-    await page.goto(target, { waitUntil: 'networkidle' });
+    await visitAdvent(page, target);
   });
 
   test.afterEach(() => {
@@ -128,7 +134,7 @@ test.describe('Advent Console', () => {
     const inspectDay = '1108';
     const target = baseURL ? `${ADVENT_PATH}?inspect=${inspectDay}` : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${inspectDay}`;
 
-    await page.goto(target, { waitUntil: 'networkidle' });
+    await visitAdvent(page, target);
 
     const checkInButton = page.getByRole('button', { name: /check in/i });
     await expect(checkInButton).toBeVisible();
@@ -142,7 +148,7 @@ test.describe('Advent Console', () => {
     const resetTarget = baseURL
       ? `${ADVENT_PATH}?inspect=${inspectDay}&reset=${inspectDay}`
       : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${inspectDay}&reset=${inspectDay}`;
-    await page.goto(resetTarget, { waitUntil: 'networkidle' });
+    await visitAdvent(page, resetTarget);
 
     const currentURL = page.url();
     expect(currentURL).toContain(`inspect=${inspectDay}`);

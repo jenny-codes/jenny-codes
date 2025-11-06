@@ -2,6 +2,9 @@
 # frozen_string_literal: true
 
 class AdventController < ApplicationController
+  ADVENT_PASSWORD = "cremebrulee"
+
+  before_action :require_advent_password
   before_action :maybe_reset_day, only: :index
   before_action :set_calendar
   helper_method :persistent_advent_params
@@ -242,6 +245,12 @@ class AdventController < ApplicationController
       title: award.title,
       details: award.details
     ).deliver_now
+  end
+
+  def require_advent_password
+    authenticate_or_request_with_http_basic("Advent Calendar") do |_username, password|
+      ActiveSupport::SecurityUtils.secure_compare(password.to_s, ADVENT_PASSWORD)
+    end
   end
 
   def maybe_reset_day
