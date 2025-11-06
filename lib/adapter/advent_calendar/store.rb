@@ -36,8 +36,8 @@ module Adapter
         CALENDAR_HEADER = %w[day stars puzzle_answer].freeze
         VOUCHER_TAB = "vouchers"
         VOUCHER_HEADER = %w[id title details awarded_at redeemed_at].freeze
-        OPTIONS_RANGE = "voucher_options!A2:B"
-        OPTIONS_HEADER = %w[title details].freeze
+        OPTIONS_RANGE = "voucher_options!A2:C"
+        OPTIONS_HEADER = %w[title details chance].freeze
 
         def initialize(spreadsheet_id:, credentials_key:)
           require "google/apis/sheets_v4"
@@ -116,10 +116,11 @@ module Adapter
           return [] if rows.empty?
 
           rows.map do |values|
-            title, details = values
+            title, details, chance = values
             {
               "title" => title.to_s,
-              "details" => details.to_s
+              "details" => details.to_s,
+              "chance" => chance.to_i
             }
           end
         end
@@ -129,7 +130,7 @@ module Adapter
         def ensure_headers!
           set_headers(calendar_range("A1:C1"), CALENDAR_HEADER)
           set_headers(voucher_range("A1:E1"), VOUCHER_HEADER)
-          set_headers("voucher_options!A1:B1", OPTIONS_HEADER)
+          set_headers("voucher_options!A1:C1", OPTIONS_HEADER)
         end
 
         def set_headers(range, headers)

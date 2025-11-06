@@ -162,8 +162,7 @@ module Adapter
 
       rng = random || Random.new
       pool = Array(catalog || voucher_catalog)
-      prize = pool.sample(random: rng)
-      raise "Voucher catalogue is empty" if prize.nil?
+      prize = weighted_prize(pool, rng)
 
       record = store.append_voucher(
         title: prize.fetch(:title),
@@ -271,10 +270,28 @@ module Adapter
         Store.instance.voucher_options.map do |item|
           {
             title: item["title"].to_s,
-            details: item["details"].to_s
+            details: item["details"].to_s,
+            chance: item["chance"].to_i
           }
         end
       end
+    end
+
+    def weighted_prize(pool, rng)
+      raise "Voucher catalogue is empty" if pool.empty?
+
+      total_chance = pool.sum { |item| item[:chance].to_i }
+      raise "Voucher chances must sum to 100" unless total_chance == 100
+
+      ticket = rng.rand(total_chance)
+      accumulator = 0
+
+      pool.each do |item|
+        accumulator += item[:chance].to_i
+        return item if ticket < accumulator
+      end
+
+      pool.last
     end
   end
 end

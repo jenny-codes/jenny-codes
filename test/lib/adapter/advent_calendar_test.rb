@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 module Adapter
   class AdventCalendarTest < ActiveSupport::TestCase
@@ -136,7 +137,10 @@ module Adapter
       assert_equal 1, calendar.draws_available
 
       travel_to Time.zone.parse("2024-12-01 12:00:00") do
-        award = calendar.draw_voucher!(random: Random.new(42), catalog: [{ title: "massage", details: "relax" }])
+        award = calendar.draw_voucher!(
+          random: Random.new(42),
+          catalog: [{ title: "massage", details: "relax", chance: 100 }]
+        )
 
         assert_equal "massage", award.title
         assert_match(/voucher-\d{4}/, award.id)
@@ -162,13 +166,72 @@ module Adapter
       end
     end
 
+    test "draw_voucher respects chance weighting for lower ticket" do
+      create_day(@day - 2, stars: 1, puzzle_answer: "ember")
+      create_day(@day - 1, stars: 1, puzzle_answer: "ember")
+      create_day(@day, stars: 1, puzzle_answer: "hooters")
+
+      calendar = AdventCalendar.on(@day)
+      rng = Minitest::Mock.new
+      rng.expect(:rand, 59, [100])
+
+      award = calendar.draw_voucher!(
+        random: rng,
+        catalog: [
+          { title: "Common", details: "plain", chance: 60 },
+          { title: "Rare", details: "shiny", chance: 40 }
+        ]
+      )
+
+      assert_equal "Common", award.title
+      rng.verify
+    end
+
+    test "draw_voucher respects chance weighting for upper ticket" do
+      create_day(@day - 2, stars: 1, puzzle_answer: "ember")
+      create_day(@day - 1, stars: 1, puzzle_answer: "ember")
+      create_day(@day, stars: 1, puzzle_answer: "hooters")
+
+      calendar = AdventCalendar.on(@day)
+      rng = Minitest::Mock.new
+      rng.expect(:rand, 90, [100])
+
+      award = calendar.draw_voucher!(
+        random: rng,
+        catalog: [
+          { title: "Common", details: "plain", chance: 60 },
+          { title: "Rare", details: "shiny", chance: 40 }
+        ]
+      )
+
+      assert_equal "Rare", award.title
+      rng.verify
+    end
+
+    test "draw_voucher raises when chances do not sum to 100" do
+      create_day(@day - 2, stars: 1, puzzle_answer: "ember")
+      create_day(@day - 1, stars: 1, puzzle_answer: "ember")
+      create_day(@day, stars: 1, puzzle_answer: "hooters")
+
+      calendar = AdventCalendar.on(@day)
+
+      assert_raises RuntimeError do
+        calendar.draw_voucher!(
+          catalog: [
+            { title: "Common", details: "plain", chance: 30 },
+            { title: "Rare", details: "shiny", chance: 30 }
+          ]
+        )
+      end
+    end
+
     test "redeem_voucher marks voucher and persists" do
       create_day(@day - 2, stars: 1, puzzle_answer: "ember")
       create_day(@day - 1, stars: 1, puzzle_answer: "ember")
       create_day(@day, stars: 1, puzzle_answer: "hooters")
 
       calendar = AdventCalendar.on(@day)
-      award = calendar.draw_voucher!(catalog: [{ title: "massage", details: "relax" }])
+      award = calendar.draw_voucher!(catalog: [{ title: "massage", details: "relax", chance: 100 }])
 
       redeemed = calendar.redeem_voucher!(award.id)
       assert redeemed.redeemed?
@@ -185,7 +248,7 @@ module Adapter
       create_day(@day + 1, stars: 1, puzzle_answer: "ember")
 
       calendar = AdventCalendar.on(@day)
-      award = calendar.draw_voucher!(catalog: [{ title: "cookie", details: "sweet" }])
+      award = calendar.draw_voucher!(catalog: [{ title: "cookie", details: "sweet", chance: 100 }])
       calendar.redeem_voucher!(award.id)
 
       assert_raises(Adapter::AdventCalendar::VoucherAlreadyRedeemedError) do

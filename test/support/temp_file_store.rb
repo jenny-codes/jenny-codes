@@ -10,7 +10,7 @@ module Adapter
     module Store
       class TempFileStore
         SAMPLE_VOUCHER_OPTIONS = [
-          { "title" => "Test Treat", "details" => "Redeemable for one delightful surprise" }
+          { "title" => "Test Treat", "details" => "Redeemable for one delightful surprise", "chance" => 100 }
         ].freeze
 
         DEFAULT_PAYLOAD = {
@@ -125,7 +125,8 @@ module Adapter
           normalized["voucher_options"] = Array(normalized["voucher_options"]).map do |attrs|
             {
               "title" => attrs.fetch("title", attrs[:title]).to_s,
-              "details" => attrs.fetch("details", attrs[:details]).to_s
+              "details" => attrs.fetch("details", attrs[:details]).to_s,
+              "chance" => attrs.fetch("chance", attrs[:chance] || 0).to_i
             }
           end
           normalized
