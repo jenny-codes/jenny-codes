@@ -13,7 +13,6 @@ section.advent-section.advent-faq
   - if latest_voucher.present?
     - voucher_title = latest_voucher[:title] || latest_voucher['title']
     - voucher_details = latest_voucher[:details] || latest_voucher['details']
-    - voucher_time = parse_time.call(latest_voucher[:awarded_at] || latest_voucher['awarded_at'])
     - redeemed_time = parse_time.call(latest_voucher[:redeemed_at] || latest_voucher['redeemed_at'])
     - already_redeemed = latest_voucher[:redeemed] || latest_voucher['redeemed']
     dl.advent-faq
@@ -24,8 +23,6 @@ section.advent-section.advent-faq
               h3.advent-voucher-card__title Congrats! You drew:
               p.advent-voucher-card__prize = voucher_title
               p.advent-voucher-card__details = voucher_details
-              - if voucher_time
-                p.advent-voucher-card__time == "Awarded at #{voucher_time.strftime('%b %d, %Y %H:%M')}"
               - if already_redeemed
                 p.advent-voucher-card__status Redeemed
                 - if redeemed_time
@@ -69,21 +66,17 @@ section.advent-section.advent-faq
     h3.advent-section__title Your vouchers
     section.advent-section.advent-faq
       dl.advent-faq
-        - vouchers.each_with_index do |voucher, index|
+        - vouchers.each do |voucher|
           - title = voucher[:title] || voucher['title']
           - details = voucher[:details] || voucher['details']
-          - awarded_at = parse_time.call(voucher[:awarded_at] || voucher['awarded_at'])
           - redeemed_at = parse_time.call(voucher[:redeemed_at] || voucher['redeemed_at'])
           - redeemed = voucher[:redeemed] || voucher['redeemed']
           .advent-faq__pair
             dd.advent-faq__answer
               span.advent-faq__response
                 .advent-voucher-card class=(redeemed ? 'is-redeemed' : nil)
-                  p.advent-voucher-card__badge == "##{index + 1}"
                   p.advent-voucher-card__prize = title
                   p.advent-voucher-card__details = details
-                  - if awarded_at
-                    p.advent-voucher-card__time == "Awarded on #{awarded_at.strftime('%b %d, %Y %H:%M')}"
                   - if redeemed
                     p.advent-voucher-card__status Redeemed
                     - if redeemed_at
