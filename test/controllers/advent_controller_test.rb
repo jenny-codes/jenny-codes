@@ -186,8 +186,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "what happens button renders during part two" do
-    auth_post advent_check_in_url
-    auth_get advent_url
+    auth_post advent_check_in_url(inspect: "1108")
+    auth_get advent_url(inspect: "1108")
 
     assert_select "button", text: /what happens\?/i
   end

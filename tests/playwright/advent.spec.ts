@@ -7,6 +7,7 @@ const ADVENT_PATH = '/advent';
 const FALLBACK_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 const PLAYWRIGHT_STORE_PATH = process.env.ADVENT_CALENDAR_FILE_PATH ?? resolve(process.cwd(), 'tmp', 'playwright_store.yml');
 const ADVENT_PASSWORD_VALUE = 'cremebrulee';
+const DEFAULT_INSPECT_DAY = '1108';
 
 process.env.ADVENT_CALENDAR_FILE_PATH = PLAYWRIGHT_STORE_PATH;
 
@@ -25,6 +26,20 @@ const visitAdvent = async (page: Page, target: string) => {
   await page.goto(target, { waitUntil: 'networkidle' });
 };
 
+const waitForMainTab = async (page: Page) => {
+  await page.waitForURL((url) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.pathname !== '/advent') return false;
+      const tab = parsed.searchParams.get('tab');
+      return tab === null || tab === 'main';
+    } catch (error) {
+      console.warn('[advent] unable to parse URL during wait', error);
+      return false;
+    }
+  }, { timeout: 15000 });
+};
+
 const waitForHeadlineCompletion = async (page: Page) => {
   await page.waitForFunction(() => {
     const lines = document.querySelectorAll<HTMLSpanElement>('.advent-title__line');
@@ -39,7 +54,9 @@ test.describe('Advent Console', () => {
   test.beforeEach(async ({ page, baseURL, context }) => {
     resetCalendarState();
     await context.setHTTPCredentials({ username: 'advent', password: ADVENT_PASSWORD_VALUE });
-    const target = baseURL ? ADVENT_PATH : `${FALLBACK_BASE_URL}${ADVENT_PATH}`;
+    const target = baseURL
+      ? `${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}`
+      : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}`;
     await visitAdvent(page, target);
   });
 
@@ -97,7 +114,7 @@ test.describe('Advent Console', () => {
         page.waitForResponse((response) => response.url().includes('/advent/check_in') && response.status() < 400),
         checkInButton.click(),
       ]);
-      await page.waitForURL(/\/advent(?:\?tab=main)?$/);
+      await waitForMainTab(page);
     }
 
     const countdown = page.locator('.advent-countdown [data-countdown-label]');
@@ -186,7 +203,7 @@ test.describe('Advent Console', () => {
     await actionButton.click();
     await correctResponse;
 
-    await page.waitForURL(/\/advent\?tab=main$/);
+    await waitForMainTab(page);
 
     await expect(page.getByRole('button', { name: /what happens\?/i })).toHaveCount(0);
 

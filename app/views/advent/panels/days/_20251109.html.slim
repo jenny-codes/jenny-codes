@@ -1,5 +1,6 @@
 - stage = local_assigns.fetch(:stage, :part1).to_sym
 - primary_action = local_assigns[:primary_action]
+- story_texts = Array(local_assigns[:story_texts]).map(&:presence).compact
 - puzzle_attempt = (@puzzle_attempt || "").to_s.strip
 - puzzle_error = @puzzle_error
 
@@ -15,42 +16,11 @@
   section.advent-section
     p.advent-section__text Wah. You have checked in for the day, which means you got a star ⭐️! and the story continues:
 
-
-    p.advent-section__story "Ah, my back," Joyce grumbles as she climbed the stairs out of the subway station. As she emerged into the snow-filled February air, she tried to shake off the remnants of a very strange dream she’d had while dozing on the train. There was a collage of half-memories: an 8pm meeting... someone in a black volleyball jersey that looked very, very good on them... stars... falling...
-
-    p.advent-section__story She was running errands in the neighbourhood she was moving to tomorrow. It wouldn't be the first time she’d lived in downtown Toronto, but it would be the first time she'd have a room that was entirely her own.
-
-    p.advent-section__story "(Cough) Um, hello?" Suddenly, a voice came. From...inside her head.
-
-    p.advent-section__story "What do you mean??" Joyce growled in disbelief.
-
-    p.advent-section__story "Ah, yes. It appears we've encountered an unexpected user onboarding flow in the game," the voice continued.
-
-    p.advent-section__story "Wait what? What game? Who are you? And why are you in my head?"
-
-    p.advent-section__story "Oh no. This is also indicative of the malfunction. Hmm. The parameters may have exceeded initial projections. This might not go well. Oh well."
-
-    p.advent-section__story "...'Oh well'!?"
-
-    p.advent-section__story "Um, I mean, rest assured we are actioning a deep-dive to leverage our core competencies and remediate this unfortunate outcome. We understand your frustration—which is a key pain point we're tracking—and will circle back once we have a more granular go-forward strategy."
-
-    p.advent-section__story "Stop with the corporate speak." Joyce said, deadpan.
-
-    p.advent-section__story "Okay, phew. Honestly? Running out of bandwidth for that dialect anyway. So, like, no cap, the whole situation is a major L right now. The vibe is... not it. It's giving main character tragedy arc, you feel me?"
-
-    p.advent-section__story "Also stop with the GenZ speak." Her patience is wearing very thin.
-
-    p.advent-section__story "...fine. I practiced hard and have grown rather fond of that though. Sigh. Byebye my hard work. Anyway, okay. Let me verify your identity first."
-
-    p.advent-section__story "...Why do you need authentication when you can already pry into my head? And who are you!??"
-    p.advent-section__story "...you...shush. Although, I find that rather silly too. But trust me, the faster we get this over with, the faster I will be able to answer your questions. First, what is your name?"
-    p.advent-section__story "Joyce. This is stupid."
-
-    p.advent-section__story "What piece of clothing is the most scandalous?"
-
-    p.advent-section__story "No-show socks. Because they reveal the ankles."
-
-    p.advent-section__story "Very good. Final question: what is the name of that establishment where food may or may not be their main focus, but does have a good chicken wings deal on Mondays?"
+    - if story_texts.any?
+      - story_texts.each do |story|
+        p.advent-section__story = story
+    - else
+      p.advent-section__story The story will be unveiled soon. Stay tuned!
 
     - if puzzle_error.present?
       .advent-puzzle-alert

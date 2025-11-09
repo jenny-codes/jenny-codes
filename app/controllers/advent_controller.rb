@@ -3,6 +3,7 @@
 
 class AdventController < ApplicationController
   ADVENT_PASSWORD = "cremebrulee"
+  STORY_FILE = Rails.root.join("lib/data/advent_story.yml")
 
   before_action :require_advent_password
   before_action :maybe_reset_day, only: :index
@@ -109,15 +110,7 @@ class AdventController < ApplicationController
 
   def assign_voucher_stats
     @vouchers = @calendar.vouchers.sort_by do |voucher|
-      redeemed = voucher[:redeemed] || voucher["redeemed"] ? 1 : 0
-      awarded_at = voucher[:awarded_at] || voucher["awarded_at"]
-      awarded_score = begin
-        Time.iso8601(awarded_at.to_s).to_i * -1
-      rescue ArgumentError, TypeError
-        0
-      end
-
-      [redeemed, awarded_score]
+      voucher[:redeemed] ? 1 : 0
     end
     @voucher_milestones = @calendar.voucher_milestones
   end
@@ -154,7 +147,8 @@ class AdventController < ApplicationController
       main_partial: daily_partial,
       main_locals: {
         stage: stage,
-        primary_action: (stage == :part1 ? check_in_button : nil)
+        primary_action: (stage == :part1 ? check_in_button : nil),
+        story_texts: story_paragraphs_for(@today)
       }.compact
     }
   end
@@ -368,5 +362,18 @@ class AdventController < ApplicationController
     date.strftime("%b %d, %Y")
   rescue ArgumentError
     nil
+  end
+
+  def story_catalog
+    @story_catalog ||= YAML.safe_load_file(STORY_FILE, permitted_classes: [], aliases: false) || {}
+  end
+
+  def story_paragraphs_for(date)
+    raw = story_catalog[date.strftime("%Y%m%d")]
+    return [] unless raw.present?
+
+    raw.to_s.split(/\r?\n\r?\n+/).map do |chunk|
+      chunk.lines.map(&:strip).join(" ").squeeze(" ").strip
+    end.reject(&:blank?)
   end
 end

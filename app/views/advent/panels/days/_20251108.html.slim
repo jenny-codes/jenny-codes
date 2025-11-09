@@ -1,5 +1,6 @@
 - stage = local_assigns.fetch(:stage, :part1).to_sym
 - primary_action = local_assigns[:primary_action]
+- story_texts = Array(local_assigns[:story_texts]).map(&:presence).compact
 - puzzle_attempt = (@puzzle_attempt || "").to_s.strip
 - puzzle_error = @puzzle_error
 
@@ -16,12 +17,11 @@
   section.advent-section
     p.advent-section__text Wah. You have gathered one star from the check-in ⭐️
     p.advent-section__text ...
-    
-    p.advent-section__story "Haiya. Another 8pm meeting." Thought Joyce. "Getting in the way of meeting my wonderful, sweet, absolutely-right girlfriend. What is adulting." As she plopped into her desk chair, she looked out through the window. It had gone completely dark hours ago. The relentless November wind seemed to only get stronger. A wistful image of Jenny in her volleyball jersey flickered through her mind. Shaking it off, she tuned into the virtual call, her face arranging itself into the familiar mask of pleasant attentiveness.
-    p.advent-section__story As the usual faces began to trickle into the virtual room, she felt...something was weird. Not from the screen. She looked down at the "superstar! I got my COVID-19 shot" sticker that she was fidgeting with, and realized it's...glowing?
-    p.advent-section__story Huh?
-    p.advent-section__story The glow intensified, spilling over the cartoon letters. Then came a great, pulling sensation, not from below, but from the sticker itself. It tugged at her arm, then her whole being, as the sticker grew, expanding with an impossible, silent speed. The cartoon star swelled until it was the size of her monitor, then the wall, soon, her entire room was gone, replaced by a dizzying, swirling vortex of stars.
-    p.advent-section__story "...much wow?" was her last thought before she sank deep, deep into the current.
+    - if story_texts.any?
+      - story_texts.each do |story|
+        p.advent-section__story = story
+    - else
+      p.advent-section__story The story will be unveiled soon. Stay tuned!
 
     .advent-action
       = button_to "what happens?", advent_solve_puzzle_path(persistent_advent_params), method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
