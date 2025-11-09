@@ -12,18 +12,45 @@ The glow intensified, spilling over the cartoon letters. Then came a great, pull
 
 ### 20251109
 
-"Ah my back"
+"Ah, my back," Joyce grumbles as she climbed the stairs out of the subway station. As she emerged into the snow-covered February air, she tried to shake off the remnants of a very strange dream she’d had while dozing on the train. There was a collage of half-memories: an 8pm meeting...someone in a black volleyball jersey that looked very, very good on them...stars...falling...
 
-The sinking stopped with a sudden stillness that was more shocking than any impact. Joyce found herself standing on a pavement in the biting cold. Everything was so oddly familiar. She looked around. It felt like Toronto.
+She was running errands in the neighbourhood she was moving to tomorrow. It wouldn't be the first time she’d lived in downtown Toronto, but it would be the first time she'd have a room that was entirely her own.
 
-Above her, a large digital clock on a building corner glowed with a severe red light. It read: FEB 12, 2025.
+"(Cough) Um, hello?" Suddenly, a voice came. From inside her head.
 
-"February?" Joyce murmured. Somehow...something is off. Somewhere in the back of her mind a voice is telling her that the Deciding that standing still was the least productive thing one could do, she began to walk along the street, which the road signs said Adelaide.
+"What do you mean??" Joyce growled in disbelief.
 
-"...I live here now don't I" It seems that her memory is somehow reshuffled. "I will...figure this all out later." Her body is still faithfully taking her forward while she procrastinates figuring out what exactly is being weird. After a while, she came to an intersection. Across the road sat a two-storey establishment that pulsed with a startling, electric, marmalade orange. It was so bright, so cheerfully aggressive, that it seemed to be the source of all light on the street, and it beckoned her closer.
+"Ah, yes. It appears we've encountered an unexpected user onboarding flow in the game," the voice continued.
 
-As she drew near, she saw a sign, written in fat, cheerful letters, curving across its facade. Joyce stopped directly beneath it, her head tilted back, her breath fogging in the not-quite-real February air, and read the glowing text.
+"Wait what? What game? Who are you? And why are you in my head?"
 
-### 20251110
+"Oh no. This is also indicative of the malfunction. Hmm. The parameters may have exceeded initial projections. This might not go well. Oh well."
 
-Hooters. "But today is not Monday. They don't have wings." Joyce thought. And stopped.
+"...'Oh well'!?"
+
+"Um, I mean, rest assured we are actioning a deep-dive to leverage our core competencies and remediate this unfortunate outcome. We understand your frustration—which is a key pain point we're tracking—and will circle back once we have a more granular go-forward strategy."
+
+"Stop with the corporate speak." Joyce in a deadpan voice.
+
+"Okay, phew. Honestly? Running out of bandwidth for that dialect anyway. So, like, no cap, the whole situation is a major L right now. The vibe is... not it. It's giving main character tragedy arc, you feel me?"
+
+"Stop with the Gen Z speak." Joyce's patience is wearing very thin.
+
+"...fine. I practiced hard and have grown rather fond of that though. Sigh. Byebye my hard work. Anyway, okay. Let me verify your identity first."
+
+"...Why do you need authentication when you can already pry into my head? And who are you!??"
+
+"...you...shush. Although, I find that rather stupid too. But trust me it, the faster we get this over with, the faster I will be able to answer your questions."
+
+"Okay. Let's get this over with." Joyce conceded with a sigh.
+
+"Let's go. First, what's your name?"
+
+"Joyce"
+
+"What piece of clothing is the most scandalous?"
+
+"No-show socks. Because they reveal the ankles."
+
+Very good. Final question: what is the name of that establishment where food may or may not be their main focus, but does have a good chicken wings deal on Mondays?
+
