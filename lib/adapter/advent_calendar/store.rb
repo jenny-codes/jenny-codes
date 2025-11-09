@@ -6,7 +6,7 @@ require "stringio"
 require "base64"
 
 module Adapter
-  class AdventCalendar
+  module AdventCalendar
     module Store
       class << self
         def instance
@@ -22,10 +22,7 @@ module Adapter
         def build
           credentials_key = Base64.decode64(ENV.fetch("GOOGLE_SERVICE_ACCOUNT_KEY"))
           Sheets.new(
-            spreadsheet_id: ENV.fetch(
-              "ADVENT_CALENDAR_SPREADSHEET_ID",
-              "1HON1eX9ondKVsmKv1OLUs85vNjmqna5AC8lBANWIg4I"
-            ),
+            spreadsheet_id: ENV.fetch("ADVENT_CALENDAR_SPREADSHEET_ID"),
             credentials_key: credentials_key
           )
         end
@@ -38,6 +35,8 @@ module Adapter
         VOUCHER_HEADER = %w[id title details awarded_at redeemable_at redeemed_at].freeze
         OPTIONS_RANGE = "voucher_options!A2:D"
         OPTIONS_HEADER = %w[title details chance redeemable_at].freeze
+        PROMPTS_TAB = "prompts"
+        PROMPTS_RANGE = "#{PROMPTS_TAB}!A1:Z".freeze
 
         def initialize(spreadsheet_id:, credentials_key:)
           require "google/apis/sheets_v4"
@@ -75,6 +74,10 @@ module Adapter
 
         def all_days
           calendar_rows.map(&:dup)
+        end
+
+        def total_stars
+          calendar_rows.sum { |row| row["stars"].to_i }
         end
 
         def append_voucher(title:, details:, awarded_at:, redeemable_at:)
@@ -126,6 +129,10 @@ module Adapter
           end
         end
 
+        def prompt_for(day)
+          prompt_rows.find { |row| row["day"] == day.to_s }&.dup
+        end
+
         private
 
         def ensure_headers!
@@ -172,6 +179,22 @@ module Adapter
           @option_rows ||= begin
             response = @service.get_spreadsheet_values(@spreadsheet_id, OPTIONS_RANGE)
             Array(response.values)
+          end
+        end
+
+        # No caching prompts so it can always read the latest value
+        def prompt_rows
+          response = @service.get_spreadsheet_values(@spreadsheet_id, PROMPTS_RANGE)
+          rows = Array(response.values)
+          return [] if rows.empty?
+
+          header = normalize_header_row(rows.shift)
+          rows.map do |values|
+            row = {}
+            header.each_with_index do |key, index|
+              row[key] = values[index]
+            end
+            row
           end
         end
 
@@ -241,6 +264,12 @@ module Adapter
 
         def voucher_range(segment = "A2:F")
           "#{voucher_tab}!#{segment}"
+        end
+
+        def normalize_header_row(values)
+          values.map do |value|
+            value.to_s.strip.downcase.gsub(/[^a-z0-9]+/, "_").gsub(/\A_+|_+\z/, "")
+          end
         end
       end
     end

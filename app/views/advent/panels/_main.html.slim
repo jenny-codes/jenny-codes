@@ -1,0 +1,54 @@
+- stage = @stage
+- part1_prompts = local_assigns.fetch(:part1_prompts)
+- part2_prompts = local_assigns.fetch(:part2_prompts)
+- done_prompts = local_assigns.fetch(:done_prompts)
+- story = local_assigns.fetch(:story)
+
+- puzzle_format = local_assigns.fetch(:puzzle_format).to_sym
+- puzzle_prompt = local_assigns.fetch(:puzzle_prompt)
+- puzzle_attempt = local_assigns.fetch(:puzzle_attempt).to_s.strip
+- puzzle_error = local_assigns.fetch(:puzzle_error)
+
+- case stage
+- when :part1
+  section.advent-section
+    - part1_prompts.each do |line|
+      p.advent-section__text = line
+
+    .advent-action
+      = button_to "Check in",
+        advent_check_in_path,
+        method: :post,
+        class: "advent-button",
+        data: { advent_check_in: true }
+
+- when :part2
+  section.advent-section
+    - part2_prompts.each do |line|
+      p.advent-section__text = line
+
+    - if story.any?
+      - story.each do |line|
+        p.advent-section__story = line
+    - else
+      p.advent-section__story The story will be unveiled soon. Stay tuned!
+
+    - if puzzle_error.present?
+      .advent-puzzle-alert
+        = puzzle_error
+
+    - case puzzle_format
+    - when :button
+      .advent-action
+        = button_to puzzle_prompt, advent_solve_puzzle_path, method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
+    - when :text
+      = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
+        .advent-puzzle-form__field
+          = form.label :puzzle_answer, puzzle_prompt, class: "advent-puzzle-form__label"
+          = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off"
+        = form.submit "Confirm", class: "advent-button advent-button--ghost"
+
+- else
+  section.advent-section.advent-done
+    - done_prompts.each do |line|
+      p.advent-section__text = line

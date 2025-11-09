@@ -1,11 +1,11 @@
-- total_stars = @star_count
-- draws_available = @draws_available
-- next_milestone = @next_milestone
-- stars_until_next = @stars_until_next_milestone
-- can_draw = @calendar.can_draw_voucher?
-- latest_voucher = flash[:voucher_award]
-- voucher_alert = flash[:alert]
-- vouchers = @vouchers
+- total_stars = local_assigns.fetch(:total_stars)
+- total_check_ins = local_assigns.fetch(:total_check_ins)
+- next_milestone = local_assigns.fetch(:next_milestone)
+- stars_until_next = local_assigns.fetch(:stars_until_next)
+- can_draw = local_assigns.fetch(:can_draw)
+- latest_voucher = local_assigns.fetch(:latest_voucher)
+- voucher_alert = local_assigns.fetch(:voucher_alert)
+- vouchers = local_assigns.fetch(:vouchers)
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
 - parse_date = ->(value) { Date.iso8601(value.to_s) rescue nil }
 - format_date = ->(date) { date&.strftime('%b %d, %Y') }
@@ -42,8 +42,8 @@ section.advent-section.advent-faq
 
   dl.advent-faq
     .advent-faq__pair
-      dd.advent-faq__answer
-        p.advent-section__text == "You have successfully checked in <strong>#{@total_check_ins}</strong> day#{'s' if @total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
+        dd.advent-faq__answer
+        p.advent-section__text == "You have successfully checked in <strong>#{total_check_ins}</strong> day#{'s' if total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
 
     - if voucher_alert.present?
       .advent-faq__pair

@@ -54,14 +54,16 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     write_calendar_data(days: days)
 
     store = Adapter::AdventCalendar::Store.instance
-    refute Adapter::AdventCalendar.on(inspected_date).checked_in?
+    assert_equal Adapter::AdventCalendar::CheckIn::STAGE_PART_1,
+                 check_in_for(inspected_date).current_stage
     before_today = store.fetch_day(Time.zone.today)
     before_today_stars = before_today ? before_today["stars"] : 0
 
     auth_post advent_check_in_url(inspect: inspect_token)
 
     assert_redirected_to advent_path(inspect: inspect_token)
-    assert Adapter::AdventCalendar.on(inspected_date).checked_in?
+    assert_equal Adapter::AdventCalendar::CheckIn::STAGE_PART_2,
+                 check_in_for(inspected_date).current_stage
     if inspected_date != Time.zone.today
       after_today = store.fetch_day(Time.zone.today)
       after_today_stars = after_today ? after_today["stars"] : 0
@@ -89,16 +91,18 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   test "reset_day query resets specified date" do
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
-    calendar = Adapter::AdventCalendar.on(inspected_date)
-    calendar.check_in
-    assert Adapter::AdventCalendar.on(inspected_date).checked_in?
+    calendar = check_in_for(inspected_date)
+    calendar.complete_part1
+    assert_equal Adapter::AdventCalendar::CheckIn::STAGE_PART_2,
+                 check_in_for(inspected_date).current_stage
 
     auth_get advent_url(reset: "1108", inspect: "1108")
     assert_redirected_to advent_path(inspect: "1108")
 
     auth_get advent_path(inspect: "1108")
     assert_response :success
-    refute Adapter::AdventCalendar.on(inspected_date).checked_in?
+    assert_equal Adapter::AdventCalendar::CheckIn::STAGE_PART_1,
+                 check_in_for(inspected_date).current_stage
   end
 
   test "draw voucher uses unlocked draw and shows award" do
@@ -129,7 +133,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     Time.zone.today.iso8601
-    voucher = Adapter::AdventCalendar.on(Time.zone.today).vouchers.first
+    voucher = reward_for(Time.zone.today).vouchers.first
 
     assert_equal "[Advent Calendar] Voucher drawn!", email.subject
     assert_includes email.body.to_s, voucher[:title]
@@ -138,7 +142,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   test "redeem voucher marks voucher as redeemed" do
     auth_post advent_draw_voucher_url
-    voucher_id = current_calendar.vouchers.first[:id]
+    voucher_id = reward_for.vouchers.first[:id]
 
     ActionMailer::Base.deliveries.clear
 
@@ -171,7 +175,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
                         ])
 
     auth_post advent_draw_voucher_url
-    voucher = current_calendar.vouchers.first
+    voucher = reward_for.vouchers.first
     voucher_id = voucher[:id]
 
     ActionMailer::Base.deliveries.clear
@@ -199,7 +203,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     auth_post advent_solve_puzzle_url, params: { auto_complete: true, inspect: "1108" }
     assert_redirected_to advent_path(inspect: "1108", tab: "main")
 
-    assert Adapter::AdventCalendar.on(inspected_date).puzzle_completed?
+    assert_equal Adapter::AdventCalendar::CheckIn::STAGE_DONE,
+                 check_in_for(inspected_date).current_stage
 
     auth_get advent_path(inspect: "1108", tab: "main")
     assert_select "button", text: /what happens\?/i, count: 0
@@ -221,7 +226,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil)
+  def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil, prompts: nil)
     store = Adapter::AdventCalendar::Store.instance
 
     normalized_days = days.each_with_object({}) do |(iso_day, attrs), memo|
@@ -231,6 +236,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
         "puzzle_answer" => attributes["puzzle_answer"]
       }
     end
+
+    normalized_prompts = normalize_prompts(prompts, normalized_days)
 
     normalized_vouchers = Array(vouchers).map do |entry|
       data = entry.transform_keys(&:to_s)
@@ -253,7 +260,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     store.reset!(
       calendar_days: normalized_days,
       vouchers: normalized_vouchers,
-      voucher_options: voucher_options || default_options
+      voucher_options: voucher_options || default_options,
+      prompts: normalized_prompts
     )
   end
 
@@ -275,8 +283,67 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     }
   end
 
-  def current_calendar
-    Adapter::AdventCalendar.on(Time.zone.today)
+  def check_in_for(day)
+    Adapter::AdventCalendar::CheckIn.new(day: day, store: Adapter::AdventCalendar::Store.instance)
+  end
+
+  def reward_for(day = Time.zone.today)
+    Adapter::AdventCalendar::Reward.new(day: day, store: Adapter::AdventCalendar::Store.instance)
+  end
+
+  def normalize_prompts(prompts_override, normalized_days)
+    return prompts_override.transform_keys(&:to_s) if prompts_override
+
+    build_prompts_for(normalized_days)
+  end
+
+  def build_prompts_for(days)
+    prompts = days.each_with_object({}) do |(iso_day, attrs), memo|
+      memo[iso_day] = default_prompt_payload(Date.iso8601(iso_day), attrs["puzzle_answer"])
+    end
+
+    nov8 = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8).iso8601
+    prompts[nov8] ||= default_prompt_payload(Date.iso8601(nov8), "ember")
+
+    prompts
+  end
+
+  def default_prompt_payload(day, puzzle_answer)
+    base = {
+      "part1_prompt_1" => "Hello from #{day.strftime('%b %d')}!",
+      "part2_prompt_1" => "Time for part two on #{day.strftime('%b %d')}!",
+      "done_prompt_1" => "Great job finishing #{day.strftime('%b %d')}!",
+      "story_1" => "Story for #{day.strftime('%b %d')}.",
+      "puzzle_format" => "text",
+      "puzzle_prompt" => "What is the answer?",
+      "puzzle_answer" => puzzle_answer.presence || "ember"
+    }
+
+    if day.month == 11 && day.day == 8
+      base.merge!(
+        "part1_prompt_1" => "Yoohoo. Come here often? 😗",
+        "part1_prompt_2" => "Here is a place where adventures ventures, travels unravel, and stars startle (huh?)",
+        "part1_prompt_3" => "All that is wonderful waits when you press the button 👇",
+        "part2_prompt_1" => "Wah. You have gathered one star from the check-in ⭐️",
+        "part2_prompt_2" => "...",
+        "done_prompt_1" => "The story continues tomorrow :) One more star because you are cute 😙",
+        "done_prompt_2" => "⭐️",
+        "story_1" => "The story will be unveiled soon. Stay tuned!",
+        "puzzle_format" => "button",
+        "puzzle_prompt" => "what happens?"
+      )
+    elsif day.month == 11 && day.day == 9
+      base.merge!(
+        "part1_prompt_1" => "Hello again the warmth of my heart 💛",
+        "part2_prompt_1" => "You checked in and earned a star ⭐️! The story continues:",
+        "done_prompt_1" => "You just got one more star ⭐️ for providing the right info.",
+        "done_prompt_2" => "The story will continue tomorrow :)",
+        "puzzle_prompt" => "What is the answer?",
+        "puzzle_answer" => puzzle_answer.presence || "ember"
+      )
+    end
+
+    base
   end
 
   def auth_headers(password: AdventController::ADVENT_PASSWORD)

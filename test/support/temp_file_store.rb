@@ -6,7 +6,7 @@ require "fileutils"
 require "pathname"
 
 module Adapter
-  class AdventCalendar
+  module AdventCalendar
     module Store
       class TempFileStore
         SAMPLE_VOUCHER_OPTIONS = [
@@ -21,7 +21,8 @@ module Adapter
         DEFAULT_PAYLOAD = {
           "calendar_days" => {},
           "vouchers" => [],
-          "voucher_options" => SAMPLE_VOUCHER_OPTIONS
+          "voucher_options" => SAMPLE_VOUCHER_OPTIONS,
+          "prompts" => {}
         }.freeze
 
         def initialize(path:)
@@ -30,22 +31,16 @@ module Adapter
           @lock = Mutex.new
         end
 
-        def reset!(calendar_days:, vouchers: [], voucher_options: nil)
+        def reset!(calendar_days:, vouchers: [], voucher_options: nil, prompts: nil)
           current = read
-          write(
-            "calendar_days" => calendar_days.transform_values do |attrs|
-              {
-                "stars" => attrs.fetch("stars", attrs[:stars] || 0).to_i,
-                "puzzle_answer" => attrs.fetch("puzzle_answer", attrs[:puzzle_answer])
-              }
-            end,
-            "vouchers" => Array(vouchers).map { |attrs| normalize_voucher(attrs) },
-            "voucher_options" => if voucher_options
-                                   Array(voucher_options).map { |attrs| normalize_option(attrs) }
-                                 else
-                                   current["voucher_options"]
-                                 end
-          )
+          payload = {
+            "calendar_days" => normalize_calendar_days(calendar_days),
+            "vouchers" => normalize_vouchers(vouchers),
+            "voucher_options" => normalize_options(voucher_options) || current["voucher_options"],
+            "prompts" => normalize_prompts_payload(prompts) || current["prompts"]
+          }
+
+          write(payload)
         end
 
         def fetch_day(day)
@@ -65,7 +60,13 @@ module Adapter
         end
 
         def all_days
-          read["calendar_days"].values.map(&:dup)
+          read["calendar_days"].map do |day, attrs|
+            { "day" => day }.merge(attrs.dup)
+          end
+        end
+
+        def total_stars
+          read["calendar_days"].values.sum { |attrs| attrs["stars"].to_i }
         end
 
         def append_voucher(title:, details:, awarded_at:, redeemable_at:)
@@ -109,6 +110,14 @@ module Adapter
           read["voucher_options"].map(&:dup)
         end
 
+        def prompt_for(day)
+          read["prompts"][day.to_s]&.dup
+        end
+
+        def all_prompts
+          read["prompts"].values.map(&:dup)
+        end
+
         private
 
         def ensure_file!
@@ -125,14 +134,10 @@ module Adapter
 
         def normalize_payload(payload)
           normalized = DEFAULT_PAYLOAD.merge(payload)
-          normalized["calendar_days"] = (normalized["calendar_days"] || {}).transform_values do |attrs|
-            {
-              "stars" => attrs.fetch("stars", attrs[:stars] || 0).to_i,
-              "puzzle_answer" => attrs.fetch("puzzle_answer", attrs[:puzzle_answer])
-            }
-          end
-          normalized["vouchers"] = Array(normalized["vouchers"]).map { |attrs| normalize_voucher(attrs) }
-          normalized["voucher_options"] = Array(normalized["voucher_options"]).map { |attrs| normalize_option(attrs) }
+          normalized["calendar_days"] = normalize_calendar_days(normalized["calendar_days"] || {})
+          normalized["vouchers"] = normalize_vouchers(normalized["vouchers"])
+          normalized["voucher_options"] = normalize_options(normalized["voucher_options"])
+          normalized["prompts"] = normalize_prompts_payload(normalized["prompts"]) || {}
           normalized
         end
 
@@ -168,6 +173,35 @@ module Adapter
             "chance" => attrs.fetch("chance", attrs[:chance] || 0).to_i,
             "redeemable_at" => attrs.fetch("redeemable_at", attrs[:redeemable_at])&.to_s
           }
+        end
+
+        def normalize_prompt(attrs)
+          attrs.transform_keys(&:to_s).transform_values { |value| value&.to_s }
+        end
+
+        def normalize_calendar_days(calendar_days)
+          calendar_days.each_with_object({}) do |(day, attrs), memo|
+            memo[day.to_s] = {
+              "stars" => attrs.fetch("stars", attrs[:stars] || 0).to_i,
+              "puzzle_answer" => attrs.fetch("puzzle_answer", attrs[:puzzle_answer])
+            }
+          end
+        end
+
+        def normalize_vouchers(vouchers)
+          Array(vouchers).map { |attrs| normalize_voucher(attrs) }
+        end
+
+        def normalize_options(options)
+          return nil unless options
+
+          Array(options).map { |attrs| normalize_option(attrs) }
+        end
+
+        def normalize_prompts_payload(prompts)
+          return nil unless prompts
+
+          prompts.transform_keys(&:to_s).transform_values { |attrs| normalize_prompt(attrs) }
         end
 
         def next_sequence(data)
