@@ -45,13 +45,28 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   test "check in respects inspect day parameter" do
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
+    inspected_date -= 1 if inspected_date == Time.zone.today
+    inspect_token = inspected_date.strftime("%m%d")
+
+    days = default_days
+    puzzle_answer = days.fetch(inspected_date.iso8601, {}).fetch("puzzle_answer", "ember")
+    days[inspected_date.iso8601] = { "stars" => 0, "puzzle_answer" => puzzle_answer }
+    write_calendar_data(days: days)
+
+    store = Adapter::AdventCalendar::Store.instance
     refute Adapter::AdventCalendar.on(inspected_date).checked_in?
+    before_today = store.fetch_day(Time.zone.today)
+    before_today_stars = before_today ? before_today["stars"] : 0
 
-    auth_post advent_check_in_url(inspect: "1108")
+    auth_post advent_check_in_url(inspect: inspect_token)
 
-    assert_redirected_to advent_path(inspect: "1108")
+    assert_redirected_to advent_path(inspect: inspect_token)
     assert Adapter::AdventCalendar.on(inspected_date).checked_in?
-    refute Adapter::AdventCalendar.on(Time.zone.today).checked_in?
+    if inspected_date != Time.zone.today
+      after_today = store.fetch_day(Time.zone.today)
+      after_today_stars = after_today ? after_today["stars"] : 0
+      assert_equal before_today_stars, after_today_stars
+    end
   end
 
   test "after view does not expose reset button when checked in" do
@@ -94,6 +109,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".advent-voucher-card--latest .advent-voucher-card__prize"
     assert_select "button", text: /press me weee!/i, count: 0
+    assert_select ".advent-voucher-card--latest form[data-advent-voucher-action='redeem']"
   end
 
   test "draw voucher requires enough stars" do
@@ -124,11 +140,49 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     auth_post advent_draw_voucher_url
     voucher_id = current_calendar.vouchers.first[:id]
 
-    auth_post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
+    ActionMailer::Base.deliveries.clear
+
+    assert_emails 1 do
+      auth_post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
+    end
+
     assert_redirected_to advent_path(tab: "wah")
     auth_get advent_path(tab: "wah")
 
-    assert_select ".advent-voucher-alert", text: /not redeemable/i
+    assert_select ".advent-voucher-alert",
+                  text: /Voucher redeemed\. Please allow a few second for the request to be processed/
+    assert_select ".advent-voucher-card--latest", count: 0
+    assert_select ".advent-voucher-card.is-redeemed"
+
+    cards = css_select(".advent-voucher-card")
+    assert_includes cards.last["class"].to_s, "is-redeemed"
+    refute_includes cards.first["class"].to_s, "is-redeemed" if cards.length > 1
+  end
+
+  test "redeem voucher defers until redeemable date" do
+    future_date = (Time.zone.today + 3.days).iso8601
+    write_calendar_data(voucher_options: [
+                          {
+                            "title" => "Future Treat",
+                            "details" => "Wait for it",
+                            "chance" => 100,
+                            "redeemable_at" => future_date
+                          }
+                        ])
+
+    auth_post advent_draw_voucher_url
+    voucher = current_calendar.vouchers.first
+    voucher_id = voucher[:id]
+
+    ActionMailer::Base.deliveries.clear
+
+    auth_post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
+    assert_redirected_to advent_path(tab: "wah")
+
+    auth_get advent_path(tab: "wah")
+    assert_select ".advent-voucher-card__status", text: /Redeemable on/
+    assert_select "form[data-advent-voucher-action='redeem']", count: 0
+    assert_equal 0, ActionMailer::Base.deliveries.size
   end
 
   test "what happens button renders during part two" do
@@ -167,7 +221,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def write_calendar_data(days: default_days, vouchers: [])
+  def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil)
     store = Adapter::AdventCalendar::Store.instance
 
     normalized_days = days.each_with_object({}) do |(iso_day, attrs), memo|
@@ -185,11 +239,22 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
         "title" => data["title"],
         "details" => data["details"],
         "awarded_at" => data["awarded_at"],
+        "redeemable_at" => data["redeemable_at"],
         "redeemed_at" => data["redeemed_at"]
       }.compact
     end
 
-    store.reset!(calendar_days: normalized_days, vouchers: normalized_vouchers)
+    default_options = if store.is_a?(Adapter::AdventCalendar::Store::TempFileStore)
+                        Adapter::AdventCalendar::Store::TempFileStore::SAMPLE_VOUCHER_OPTIONS
+                      else
+                        store.voucher_options
+                      end
+
+    store.reset!(
+      calendar_days: normalized_days,
+      vouchers: normalized_vouchers,
+      voucher_options: voucher_options || default_options
+    )
   end
 
   def default_days

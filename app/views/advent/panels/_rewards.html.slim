@@ -7,6 +7,8 @@
 - voucher_alert = flash[:alert]
 - vouchers = @vouchers
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
+- parse_date = ->(value) { Date.iso8601(value.to_s) rescue nil }
+- format_date = ->(date) { date&.strftime('%b %d, %Y') }
 - has_vouchers = latest_voucher.present? || vouchers.any?
 
 section.advent-section.advent-faq
@@ -15,21 +17,28 @@ section.advent-section.advent-faq
     - voucher_details = latest_voucher[:details] || latest_voucher['details']
     - redeemed_time = parse_time.call(latest_voucher[:redeemed_at] || latest_voucher['redeemed_at'])
     - already_redeemed = latest_voucher[:redeemed] || latest_voucher['redeemed']
-    dl.advent-faq
-      .advent-faq__pair
-        dd.advent-faq__answer
-          span.advent-faq__response
-            .advent-voucher-card.advent-voucher-card--latest
-              h3.advent-voucher-card__title Congrats! You drew:
-              p.advent-voucher-card__prize = voucher_title
-              p.advent-voucher-card__details = voucher_details
-              - if already_redeemed
-                p.advent-voucher-card__status Redeemed
-                - if redeemed_time
-                  p.advent-voucher-card__time == "on #{redeemed_time.strftime('%b %d, %Y %H:%M')}"
-              .advent-voucher-card__actions
-                - unless already_redeemed
-                  = button_tag "Redeem", type: :button, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+    - redeemable = latest_voucher[:redeemable] || latest_voucher['redeemable']
+    - redeemable_at_value = latest_voucher[:redeemable_at] || latest_voucher['redeemable_at']
+    - redeemable_date = parse_date.call(redeemable_at_value)
+    - voucher_id = latest_voucher[:id] || latest_voucher['id']
+    - unless already_redeemed
+      dl.advent-faq
+        .advent-faq__pair
+          dd.advent-faq__answer
+            span.advent-faq__response
+              .advent-voucher-card.advent-voucher-card--latest class=(already_redeemed ? 'is-redeemed' : nil)
+                h3.advent-voucher-card__title Congrats! You drew:
+                p.advent-voucher-card__prize = voucher_title
+                p.advent-voucher-card__details = voucher_details
+                - if already_redeemed
+                  p.advent-voucher-card__status Redeemed
+                  - if redeemed_time
+                    p.advent-voucher-card__time == "on #{redeemed_time.strftime('%b %d, %Y %H:%M')}"
+                - elsif redeemable_date && !redeemable
+                  p.advent-voucher-card__status == "Redeemable on #{format_date.call(redeemable_date)}"
+                .advent-voucher-card__actions
+                  - if !already_redeemed && redeemable
+                    = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id
 
   dl.advent-faq
     .advent-faq__pair
@@ -48,13 +57,13 @@ section.advent-section.advent-faq
         dt.advent-faq__question Is...Is that a button?
         dd.advent-faq__answer
           div.advent-section__text.advent-section__text--inline
-            = button_to "press me weee!", advent_draw_voucher_path(persistent_advent_params), method: :post, class: "advent-button advent-button--voucher", data: { advent_voucher_draw: true }
+            = button_to "press me weee!", advent_draw_voucher_path(persistent_advent_params), method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
       - else
         dd.advent-faq__answer
           - if next_milestone == 3
             p.advent-section__text == "Ahh...Something good awaits when you collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} 👀"
           - elsif stars_until_next.present?
-            p.advent-section__text == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw at <strong>#{next_milestone}</strong> total."
+            p.advent-section__text == "Collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} to unlock the next draw!"
           - else
             p.advent-section__text You have unlocked every draw milestone.
 
@@ -71,6 +80,10 @@ section.advent-section.advent-faq
           - details = voucher[:details] || voucher['details']
           - redeemed_at = parse_time.call(voucher[:redeemed_at] || voucher['redeemed_at'])
           - redeemed = voucher[:redeemed] || voucher['redeemed']
+          - redeemable = voucher[:redeemable] || voucher['redeemable']
+          - redeemable_at_value = voucher[:redeemable_at] || voucher['redeemable_at']
+          - redeemable_date = parse_date.call(redeemable_at_value)
+          - voucher_id = voucher[:id] || voucher['id']
           .advent-faq__pair
             dd.advent-faq__answer
               span.advent-faq__response
@@ -81,6 +94,8 @@ section.advent-section.advent-faq
                     p.advent-voucher-card__status Redeemed
                     - if redeemed_at
                       p.advent-voucher-card__time == "on #{redeemed_at.strftime('%b %d, %Y %H:%M')}"
+                  - elsif redeemable_date && !redeemable
+                    p.advent-voucher-card__status == "Redeemable on #{format_date.call(redeemable_date)}"
                   .advent-voucher-card__actions
-                    - unless redeemed
-                      = button_tag "Redeem", type: :button, class: "advent-button advent-button--ghost", data: { advent_voucher_redeem: true }
+                    - if !redeemed && redeemable
+                      = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id

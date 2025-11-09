@@ -216,21 +216,20 @@ test.describe('Advent Console', () => {
     await expect(page.getByRole('button', { name: /weee/i })).toHaveCount(0);
     await expect(page.locator('.advent-voucher-card')).not.toHaveCount(0);
 
-    const redeemButton = page.getByRole('button', { name: /redeem/i }).first();
-    await expect(redeemButton).toBeVisible();
+    const redeemForm = page.locator("form[data-advent-voucher-action='redeem']").first();
+    await expect(redeemForm).toBeVisible();
 
-    await page.evaluate(() => {
-      (window as any).__adventLastAlert = null;
-      window.alert = (message?: string) => {
-        (window as any).__adventLastAlert = message;
-      };
-    });
+    const redeemSubmit = redeemForm.locator('input[type="submit"], button[type="submit"]').first();
+    await expect(redeemSubmit).toBeVisible();
 
-    await redeemButton.click();
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle' }),
+      redeemSubmit.click(),
+    ]);
 
-    const lastAlert = await page.evaluate(() => (window as any).__adventLastAlert as string | null);
-    expect(lastAlert).toMatch(/not redeemable/i);
-
-    await expect(redeemButton).toBeVisible();
+    await expect(page).toHaveURL(/tab=wah/);
+    await expect(page.locator('.advent-voucher-alert')).toContainText(/Voucher redeemed\. Please allow a few second for the request to be processed/i);
+    await expect(page.locator('.advent-voucher-card--latest')).toHaveCount(0);
+    await expect(page.locator('.advent-voucher-card.is-redeemed')).toHaveCount(1);
   });
 });

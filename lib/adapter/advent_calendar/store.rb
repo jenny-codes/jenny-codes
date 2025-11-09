@@ -35,9 +35,9 @@ module Adapter
         CALENDAR_TAB = "calendar_days"
         CALENDAR_HEADER = %w[day stars puzzle_answer].freeze
         VOUCHER_TAB = "vouchers"
-        VOUCHER_HEADER = %w[id title details awarded_at redeemed_at].freeze
-        OPTIONS_RANGE = "voucher_options!A2:C"
-        OPTIONS_HEADER = %w[title details chance].freeze
+        VOUCHER_HEADER = %w[id title details awarded_at redeemable_at redeemed_at].freeze
+        OPTIONS_RANGE = "voucher_options!A2:D"
+        OPTIONS_HEADER = %w[title details chance redeemable_at].freeze
 
         def initialize(spreadsheet_id:, credentials_key:)
           require "google/apis/sheets_v4"
@@ -77,13 +77,13 @@ module Adapter
           calendar_rows.map(&:dup)
         end
 
-        def append_voucher(title:, details:, awarded_at:)
+        def append_voucher(title:, details:, awarded_at:, redeemable_at:)
           id = format("voucher-%04d", next_voucher_sequence)
-          row = [id, title.to_s, details.to_s, awarded_at, nil]
+          row = [id, title.to_s, details.to_s, awarded_at, redeemable_at, nil]
           value_range = Google::Apis::SheetsV4::ValueRange.new(values: [row])
           @service.append_spreadsheet_value(
             @spreadsheet_id,
-            voucher_range("A:E"),
+            voucher_range("A:F"),
             value_range,
             value_input_option: "RAW",
             insert_data_option: "INSERT_ROWS"
@@ -97,7 +97,7 @@ module Adapter
           index = rows.index { |row| row[0] == id }
           return unless index
 
-          rows[index][4] = redeemed_at
+          rows[index][5] = redeemed_at
           write_voucher_rows(rows)
           build_voucher_hash(rows[index])
         end
@@ -116,11 +116,12 @@ module Adapter
           return [] if rows.empty?
 
           rows.map do |values|
-            title, details, chance = values
+            title, details, chance, redeemable_at = values
             {
               "title" => title.to_s,
               "details" => details.to_s,
-              "chance" => chance.to_i
+              "chance" => chance.to_i,
+              "redeemable_at" => redeemable_at.to_s
             }
           end
         end
@@ -129,8 +130,8 @@ module Adapter
 
         def ensure_headers!
           set_headers(calendar_range("A1:C1"), CALENDAR_HEADER)
-          set_headers(voucher_range("A1:E1"), VOUCHER_HEADER)
-          set_headers("voucher_options!A1:C1", OPTIONS_HEADER)
+          set_headers(voucher_range("A1:F1"), VOUCHER_HEADER)
+          set_headers("voucher_options!A1:D1", OPTIONS_HEADER)
         end
 
         def set_headers(range, headers)
@@ -161,7 +162,7 @@ module Adapter
           @voucher_rows ||= begin
             response = @service.get_spreadsheet_values(@spreadsheet_id, voucher_range)
             Array(response.values).map do |values|
-              values.fill(nil, values.length...5)
+              values.fill(nil, values.length...6)
               values
             end
           end
@@ -221,7 +222,8 @@ module Adapter
             "title" => row[1],
             "details" => row[2],
             "awarded_at" => row[3],
-            "redeemed_at" => row[4]
+            "redeemable_at" => row[4],
+            "redeemed_at" => row[5]
           }
         end
 
@@ -237,7 +239,7 @@ module Adapter
           "#{calendar_tab}!#{segment}"
         end
 
-        def voucher_range(segment = "A2:E")
+        def voucher_range(segment = "A2:F")
           "#{voucher_tab}!#{segment}"
         end
       end

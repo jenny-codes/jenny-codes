@@ -10,7 +10,12 @@ module Adapter
     module Store
       class TempFileStore
         SAMPLE_VOUCHER_OPTIONS = [
-          { "title" => "Test Treat", "details" => "Redeemable for one delightful surprise", "chance" => 100 }
+          {
+            "title" => "Test Treat",
+            "details" => "Redeemable for one delightful surprise",
+            "chance" => 100,
+            "redeemable_at" => Date.current.iso8601
+          }
         ].freeze
 
         DEFAULT_PAYLOAD = {
@@ -25,7 +30,7 @@ module Adapter
           @lock = Mutex.new
         end
 
-        def reset!(calendar_days:, vouchers: [])
+        def reset!(calendar_days:, vouchers: [], voucher_options: nil)
           current = read
           write(
             "calendar_days" => calendar_days.transform_values do |attrs|
@@ -35,7 +40,11 @@ module Adapter
               }
             end,
             "vouchers" => Array(vouchers).map { |attrs| normalize_voucher(attrs) },
-            "voucher_options" => current["voucher_options"]
+            "voucher_options" => if voucher_options
+                                   Array(voucher_options).map { |attrs| normalize_option(attrs) }
+                                 else
+                                   current["voucher_options"]
+                                 end
           )
         end
 
@@ -59,7 +68,7 @@ module Adapter
           read["calendar_days"].values.map(&:dup)
         end
 
-        def append_voucher(title:, details:, awarded_at:)
+        def append_voucher(title:, details:, awarded_at:, redeemable_at:)
           new_record = nil
           modify do |data|
             seq = next_sequence(data)
@@ -68,6 +77,7 @@ module Adapter
               "title" => title.to_s,
               "details" => details.to_s,
               "awarded_at" => awarded_at,
+              "redeemable_at" => redeemable_at,
               "redeemed_at" => nil
             }
             data["vouchers"] << new_record
@@ -122,13 +132,7 @@ module Adapter
             }
           end
           normalized["vouchers"] = Array(normalized["vouchers"]).map { |attrs| normalize_voucher(attrs) }
-          normalized["voucher_options"] = Array(normalized["voucher_options"]).map do |attrs|
-            {
-              "title" => attrs.fetch("title", attrs[:title]).to_s,
-              "details" => attrs.fetch("details", attrs[:details]).to_s,
-              "chance" => attrs.fetch("chance", attrs[:chance] || 0).to_i
-            }
-          end
+          normalized["voucher_options"] = Array(normalized["voucher_options"]).map { |attrs| normalize_option(attrs) }
           normalized
         end
 
@@ -152,7 +156,17 @@ module Adapter
             "title" => attrs.fetch("title", attrs[:title]).to_s,
             "details" => attrs.fetch("details", attrs[:details]).to_s,
             "awarded_at" => attrs.fetch("awarded_at", attrs[:awarded_at])&.to_s,
+            "redeemable_at" => attrs.fetch("redeemable_at", attrs[:redeemable_at])&.to_s,
             "redeemed_at" => attrs.fetch("redeemed_at", attrs[:redeemed_at])&.to_s
+          }
+        end
+
+        def normalize_option(attrs)
+          {
+            "title" => attrs.fetch("title", attrs[:title]).to_s,
+            "details" => attrs.fetch("details", attrs[:details]).to_s,
+            "chance" => attrs.fetch("chance", attrs[:chance] || 0).to_i,
+            "redeemable_at" => attrs.fetch("redeemable_at", attrs[:redeemable_at])&.to_s
           }
         end
 

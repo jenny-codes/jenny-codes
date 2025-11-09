@@ -49,7 +49,16 @@ class AdventController < ApplicationController
   end
 
   def redeem_voucher
-    flash[:alert] = "Oops this voucher is not redeemable until later ;)"
+    voucher_id = params[:voucher_id].to_s.strip
+    return redirect_with_alert("Please select a voucher to redeem.") if voucher_id.blank?
+
+    voucher = attempt_redeem_voucher(voucher_id)
+    if voucher
+      flash[:voucher_redeemed] = true
+      flash[:alert] = "Voucher redeemed. Please allow a few second for the request to be processed 😙"
+      send_voucher_redeemed_email(voucher)
+    end
+
     redirect_to_wah
   end
 
@@ -99,7 +108,17 @@ class AdventController < ApplicationController
   end
 
   def assign_voucher_stats
-    @vouchers = @calendar.vouchers
+    @vouchers = @calendar.vouchers.sort_by do |voucher|
+      redeemed = voucher[:redeemed] || voucher["redeemed"] ? 1 : 0
+      awarded_at = voucher[:awarded_at] || voucher["awarded_at"]
+      awarded_score = begin
+        Time.iso8601(awarded_at.to_s).to_i * -1
+      rescue ArgumentError, TypeError
+        0
+      end
+
+      [redeemed, awarded_score]
+    end
     @voucher_milestones = @calendar.voucher_milestones
   end
 
@@ -247,6 +266,14 @@ class AdventController < ApplicationController
     ).deliver_now
   end
 
+  def send_voucher_redeemed_email(voucher)
+    AdventNotifierMailer.voucher_redeemed(
+      day: @calendar.day,
+      title: voucher.title,
+      details: voucher.details
+    ).deliver_now
+  end
+
   def require_advent_password
     authenticate_or_request_with_http_basic("Advent Calendar") do |_username, password|
       ActiveSupport::SecurityUtils.secure_compare(password.to_s, ADVENT_PASSWORD)
@@ -306,5 +333,40 @@ class AdventController < ApplicationController
     else
       { solved: false, message: puzzle_error_message, attempt: "[auto]" }
     end
+  end
+
+  def attempt_redeem_voucher(voucher_id)
+    @calendar.redeem_voucher!(voucher_id)
+  rescue Adapter::AdventCalendar::VoucherNotRedeemableError
+    assign_not_redeemable_flash(voucher_id)
+    nil
+  rescue Adapter::AdventCalendar::VoucherAlreadyRedeemedError
+    flash[:alert] = "This voucher has already been redeemed."
+    nil
+  rescue Adapter::AdventCalendar::VoucherNotFoundError
+    flash[:alert] = "We couldn't find that voucher."
+    nil
+  end
+
+  def assign_not_redeemable_flash(voucher_id)
+    details = @calendar.vouchers.find { |entry| (entry[:id] || entry["id"]).to_s == voucher_id }
+    redeemable_at = details && (details[:redeemable_at] || details["redeemable_at"])
+    formatted = format_redeemable_date(redeemable_at)
+    flash[:alert] =
+      formatted ? "This voucher is redeemable on #{formatted}. Hang tight!" : "This voucher is not redeemable yet."
+  end
+
+  def redirect_with_alert(message)
+    flash[:alert] = message
+    redirect_to_wah
+  end
+
+  def format_redeemable_date(value)
+    return if value.blank?
+
+    date = Date.iso8601(value.to_s)
+    date.strftime("%b %d, %Y")
+  rescue ArgumentError
+    nil
   end
 end

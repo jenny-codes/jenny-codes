@@ -17,6 +17,9 @@ module TestSupport
 
     def call
       store = Adapter::AdventCalendar::Store.instance
+      voucher_options = if store.is_a?(Adapter::AdventCalendar::Store::TempFileStore)
+                          Adapter::AdventCalendar::Store::TempFileStore::SAMPLE_VOUCHER_OPTIONS
+                        end
       calendar_days = entries.each_with_object({}) do |entry, memo|
         memo[entry.fetch(:day).to_s] = {
           "stars" => entry.fetch(:stars),
@@ -24,7 +27,9 @@ module TestSupport
         }
       end
 
-      store.reset!(calendar_days: calendar_days, vouchers: []) if store.respond_to?(:reset!)
+      return unless store.respond_to?(:reset!)
+
+      store.reset!(calendar_days: calendar_days, vouchers: [], voucher_options: voucher_options)
     end
 
     private

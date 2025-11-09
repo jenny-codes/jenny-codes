@@ -7,8 +7,9 @@
 - panel_entries['main'] = { partial: main_partial, locals: main_locals }
 - panel_entries['wah'] = { partial: rewards_partial, locals: {} }
 - panel_entries['faq'] = { partial: faq_partial, locals: {} }
+- redeemed_flash = flash[:voucher_redeemed]
 
-.advent-console
+.advent-console data-advent-redeemed=(redeemed_flash ? 'true' : nil)
   header.advent-header
     .advent-title
       span.advent-title__line data-text="Today is #{@today.strftime('%b %d')}..."

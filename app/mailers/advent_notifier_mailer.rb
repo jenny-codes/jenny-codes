@@ -26,6 +26,14 @@ class AdventNotifierMailer < ApplicationMailer
     mail(to: RECIPIENT, subject: "[Advent Calendar] Voucher drawn!")
   end
 
+  def voucher_redeemed(day:, title:, details:)
+    @day = normalize_day(day)
+    @title = title
+    @details = details
+
+    mail(to: RECIPIENT, subject: "[Advent Calendar] Voucher redeemed – #{@title}")
+  end
+
   private
 
   def normalize_day(day)

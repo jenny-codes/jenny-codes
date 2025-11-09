@@ -160,7 +160,7 @@ body.advent-shell {
   color: #ffffa0;
   font-size: 1rem;
   letter-spacing: 0.25em;
-  margin: 0 0 1rem;
+  margin: 0 1.25rem 1rem;
 }
 
 .advent-section__story {
@@ -451,9 +451,20 @@ pre.advent-section__text {
 }
 
 .advent-voucher-card.is-redeemed {
-  border-color: rgba(160, 213, 190, 0.35);
-  background-color: rgba(12, 28, 26, 0.72);
-  opacity: 0.88;
+  border-color: rgba(160, 160, 160, 0.55);
+  background: rgba(48, 52, 58, 0.85);
+  color: rgba(220, 220, 220, 0.8);
+  filter: grayscale(0.6);
+}
+
+.advent-voucher-card.is-redeemed .advent-voucher-card__prize {
+  color: rgba(230, 230, 230, 0.9);
+}
+
+.advent-voucher-card.is-redeemed .advent-voucher-card__details,
+.advent-voucher-card.is-redeemed .advent-voucher-card__status,
+.advent-voucher-card.is-redeemed .advent-voucher-card__time {
+  color: rgba(210, 210, 210, 0.75);
 }
 
 .advent-voucher-card__title {

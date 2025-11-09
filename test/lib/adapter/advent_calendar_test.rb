@@ -139,7 +139,7 @@ module Adapter
       travel_to Time.zone.parse("2024-12-01 12:00:00") do
         award = calendar.draw_voucher!(
           random: Random.new(42),
-          catalog: [{ title: "massage", details: "relax", chance: 100 }]
+          catalog: [{ title: "massage", details: "relax", chance: 100, redeemable_at: @day.iso8601 }]
         )
 
         assert_equal "massage", award.title
@@ -178,8 +178,8 @@ module Adapter
       award = calendar.draw_voucher!(
         random: rng,
         catalog: [
-          { title: "Common", details: "plain", chance: 60 },
-          { title: "Rare", details: "shiny", chance: 40 }
+          { title: "Common", details: "plain", chance: 60, redeemable_at: (@day - 1).iso8601 },
+          { title: "Rare", details: "shiny", chance: 40, redeemable_at: (@day + 1).iso8601 }
         ]
       )
 
@@ -199,8 +199,8 @@ module Adapter
       award = calendar.draw_voucher!(
         random: rng,
         catalog: [
-          { title: "Common", details: "plain", chance: 60 },
-          { title: "Rare", details: "shiny", chance: 40 }
+          { title: "Common", details: "plain", chance: 60, redeemable_at: (@day - 1).iso8601 },
+          { title: "Rare", details: "shiny", chance: 40, redeemable_at: (@day + 1).iso8601 }
         ]
       )
 
@@ -218,8 +218,8 @@ module Adapter
       assert_raises RuntimeError do
         calendar.draw_voucher!(
           catalog: [
-            { title: "Common", details: "plain", chance: 30 },
-            { title: "Rare", details: "shiny", chance: 30 }
+            { title: "Common", details: "plain", chance: 30, redeemable_at: (@day - 1).iso8601 },
+            { title: "Rare", details: "shiny", chance: 30, redeemable_at: (@day + 1).iso8601 }
           ]
         )
       end
@@ -231,7 +231,8 @@ module Adapter
       create_day(@day, stars: 1, puzzle_answer: "hooters")
 
       calendar = AdventCalendar.on(@day)
-      award = calendar.draw_voucher!(catalog: [{ title: "massage", details: "relax", chance: 100 }])
+      award = calendar.draw_voucher!(catalog: [{ title: "massage", details: "relax", chance: 100,
+                                                 redeemable_at: @day.iso8601 }])
 
       redeemed = calendar.redeem_voucher!(award.id)
       assert redeemed.redeemed?
@@ -248,10 +249,25 @@ module Adapter
       create_day(@day + 1, stars: 1, puzzle_answer: "ember")
 
       calendar = AdventCalendar.on(@day)
-      award = calendar.draw_voucher!(catalog: [{ title: "cookie", details: "sweet", chance: 100 }])
+      award = calendar.draw_voucher!(catalog: [{ title: "cookie", details: "sweet", chance: 100,
+                                                 redeemable_at: @day.iso8601 }])
       calendar.redeem_voucher!(award.id)
 
       assert_raises(Adapter::AdventCalendar::VoucherAlreadyRedeemedError) do
+        calendar.redeem_voucher!(award.id)
+      end
+    end
+
+    test "redeem_voucher raises when not yet redeemable" do
+      create_day(@day - 1, stars: 1, puzzle_answer: "ember")
+      create_day(@day, stars: 1, puzzle_answer: "hooters")
+      create_day(@day + 1, stars: 1, puzzle_answer: "ember")
+
+      calendar = AdventCalendar.on(@day)
+      award = calendar.draw_voucher!(catalog: [{ title: "cookie", details: "sweet", chance: 100,
+                                                 redeemable_at: (@day + 3).iso8601 }])
+
+      assert_raises(Adapter::AdventCalendar::VoucherNotRedeemableError) do
         calendar.redeem_voucher!(award.id)
       end
     end
@@ -266,12 +282,13 @@ module Adapter
       )
     end
 
-    def create_award(title:, details:, awarded_at:, redeemed_at: nil)
+    def create_award(title:, details:, awarded_at:, redeemed_at: nil, redeemable_at: nil)
       store = Adapter::AdventCalendar::Store.instance
       voucher = store.append_voucher(
         title: title,
         details: details,
-        awarded_at: awarded_at.iso8601
+        awarded_at: awarded_at.iso8601,
+        redeemable_at: (redeemable_at || awarded_at.to_date)&.iso8601
       )
       return unless redeemed_at
 

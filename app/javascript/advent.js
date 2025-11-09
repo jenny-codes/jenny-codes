@@ -11,6 +11,28 @@ const formatTime = (totalSeconds) => {
   return parts.join(' ');
 };
 
+const setSessionFlag = (key) => {
+  if (typeof window === 'undefined' || !window.sessionStorage) return;
+  try {
+    window.sessionStorage.setItem(key, '1');
+  } catch (error) {
+    console.warn('[advent] unable to persist session flag', key, error);
+  }
+};
+
+const consumeSessionFlag = (key) => {
+  if (typeof window === 'undefined' || !window.sessionStorage) return false;
+  try {
+    if (window.sessionStorage.getItem(key) === '1') {
+      window.sessionStorage.removeItem(key);
+      return true;
+    }
+  } catch (error) {
+    console.warn('[advent] unable to consume session flag', key, error);
+  }
+  return false;
+};
+
 const initializeAdventCountdown = (root) => {
   if (!root || root.dataset.countdownBound === "true") return;
   root.dataset.countdownBound = "true";
@@ -264,6 +286,10 @@ const triggerFireworksAsync = async () => {
   if (!prefersReducedMotion()) {
     await sleep(3100);
   }
+};
+
+const triggerVoucherConfetti = () => {
+  triggerFireworks();
 };
 
 const sleep = (ms) => new Promise((resolve) => {
@@ -576,56 +602,55 @@ const initializePuzzleForm = (root) => {
   });
 };
 
-const bindVoucherActionButton = (button) => {
-  if (!button || button.dataset.voucherBound === 'true') return;
-
-  button.dataset.voucherBound = 'true';
-
-  button.addEventListener('click', (event) => {
-    if (button.dataset.voucherPending === 'true') return;
-
-    event.preventDefault();
-
-    button.dataset.voucherPending = 'true';
-    button.disabled = true;
-
-    const form = button.closest('form');
-
-    submitAdventForm(form, { skipHeadlineAnimation: true })
-      .catch((error) => {
-        console.error('[advent] voucher action fallback submission', error);
-        form?.submit();
-      })
-      .finally(() => {
-        button.disabled = false;
-        button.dataset.voucherPending = 'false';
-      });
-  });
-};
-
-const REDEEM_ALERT_MESSAGE = "oops this voucher is not redeemable until later ;)";
-
-const bindVoucherRedeemButton = (button) => {
-  if (!button || button.dataset.voucherRedeemBound === 'true') return;
-
-  button.dataset.voucherRedeemBound = 'true';
-
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-
-    if (typeof window !== 'undefined' && typeof window.alert === 'function') {
-      window.alert(REDEEM_ALERT_MESSAGE);
-    } else {
-      console.info('[advent] voucher not redeemable yet');
-    }
-  });
-};
-
 const initializeVoucherActions = (root) => {
   if (!root) return;
 
-  root.querySelectorAll('[data-advent-voucher-draw]').forEach(bindVoucherActionButton);
-  root.querySelectorAll('[data-advent-voucher-redeem]').forEach(bindVoucherRedeemButton);
+  const bindVoucherActionForm = (form) => {
+    if (!form || form.dataset.voucherActionBound === 'true') return;
+
+    form.dataset.voucherActionBound = 'true';
+
+    const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+
+    const handleSubmit = async (event) => {
+      if (form.dataset.voucherPending === 'true') {
+        event.preventDefault();
+        return;
+      }
+      form.dataset.voucherPending = 'true';
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+
+      const action = form.dataset.adventVoucherAction || 'draw';
+
+      if (action === 'redeem') {
+        setSessionFlag('adventSkipHeadlineAnimation');
+        setSessionFlag('adventRedeemConfetti');
+        return;
+      }
+
+      event.preventDefault();
+
+      try {
+        await submitAdventForm(form, { skipHeadlineAnimation: true });
+      } catch (error) {
+        console.error('[advent] voucher action fallback submission', error);
+        form.removeEventListener('submit', handleSubmit);
+        form.submit();
+        return;
+      } finally {
+        form.dataset.voucherPending = 'false';
+        submitButton?.removeAttribute('disabled');
+      }
+    };
+
+    form.addEventListener('submit', handleSubmit);
+  };
+
+  root
+    .querySelectorAll('form[data-advent-voucher-action]')
+    .forEach((form) => bindVoucherActionForm(form));
 };
 
 const bootstrapAdvent = (rootOverride, options = {}) => {
@@ -644,8 +669,11 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
 
   initializeAdventCountdown(root.querySelector('.advent-countdown'));
   initializeTabs(root);
+  const redeemedFromFlash = root.dataset.adventRedeemed === 'true';
+  const skipHeadline = options.skipHeadlineAnimation || redeemedFromFlash || consumeSessionFlag('adventSkipHeadlineAnimation');
+
   initializeHeadline(root, {
-    skipAnimation: options.skipHeadlineAnimation,
+    skipAnimation: skipHeadline,
     onComplete: () => {
       if (body) {
         root.classList.add('is-ready');
@@ -656,6 +684,13 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
   initializeResetButton(root);
   initializePuzzleForm(root);
   initializeVoucherActions(root);
+
+  if (redeemedFromFlash || consumeSessionFlag('adventRedeemConfetti')) {
+    triggerVoucherConfetti();
+    if (root.dataset) {
+      root.dataset.adventRedeemed = 'false';
+    }
+  }
 };
 
 if (document.readyState === "loading") {

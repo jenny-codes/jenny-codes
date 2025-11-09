@@ -14,6 +14,7 @@ module Adapter
     NoEligibleDrawsError = Class.new(StandardError)
     VoucherNotFoundError = Class.new(StandardError)
     VoucherAlreadyRedeemedError = Class.new(StandardError)
+    VoucherNotRedeemableError = Class.new(StandardError)
 
     DayEntry = Data.define(:stars, :puzzle_answer) do
       def stars_amount
@@ -44,9 +45,24 @@ module Adapter
       end
     end
 
-    VoucherPayload = Data.define(:id, :title, :details, :awarded_at, :redeemed_at) do
+    VoucherPayload = Data.define(:id, :title, :details, :awarded_at, :redeemable_at, :redeemed_at) do
       def redeemed?
         redeemed_at.present? && !redeemed_at.to_s.strip.empty?
+      end
+
+      def redeemable_on
+        return nil if redeemable_at.blank?
+
+        Date.iso8601(redeemable_at.to_s)
+      rescue ArgumentError
+        nil
+      end
+
+      def redeemable?(today = Date.current)
+        date = redeemable_on
+        return true unless date
+
+        date <= today
       end
 
       def to_h
@@ -55,8 +71,10 @@ module Adapter
           title: title,
           details: details,
           awarded_at: awarded_at,
+          redeemable_at: redeemable_at,
           redeemed_at: redeemed_at,
-          redeemed: redeemed?
+          redeemed: redeemed?,
+          redeemable: redeemable?
         }
       end
     end
@@ -167,7 +185,8 @@ module Adapter
       record = store.append_voucher(
         title: prize.fetch(:title),
         details: prize.fetch(:details),
-        awarded_at: current_timestamp.iso8601
+        awarded_at: current_timestamp.iso8601,
+        redeemable_at: prize[:redeemable_at]
       )
 
       refresh_totals!
@@ -176,7 +195,14 @@ module Adapter
 
     def redeem_voucher!(voucher_id)
       record = find_voucher_record(voucher_id)
-      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if record["redeemed_at"].present?
+      voucher = wrap_voucher(record)
+
+      raise VoucherAlreadyRedeemedError, "Voucher already redeemed" if voucher.redeemed?
+
+      unless voucher.redeemable?
+        raise VoucherNotRedeemableError,
+              "Voucher not redeemable until #{voucher.redeemable_at || 'a future date'}"
+      end
 
       updated = store.update_voucher(record["id"], redeemed_at: current_timestamp.iso8601)
       wrap_voucher(updated)
@@ -232,6 +258,7 @@ module Adapter
         record["title"],
         record["details"],
         format_time(record["awarded_at"]),
+        record["redeemable_at"],
         format_time(record["redeemed_at"])
       )
     end
@@ -271,7 +298,8 @@ module Adapter
           {
             title: item["title"].to_s,
             details: item["details"].to_s,
-            chance: item["chance"].to_i
+            chance: item["chance"].to_i,
+            redeemable_at: item["redeemable_at"].presence
           }
         end
       end
