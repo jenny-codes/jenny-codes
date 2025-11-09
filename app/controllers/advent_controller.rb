@@ -116,6 +116,8 @@ class AdventController < ApplicationController
   end
 
   def send_check_in_email
+    return unless Rails.env.production?
+
     AdventNotifierMailer.check_in(day: @today).deliver_now
   end
 
@@ -158,10 +160,14 @@ class AdventController < ApplicationController
   end
 
   def send_puzzle_attempt_email(attempt:, solved: false)
+    return unless Rails.env.production?
+
     AdventNotifierMailer.puzzle_attempt(day: @today, attempt: attempt, solved: solved).deliver_now
   end
 
   def send_voucher_drawn_email(award)
+    return unless Rails.env.production?
+
     AdventNotifierMailer.voucher_drawn(
       day: @today,
       title: award.title,
@@ -170,6 +176,8 @@ class AdventController < ApplicationController
   end
 
   def send_voucher_redeemed_email(voucher)
+    return unless Rails.env.production?
+
     AdventNotifierMailer.voucher_redeemed(
       day: @today,
       title: voucher.title,

@@ -33,14 +33,10 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "check in sends notification email" do
-    assert_emails 1 do
+  test "check in does not send email outside production" do
+    assert_no_emails do
       auth_post advent_check_in_url
     end
-
-    email = ActionMailer::Base.deliveries.last
-    assert_equal "[Advent Calendar] Checked in for #{Time.zone.today.iso8601}", email.subject
-    assert_includes email.body.to_s, Time.zone.today.iso8601
   end
 
   test "check in respects inspect day parameter" do
@@ -126,18 +122,10 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_select ".advent-voucher-alert", text: /Next draw unlocks at/i
   end
 
-  test "draw voucher sends notification email" do
-    assert_emails 1 do
+  test "draw voucher does not send email outside production" do
+    assert_no_emails do
       auth_post advent_draw_voucher_url
     end
-
-    email = ActionMailer::Base.deliveries.last
-    Time.zone.today.iso8601
-    voucher = reward_for(Time.zone.today).vouchers.first
-
-    assert_equal "[Advent Calendar] Voucher drawn!", email.subject
-    assert_includes email.body.to_s, voucher[:title]
-    assert_includes email.body.to_s, voucher[:details]
   end
 
   test "redeem voucher marks voucher as redeemed" do
@@ -146,7 +134,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     ActionMailer::Base.deliveries.clear
 
-    assert_emails 1 do
+    assert_no_emails do
       auth_post advent_redeem_voucher_url, params: { voucher_id: voucher_id }
     end
 
@@ -214,14 +202,9 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     auth_post advent_check_in_url
     ActionMailer::Base.deliveries.clear
 
-    assert_emails 1 do
+    assert_no_emails do
       auth_post advent_solve_puzzle_url, params: { auto_complete: true }
     end
-
-    email = ActionMailer::Base.deliveries.last
-    assert_equal "[Advent Calendar] Puzzle attempt made for #{Time.zone.today.iso8601}", email.subject
-    assert_includes email.body.to_s, "[auto]"
-    assert_includes email.body.to_s, "Correct"
   end
 
   private
