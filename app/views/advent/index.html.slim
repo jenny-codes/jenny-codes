@@ -19,7 +19,7 @@
     nav.advent-tabs
       - panel_entries.each_key do |tab_id|
         - is_active = tab_id == active_tab
-        = link_to tab_id, advent_path(persistent_advent_params.merge(tab: tab_id)), class: ["advent-tab", (is_active ? "is-active" : nil)].compact.join(" "), data: { advent_tab: tab_id }
+        = link_to tab_id, advent_path(tab: tab_id), class: ["advent-tab", (is_active ? "is-active" : nil)].compact.join(" "), data: { advent_tab: tab_id }
 
     .advent-panels
       - panel_entries.each do |panel_id, entry|

@@ -24,7 +24,7 @@
       p.advent-section__story The story will be unveiled soon. Stay tuned!
 
     .advent-action
-      = button_to "what happens?", advent_solve_puzzle_path(persistent_advent_params), method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
+      = button_to "what happens?", advent_solve_puzzle_path, method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
 
 - else
   section.advent-section.advent-done

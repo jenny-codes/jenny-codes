@@ -6,9 +6,9 @@ class AdventController < ApplicationController
   STORY_FILE = Rails.root.join("lib/data/advent_story.yml")
 
   before_action :require_advent_password
+  before_action :store_inspect_param
   before_action :maybe_reset_day, only: :index
   before_action :set_calendar
-  helper_method :persistent_advent_params
   layout "advent"
 
   def index
@@ -26,12 +26,12 @@ class AdventController < ApplicationController
     already_checked = @calendar.checked_in?
     @calendar.check_in
     send_check_in_email unless already_checked
-    redirect_to advent_path_with_query
+    redirect_to advent_path
   end
 
   def reset_check_in
     @calendar.reset_check_in
-    redirect_to advent_path_with_query
+    redirect_to advent_path
   end
 
   def draw_voucher
@@ -79,7 +79,7 @@ class AdventController < ApplicationController
     send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved])
 
     respond_to do |format|
-      format.html { redirect_to advent_path_with_query(tab: "main"), status: :see_other }
+      format.html { redirect_to advent_path(tab: "main"), status: :see_other }
       format.json { render_puzzle_attempt_json(result) }
     end
   end
@@ -155,7 +155,7 @@ class AdventController < ApplicationController
   end
 
   def redirect_to_wah
-    redirect_to advent_path_with_query(tab: "wah"), status: :see_other
+    redirect_to advent_path(tab: "wah"), status: :see_other
   end
 
   def daily_template_partial
@@ -193,7 +193,7 @@ class AdventController < ApplicationController
   def check_in_button
     view_context.button_to(
       "Check in",
-      advent_check_in_path(persistent_advent_params),
+      advent_check_in_path,
       method: :post,
       class: "advent-button",
       data: { advent_check_in: true }
@@ -217,7 +217,7 @@ class AdventController < ApplicationController
 
   def render_puzzle_attempt_json(result)
     if result[:solved]
-      render json: { status: "ok", redirect_to: advent_path_with_query(tab: "main") }
+      render json: { status: "ok", redirect_to: advent_path(tab: "main") }
     else
       render json: {
         status: "error",
@@ -275,25 +275,12 @@ class AdventController < ApplicationController
     Adapter::AdventCalendar.on(target_day).reset_check_in
 
     remaining = request.query_parameters.except("reset")
-    redirect_to advent_path(remaining) and return
-  end
-
-  def persistent_advent_params
-    @persistent_advent_params ||= begin
-      data = {}
-      inspected = params[:inspect].to_s.strip
-      data[:inspect] = inspected if inspected.present?
-      data
-    end
-  end
-
-  def advent_path_with_query(extra = {})
-    query = persistent_advent_params.merge(extra)
-    advent_path(query)
+    redirect_to advent_path(remaining.symbolize_keys) and return
   end
 
   def requested_calendar_day
-    parse_calendar_day(params[:inspect]) || Time.zone.today
+    token = params[:inspect].presence || session[:advent_inspect]
+    parse_calendar_day(token) || Time.zone.today
   end
 
   def parse_calendar_day(value)
@@ -349,6 +336,10 @@ class AdventController < ApplicationController
     redirect_to_wah
   end
 
+  def default_url_options
+    super.merge(inspect: session[:advent_inspect]).compact
+  end
+
   def format_redeemable_date(value)
     return if value.blank?
 
@@ -356,6 +347,12 @@ class AdventController < ApplicationController
     date.strftime("%b %d, %Y")
   rescue ArgumentError
     nil
+  end
+
+  def store_inspect_param
+    return unless params.key?(:inspect)
+
+    session[:advent_inspect] = params[:inspect].presence
   end
 
   def story_catalog

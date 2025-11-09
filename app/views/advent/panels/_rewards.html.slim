@@ -57,7 +57,7 @@ section.advent-section.advent-faq
         dt.advent-faq__question Is...Is that a button?
         dd.advent-faq__answer
           div.advent-section__text.advent-section__text--inline
-            = button_to "press me weee!", advent_draw_voucher_path(persistent_advent_params), method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
+            = button_to "press me weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
       - else
         dd.advent-faq__answer
           - if next_milestone == 3

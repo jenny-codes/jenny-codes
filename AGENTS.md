@@ -27,6 +27,22 @@ project. Please follow these rules whenever you contribute.
 - When asked to run dev tooling, invoke `/opt/dev/bin/dev ...` rather than a
   bundled executable.
 
+## Coding Style
+- Prefer concise, idiomatic Ruby and Rails; reach for built-in behaviour (e.g.
+  `default_url_options`, helpers, ActiveSupport conveniences) instead of
+  hand-rolled plumbing unless there is a clear gap to fill.
+- Avoid defensive boilerplate that adds no value. Express conditionals with the
+  simplest construct that communicates the intent, and let shorter expressions
+  (ternaries, guard clauses, memoised hashes) replace multi-line scaffolding.
+- Do not code defensively: assume the expected resources exist and let genuine
+  failures surface early. Guard clauses are for impossible states, not for
+  masking missing files or misconfigured params.
+- Eliminate unused methods and dead abstractions promptly—they add noise and
+  encourage accidental reuse.
+- Before introducing a new helper or service, check whether the framework (or
+  an existing layer in the app) already solves the problem; reuse wins over
+  reinvention.
+
 ## Frontend Interaction Patterns
 - The advent console relies on a fetch-and-swap transition (no full reload).
   Whenever you change the markup inside `.advent-console`, ensure the dynamic
