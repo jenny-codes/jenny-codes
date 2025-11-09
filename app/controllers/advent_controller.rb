@@ -12,7 +12,7 @@ class AdventController < ApplicationController
   layout "advent"
 
   def index
-    assign_prompt_data
+    @days_left = @calendar.days_left
     assign_star_stats
     assign_voucher_stats
     @active_tab = extract_active_tab
@@ -92,12 +92,6 @@ class AdventController < ApplicationController
   def set_calendar
     @today = requested_calendar_day
     @calendar = Adapter::AdventCalendar.on(@today)
-    @advent_year = Adapter::AdventCalendar::END_DATE.year
-  end
-
-  def assign_prompt_data
-    @prompt = @calendar.prompt
-    @days_left = @calendar.days_left
   end
 
   def assign_star_stats

@@ -116,14 +116,6 @@ module Adapter
       day_entry.checked_in?
     end
 
-    def prompt
-      checked_in? ? "Wah. You are absolutely right" : "Time to check in"
-    end
-
-    def template
-      checked_in? ? :after : :before
-    end
-
     def draws_unlocked
       VOUCHER_MILESTONES.count { |threshold| total_stars >= threshold }
     end
@@ -134,10 +126,6 @@ module Adapter
 
     def draws_available
       [draws_unlocked - draws_claimed, 0].max
-    end
-
-    def puzzle_answer
-      day_entry.puzzle_answer_value
     end
 
     def puzzle_completed?
