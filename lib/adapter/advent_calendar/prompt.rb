@@ -48,7 +48,7 @@ module Adapter
 
       def matches_part2_answer?(attempt)
         answer = puzzle_answer
-        return false if answer.blank?
+        return true if answer == "*" || answer.blank?
 
         attempt.to_s.strip.casecmp?(answer.strip)
       end

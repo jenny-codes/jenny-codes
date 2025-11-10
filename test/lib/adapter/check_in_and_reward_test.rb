@@ -84,6 +84,38 @@ module Adapter
         assert_equal 2, build_check_in.total_stars
       end
 
+      test "wildcard puzzle answer accepts any attempt" do
+        wildcard_day = SAMPLE_DAY + 1
+        store.reset!(
+          calendar_days: { wildcard_day.iso8601 => { "stars" => 1, "puzzle_answer" => "*" } },
+          vouchers: [],
+          voucher_options: store.voucher_options,
+          prompts: prompt_overrides(wildcard_day => prompt_payload_for(wildcard_day, "*"))
+        )
+
+        check_in = CheckIn.new(day: wildcard_day, store: store)
+
+        assert_equal CheckIn::STAGE_PART_2, check_in.current_stage
+        assert check_in.attempt_part2!("anything at all")
+        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
+      end
+
+      test "blank puzzle answer accepts any attempt" do
+        blank_day = SAMPLE_DAY + 2
+        store.reset!(
+          calendar_days: { blank_day.iso8601 => { "stars" => 1, "puzzle_answer" => "" } },
+          vouchers: [],
+          voucher_options: store.voucher_options,
+          prompts: prompt_overrides(blank_day => prompt_payload_for(blank_day, ""))
+        )
+
+        check_in = CheckIn.new(day: blank_day, store: store)
+
+        assert_equal CheckIn::STAGE_PART_2, check_in.current_stage
+        assert check_in.attempt_part2!("any response")
+        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
+      end
+
       test "draw uses unlocked opportunity and persists voucher" do
         seed_for_draw(3)
         reward = build_reward
@@ -172,11 +204,6 @@ module Adapter
       end
 
       def reset_store!
-        prompts = {}
-        (SAMPLE_DAY - 5..SAMPLE_DAY + 5).each do |day|
-          prompts[day.iso8601] = prompt_payload_for(day, "ember")
-        end
-
         store.reset!(
           calendar_days: {},
           vouchers: [],
@@ -188,7 +215,7 @@ module Adapter
               "redeemable_at" => SAMPLE_DAY.iso8601
             }
           ],
-          prompts: prompts
+          prompts: base_prompt_payloads
         )
       end
 
@@ -212,6 +239,18 @@ module Adapter
           "puzzle_prompt" => "What is the answer?",
           "puzzle_answer" => answer.to_s
         }
+      end
+
+      def base_prompt_payloads
+        (SAMPLE_DAY - 5..SAMPLE_DAY + 5).each_with_object({}) do |day, memo|
+          memo[day.iso8601] = prompt_payload_for(day, "ember")
+        end
+      end
+
+      def prompt_overrides(overrides)
+        base_prompt_payloads.merge(
+          overrides.transform_keys(&:iso8601)
+        )
       end
     end
   end
