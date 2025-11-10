@@ -6,7 +6,6 @@
 
 - puzzle_format = local_assigns.fetch(:puzzle_format).to_sym
 - puzzle_prompt = local_assigns.fetch(:puzzle_prompt)
-- puzzle_attempt = local_assigns.fetch(:puzzle_attempt).to_s.strip
 - puzzle_error = local_assigns.fetch(:puzzle_error)
 
 - case stage
@@ -45,7 +44,7 @@
       = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
         .advent-puzzle-form__field
           = form.label :puzzle_answer, puzzle_prompt, class: "advent-puzzle-form__label"
-          = form.text_field :puzzle_answer, value: (puzzle_attempt.presence || ""), class: "advent-input", autocomplete: "off"
+          = form.text_field :puzzle_answer, value: "", class: "advent-input", autocomplete: "off"
         = form.submit "Confirm", class: "advent-button advent-button--ghost"
 
 - else

@@ -6,10 +6,14 @@
 - latest_voucher = local_assigns.fetch(:latest_voucher)
 - voucher_alert = local_assigns.fetch(:voucher_alert)
 - vouchers = local_assigns.fetch(:vouchers)
+- voucher_redeemed = local_assigns.fetch(:voucher_redeemed)
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
 - parse_date = ->(value) { Date.iso8601(value.to_s) rescue nil }
 - format_date = ->(date) { date&.strftime('%b %d, %Y') }
 - has_vouchers = latest_voucher.present? || vouchers.any?
+
+- if voucher_redeemed
+  = tag.span(nil, class: "advent-voucher-redeemed-flag", hidden: true, data: { voucher_redeemed_flash: true })
 
 section.advent-section.advent-faq
   - if latest_voucher.present?

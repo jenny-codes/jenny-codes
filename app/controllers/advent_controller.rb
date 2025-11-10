@@ -93,7 +93,6 @@ class AdventController < ApplicationController
   end
 
   def mark_puzzle_completed
-    flash.delete(:advent_puzzle_attempt)
     flash.delete(:advent_puzzle_error)
   end
 
@@ -127,7 +126,7 @@ class AdventController < ApplicationController
       { solved: true, message: nil, attempt: attempt }
     else
       error_message = puzzle_error_message
-      remember_puzzle_attempt(attempt, persist_flash: persist_flash, message: error_message)
+      remember_puzzle_error(error_message, persist_flash: persist_flash)
       { solved: false, message: error_message, attempt: attempt }
     end
   end
@@ -138,16 +137,14 @@ class AdventController < ApplicationController
     else
       render json: {
         status: "error",
-        message: result[:message] || puzzle_error_message,
-        attempt: result[:attempt]
+        message: result[:message] || puzzle_error_message
       }, status: :ok
     end
   end
 
-  def remember_puzzle_attempt(attempt, persist_flash: true, message: puzzle_error_message)
+  def remember_puzzle_error(message = puzzle_error_message, persist_flash: true)
     return unless persist_flash
 
-    flash[:advent_puzzle_attempt] = attempt
     flash[:advent_puzzle_error] = message
   end
 
@@ -223,7 +220,7 @@ class AdventController < ApplicationController
 
   def handle_blank_puzzle_attempt(attempt, persist_flash: true)
     message = puzzle_blank_message
-    remember_puzzle_attempt(attempt, persist_flash: persist_flash, message: message)
+    remember_puzzle_error(message, persist_flash: persist_flash)
     { solved: false, message: message, attempt: attempt }
   end
 
@@ -290,12 +287,12 @@ class AdventController < ApplicationController
       puzzle_format: @prompt.puzzle_format,
       puzzle_prompt: @prompt.puzzle_prompt,
       story: story_lines,
-      puzzle_attempt: puzzle_state.fetch(:attempt),
       puzzle_error: puzzle_state.fetch(:error)
     }
   end
 
   def rewards_panel_locals
+    voucher_message = flash[:notice].presence || flash[:alert]
     {
       total_stars: @reward.total_stars,
       total_check_ins: @check_in.total_check_ins,
@@ -303,22 +300,19 @@ class AdventController < ApplicationController
       stars_until_next: @reward.stars_until_next_milestone,
       can_draw: @reward.can_draw?,
       latest_voucher: flash[:voucher_award],
-      voucher_alert: flash[:alert],
-      vouchers: @reward.vouchers
+      voucher_alert: voucher_message,
+      vouchers: @reward.vouchers,
+      voucher_redeemed: flash[:voucher_redeemed].present?
     }
   end
 
   def puzzle_flash_state
     if @check_in.current_stage == Adapter::AdventCalendar::CheckIn::STAGE_DONE
-      flash.delete(:advent_puzzle_attempt)
       flash.delete(:advent_puzzle_error)
-      return { attempt: nil, error: nil }
+      return { error: nil }
     end
 
-    {
-      attempt: flash[:advent_puzzle_attempt],
-      error: flash[:advent_puzzle_error]
-    }
+    { error: flash[:advent_puzzle_error] }
   end
 
   def story_catalog

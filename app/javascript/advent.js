@@ -582,10 +582,9 @@ const initializePuzzleForm = (root) => {
       } else if (payload?.status === 'error') {
         showPuzzleError(form, payload.message || 'That is not correct. Try again?');
         const input = form.querySelector('.advent-input');
-        if (input instanceof HTMLInputElement && typeof payload.attempt === 'string') {
-          input.value = payload.attempt;
+        if (input instanceof HTMLInputElement) {
+          input.value = '';
           input.focus();
-          input.setSelectionRange(payload.attempt.length, payload.attempt.length);
         }
       } else if (!response.ok) {
         throw new Error(`Unexpected response status ${response.status}`);
@@ -669,6 +668,12 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
 
   initializeAdventCountdown(root.querySelector('.advent-countdown'));
   initializeTabs(root);
+  const voucherRedeemedFlag = root.querySelector('[data-voucher-redeemed-flash="true"]');
+  if (voucherRedeemedFlag) {
+    root.dataset.adventRedeemed = 'true';
+    voucherRedeemedFlag.remove();
+  }
+
   const redeemedFromFlash = root.dataset.adventRedeemed === 'true';
   const skipHeadline = options.skipHeadlineAnimation || redeemedFromFlash || consumeSessionFlag('adventSkipHeadlineAnimation');
 
