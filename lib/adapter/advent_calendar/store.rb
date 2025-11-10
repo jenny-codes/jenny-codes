@@ -30,11 +30,14 @@ module Adapter
 
       class Sheets
         CALENDAR_TAB = "calendar_days"
-        CALENDAR_HEADER = %w[day stars puzzle_answer].freeze
+        CALENDAR_HEADER = %w[day stars].freeze
+
         VOUCHER_TAB = "vouchers"
         VOUCHER_HEADER = %w[id title details awarded_at redeemable_at redeemed_at].freeze
+
         OPTIONS_RANGE = "voucher_options!A2:D"
         OPTIONS_HEADER = %w[title details chance redeemable_at].freeze
+
         PROMPTS_TAB = "prompts"
         PROMPTS_RANGE = "#{PROMPTS_TAB}!A1:Z".freeze
 
@@ -55,13 +58,12 @@ module Adapter
           calendar_rows.find { |row| row["day"] == day.to_s }&.dup
         end
 
-        def write_day(day:, stars:, puzzle_answer: nil)
+        def write_day(day:, stars:)
           rows = calendar_rows
           index = rows.index { |row| row["day"] == day.to_s }
           record = {
             "day" => day.to_s,
-            "stars" => stars.to_i,
-            "puzzle_answer" => puzzle_answer
+            "stars" => stars.to_i
           }
           if index
             rows[index] = record
@@ -69,7 +71,7 @@ module Adapter
             rows << record
           end
           write_calendar_rows(rows)
-          record.dup
+          record
         end
 
         def all_days
@@ -130,7 +132,7 @@ module Adapter
         end
 
         def prompt_for(day)
-          prompt_rows.find { |row| row["day"] == day.to_s }&.dup
+          prompt_rows.find { |row| row["day"] == day.to_s }
         end
 
         private
@@ -155,11 +157,10 @@ module Adapter
           @calendar_rows ||= begin
             response = @service.get_spreadsheet_values(@spreadsheet_id, calendar_range)
             Array(response.values).map do |values|
-              day, stars, puzzle_answer = values
+              day, stars = values
               {
                 "day" => day.to_s,
-                "stars" => stars.to_i,
-                "puzzle_answer" => puzzle_answer
+                "stars" => stars.to_i
               }
             end
           end
@@ -200,7 +201,7 @@ module Adapter
 
         def write_calendar_rows(rows)
           values = rows.map do |row|
-            [row["day"], row["stars"], row["puzzle_answer"]]
+            [row["day"], row["stars"]]
           end
 
           if values.empty?
@@ -258,7 +259,7 @@ module Adapter
           Rails.env.development? ? "#{VOUCHER_TAB}_dev" : VOUCHER_TAB
         end
 
-        def calendar_range(segment = "A2:C")
+        def calendar_range(segment = "A2:B")
           "#{calendar_tab}!#{segment}"
         end
 
