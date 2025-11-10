@@ -55,7 +55,7 @@ class AdventController < ApplicationController
     voucher = attempt_redeem_voucher(voucher_id)
     if voucher
       flash[:voucher_redeemed] = true
-      flash[:alert] = "Voucher redeemed. Please allow a few second for the request to be processed 😙"
+      flash[:notice] = "Voucher redeemed. Please allow a few second for the request to be processed 😙"
       send_voucher_redeemed_email(voucher)
     end
 
@@ -87,10 +87,9 @@ class AdventController < ApplicationController
 
   def set_calendar
     @today = requested_calendar_day
-    store = Adapter::AdventCalendar::Store.instance
-    @check_in = Adapter::AdventCalendar::CheckIn.new(day: @today, store: store)
-    @reward = Adapter::AdventCalendar::Reward.new(day: @today, store: store)
-    @prompt = @check_in.prompt
+    @check_in = Adapter::AdventCalendar::CheckIn.for(@today)
+    @reward = Adapter::AdventCalendar::Reward.for(@today)
+    @prompt = Adapter::AdventCalendar::Prompt.for(@today)
   end
 
   def mark_puzzle_completed
@@ -122,7 +121,8 @@ class AdventController < ApplicationController
   end
 
   def apply_puzzle_attempt(attempt, persist_flash: true)
-    if @check_in.attempt_part2!(attempt)
+    if @prompt.part2_solved?(attempt)
+      @check_in.complete_part2!
       mark_puzzle_completed
       { solved: true, message: nil, attempt: attempt }
     else

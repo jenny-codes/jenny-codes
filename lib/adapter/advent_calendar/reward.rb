@@ -45,8 +45,12 @@ module Adapter
 
       attr_reader :day
 
+      def self.for(day)
+        new(day: day, store: Store.instance)
+      end
+
       def initialize(day:, store:)
-        @day = day
+        @day = day.to_date
         @store = store
       end
 

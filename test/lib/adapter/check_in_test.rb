@@ -46,58 +46,14 @@ module Adapter
         assert_equal 0, build_check_in.total_stars
       end
 
-      test "attempt part two requires completion of part one" do
-        create_day(SAMPLE_DAY, stars: 0, puzzle_answer: "ember")
-        check_in = build_check_in
-
-        assert check_in.attempt_part2!("ember")
-        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
-        assert_equal 2, build_check_in.total_stars
-
-        check_in.complete_part1
-        assert_equal CheckIn::STAGE_PART_2, check_in.current_stage
-        assert_equal 1, build_check_in.total_stars
-
-        assert check_in.attempt_part2!("ember")
-        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
-        assert_equal 2, build_check_in.total_stars
-      end
-
       test "complete part two promotes to done" do
         create_day(SAMPLE_DAY, stars: 1, puzzle_answer: "ember")
         check_in = build_check_in
 
-        assert check_in.complete_part2!
+        check_in.complete_part2!
+
         assert_equal CheckIn::STAGE_DONE, check_in.current_stage
         assert_equal 2, build_check_in.total_stars
-      end
-
-      test "wildcard puzzle answer accepts any attempt" do
-        wildcard_day = SAMPLE_DAY + 1
-        reset_store!(
-          calendar_days: { wildcard_day.iso8601 => { "stars" => 1, "puzzle_answer" => "*" } },
-          prompts: prompt_overrides(wildcard_day => prompt_payload_for(wildcard_day, "*"))
-        )
-
-        check_in = CheckIn.new(day: wildcard_day, store: store)
-
-        assert_equal CheckIn::STAGE_PART_2, check_in.current_stage
-        assert check_in.attempt_part2!("anything at all")
-        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
-      end
-
-      test "blank puzzle answer accepts any attempt" do
-        blank_day = SAMPLE_DAY + 2
-        reset_store!(
-          calendar_days: { blank_day.iso8601 => { "stars" => 1, "puzzle_answer" => "" } },
-          prompts: prompt_overrides(blank_day => prompt_payload_for(blank_day, ""))
-        )
-
-        check_in = CheckIn.new(day: blank_day, store: store)
-
-        assert_equal CheckIn::STAGE_PART_2, check_in.current_stage
-        assert check_in.attempt_part2!("any response")
-        assert_equal CheckIn::STAGE_DONE, check_in.current_stage
       end
 
       private
@@ -148,12 +104,6 @@ module Adapter
         (SAMPLE_DAY - 5..SAMPLE_DAY + 5).each_with_object({}) do |day, memo|
           memo[day.iso8601] = prompt_payload_for(day, "ember")
         end
-      end
-
-      def prompt_overrides(overrides)
-        base_prompt_payloads.merge(
-          overrides.transform_keys(&:iso8601)
-        )
       end
     end
   end

@@ -2,8 +2,6 @@
 # frozen_string_literal: true
 
 require "date"
-require_relative "prompt"
-
 module Adapter
   module AdventCalendar
     class CheckIn
@@ -26,13 +24,16 @@ module Adapter
         end
       end
 
-      attr_reader :day, :prompt
+      attr_reader :day
+
+      def self.for(day)
+        new(day: day, store: Store.instance)
+      end
 
       def initialize(day:, store:)
         @day = day.to_date
         @store = store
         ensure_day_entry!
-        @prompt = Prompt.for(@day, store: store)
       end
 
       def complete_part1
@@ -52,15 +53,6 @@ module Adapter
         return STAGE_PART_2 if day_entry.part1_completed?
 
         STAGE_PART_1
-      end
-
-      def attempt_part2!(attempt)
-        if prompt.matches_part2_answer?(attempt)
-          write_day(stars: 2)
-          true
-        else
-          false
-        end
       end
 
       def complete_part2!
@@ -91,7 +83,7 @@ module Adapter
       end
 
       def write_day(stars:)
-        store.write_day(day:, stars:)
+        store.write_day(day: day, stars: stars)
       end
 
       def all_days

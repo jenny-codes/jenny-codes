@@ -42,6 +42,12 @@ project. Please follow these rules whenever you contribute.
 - Before introducing a new helper or service, check whether the framework (or
   an existing layer in the app) already solves the problem; reuse wins over
   reinvention.
+- Skip `Object#dup` (and similar shallow copies) unless you absolutely need a
+  distinct copy—for most cases, pass references through and let the callee
+  handle persistence.
+- Before changing behaviour, check the latest commits to understand intent;
+  refactors already merged (especially non-functional tweaks) are usually
+  deliberate, so avoid undoing them unless correcting an issue.
 
 ## Frontend Interaction Patterns
 - The advent console relies on a fetch-and-swap transition (no full reload).

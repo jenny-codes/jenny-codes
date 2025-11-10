@@ -6,13 +6,12 @@ module Adapter
     class Prompt
       attr_reader :day
 
-      def self.for(day, store: Store.instance)
-        new(day: day, store: store)
+      def self.for(day)
+        new(day: day, store: Store.instance)
       end
 
-      def initialize(day:, store: Store.instance)
+      def initialize(day:, store:)
         @day = day.to_date
-        @store = store
         @data = store.prompt_for(@day)
         raise KeyError, "Missing advent prompt for #{@day}" unless @data
       end
@@ -46,7 +45,7 @@ module Adapter
         fetch_string("puzzle_answer")
       end
 
-      def matches_part2_answer?(attempt)
+      def part2_solved?(attempt)
         answer = puzzle_answer
         return true if answer == "*" || answer.blank?
 
@@ -55,7 +54,7 @@ module Adapter
 
       private
 
-      attr_reader :store, :data
+      attr_reader :data
 
       def fetch_string(key)
         data.fetch(key, "").to_s.strip

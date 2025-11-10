@@ -20,7 +20,7 @@ module Adapter
 
       test "draw uses unlocked opportunity and persists voucher" do
         seed_for_draw(3)
-        reward = build_reward
+        reward = Reward.for(SAMPLE_DAY)
 
         assert_equal 1, reward.draws_available
 
@@ -33,7 +33,7 @@ module Adapter
           assert_equal "massage", award.title
         end
 
-        reloaded = build_reward
+        reloaded = Reward.for(SAMPLE_DAY)
         assert_equal 0, reloaded.draws_available
         assert_equal 1, reloaded.vouchers.size
         voucher = reloaded.vouchers.first
@@ -42,7 +42,7 @@ module Adapter
       end
 
       test "draw raises when no draws available" do
-        reward = build_reward
+        reward = Reward.for(SAMPLE_DAY)
 
         assert_raises(Adapter::AdventCalendar::NoEligibleDrawsError) do
           reward.draw!
@@ -51,7 +51,7 @@ module Adapter
 
       test "draw respects weighted chances" do
         seed_for_draw(3)
-        reward = build_reward
+        reward = Reward.for(SAMPLE_DAY)
         rng = Minitest::Mock.new
         rng.expect(:rand, 75, [100])
 
@@ -69,7 +69,7 @@ module Adapter
 
       test "redeem! marks voucher as redeemed" do
         seed_for_draw(3)
-        reward = build_reward
+        reward = Reward.for(SAMPLE_DAY)
         voucher = reward.draw!(catalog: [{ title: "massage", details: "relax", chance: 100,
                                            redeemable_at: SAMPLE_DAY.iso8601 }])
 
@@ -81,7 +81,7 @@ module Adapter
 
       test "redeem! defers when not yet redeemable" do
         seed_for_draw(3)
-        reward = build_reward
+        reward = Reward.for(SAMPLE_DAY)
         future_date = (SAMPLE_DAY + 3).iso8601
         voucher = reward.draw!(catalog: [{ title: "massage", details: "relax", chance: 100,
                                            redeemable_at: future_date }])
@@ -95,10 +95,6 @@ module Adapter
 
       def store
         Adapter::AdventCalendar::Store.instance
-      end
-
-      def build_reward(day = SAMPLE_DAY)
-        Reward.new(day: day, store: store)
       end
 
       def reset_store!
