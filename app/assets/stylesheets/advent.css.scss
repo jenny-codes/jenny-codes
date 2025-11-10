@@ -172,6 +172,18 @@ body.advent-shell {
   padding: 1.25rem 1rem;
 }
 
+.advent-done__image {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.advent-done__image-tag {
+  max-width: min(320px, 100%);
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
 .advent-section__text {
   color: #dafee4;
   font-family: var(--advent-font);
