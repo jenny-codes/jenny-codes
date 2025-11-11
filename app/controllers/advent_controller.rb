@@ -64,10 +64,9 @@ class AdventController < ApplicationController
 
   def solve_puzzle
     persist_flash = !request.format.json?
+    text_format = @prompt.puzzle_format == :text
 
-    result = if @prompt.puzzle_format == :button
-               button_puzzle_result
-             else
+    result = if text_format
                attempt_param = params[:puzzle_answer]
                attempt = attempt_param.to_s
                @check_in.record_puzzle_attempt(attempt)
@@ -77,9 +76,11 @@ class AdventController < ApplicationController
                else
                  apply_puzzle_attempt(attempt, persist_flash: persist_flash)
                end
+             else
+               button_puzzle_result
              end
 
-    send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved])
+    send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved]) if text_format
 
     respond_to do |format|
       format.html { redirect_to advent_path(tab: "main"), status: :see_other }
