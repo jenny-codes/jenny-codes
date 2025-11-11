@@ -63,22 +63,25 @@ class AdventController < ApplicationController
   end
 
   def solve_puzzle
-    persist_flash = !request.format.json?
-    text_format = @prompt.puzzle_format == :text
+    ok_result = { status: "ok", redirect_to: advent_path(tab: "main") }
+    if @prompt.puzzle_format == :button
+      @check_in.complete_part2!
+      render json: ok_result
+      return
+    end
 
-    result = if text_format
-               attempt = params[:puzzle_answer].to_s
-               @check_in.record_puzzle_attempt(attempt)
-               apply_puzzle_attempt(attempt, persist_flash: persist_flash)
-             else
-               button_puzzle_result
-             end
-
-    send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved]) if text_format
-
-    respond_to do |format|
-      format.html { redirect_to advent_path(tab: "main"), status: :see_other }
-      format.json { render_puzzle_attempt_json(result) }
+    attempt = params[:puzzle_answer].to_s
+    @check_in.record_puzzle_attempt(attempt)
+    if @prompt.part2_solved?(attempt)
+      @check_in.complete_part2!
+      send_puzzle_attempt_email(attempt:, solved: true)
+      render json: ok_result
+    else
+      send_puzzle_attempt_email(attempt:, solved: false)
+      render json: {
+        status: "error",
+        message: "Need my help? 😗"
+      }, status: :ok
     end
   end
 
@@ -89,10 +92,6 @@ class AdventController < ApplicationController
     @check_in = Adapter::AdventCalendar::CheckIn.for(@today)
     @reward = Adapter::AdventCalendar::Reward.for(@today)
     @prompt = Adapter::AdventCalendar::Prompt.for(@today)
-  end
-
-  def mark_puzzle_completed
-    flash.delete(:advent_puzzle_error)
   end
 
   def seconds_until_midnight
@@ -116,39 +115,6 @@ class AdventController < ApplicationController
     return unless Rails.env.production?
 
     AdventNotifierMailer.check_in(day: @today).deliver_now
-  end
-
-  def apply_puzzle_attempt(attempt, persist_flash: true)
-    if @prompt.part2_solved?(attempt)
-      @check_in.complete_part2!
-      mark_puzzle_completed
-      { solved: true, message: nil, attempt: attempt }
-    else
-      error_message = puzzle_error_message
-      remember_puzzle_error(error_message, persist_flash: persist_flash)
-      { solved: false, message: error_message, attempt: attempt }
-    end
-  end
-
-  def render_puzzle_attempt_json(result)
-    if result[:solved]
-      render json: { status: "ok", redirect_to: advent_path(tab: "main") }
-    else
-      render json: {
-        status: "error",
-        message: result[:message] || puzzle_error_message
-      }, status: :ok
-    end
-  end
-
-  def remember_puzzle_error(message = puzzle_error_message, persist_flash: true)
-    return unless persist_flash
-
-    flash[:advent_puzzle_error] = message
-  end
-
-  def puzzle_error_message
-    "That is not correct. Try again?"
   end
 
   def send_puzzle_attempt_email(attempt:, solved: false)
@@ -213,12 +179,6 @@ class AdventController < ApplicationController
     nil
   end
 
-  def button_puzzle_result
-    @check_in.complete_part2!
-    mark_puzzle_completed
-    { solved: true, message: nil, attempt: "[button]" }
-  end
-
   def attempt_redeem_voucher(voucher_id)
     @reward.redeem!(voucher_id)
   rescue Adapter::AdventCalendar::VoucherNotRedeemableError
@@ -265,7 +225,6 @@ class AdventController < ApplicationController
   end
 
   def main_panel_locals
-    puzzle_state = puzzle_flash_state
     story_lines = @prompt.story_lines
     story_lines = story_paragraphs_for(@today) if story_lines.empty?
 
@@ -275,8 +234,7 @@ class AdventController < ApplicationController
       done_prompts: @prompt.done_prompts,
       puzzle_format: @prompt.puzzle_format,
       puzzle_prompt: @prompt.puzzle_prompt,
-      story: story_lines,
-      puzzle_error: puzzle_state.fetch(:error)
+      story: story_lines
     }
   end
 
@@ -293,15 +251,6 @@ class AdventController < ApplicationController
       vouchers: @reward.vouchers,
       voucher_redeemed: flash[:voucher_redeemed].present?
     }
-  end
-
-  def puzzle_flash_state
-    if @check_in.current_stage == Adapter::AdventCalendar::CheckIn::STAGE_DONE
-      flash.delete(:advent_puzzle_error)
-      return { error: nil }
-    end
-
-    { error: flash[:advent_puzzle_error] }
   end
 
   def story_catalog

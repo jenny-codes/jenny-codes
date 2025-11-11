@@ -6,7 +6,6 @@
 
 - puzzle_format = local_assigns.fetch(:puzzle_format).to_sym
 - puzzle_prompt = local_assigns.fetch(:puzzle_prompt)
-- puzzle_error = local_assigns.fetch(:puzzle_error)
 
 - case stage
 - when :part1
@@ -31,10 +30,6 @@
         p.advent-section__story = line
     - else
       p.advent-section__story The story will be unveiled soon. Stay tuned!
-
-    - if puzzle_error.present?
-      .advent-puzzle-alert
-        = puzzle_error
 
     - case puzzle_format
     - when :button

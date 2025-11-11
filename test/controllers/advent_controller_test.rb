@@ -188,8 +188,10 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
     auth_post advent_check_in_url(inspect: "1108")
 
-    auth_post advent_solve_puzzle_url, params: { inspect: "1108" }
-    assert_redirected_to advent_path(inspect: "1108", tab: "main")
+    auth_post advent_solve_puzzle_url, params: { inspect: "1108" }, headers: { "ACCEPT" => "application/json" }
+    assert_response :success
+    payload = JSON.parse(@response.body)
+    assert_equal "ok", payload["status"]
 
     assert_equal Adapter::AdventCalendar::CheckIn::STAGE_DONE,
                  check_in_for(inspected_date).current_stage
@@ -203,7 +205,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.deliveries.clear
 
     assert_no_emails do
-      auth_post advent_solve_puzzle_url, params: { inspect: "1108" }
+      auth_post advent_solve_puzzle_url, params: { inspect: "1108" }, headers: { "ACCEPT" => "application/json" }
+      assert_response :success
     end
   end
 
@@ -216,7 +219,10 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     attempt_time = base_time + 5.minutes
     travel 5.minutes do
-      auth_post advent_solve_puzzle_url, params: { puzzle_answer: "hooters" }
+      auth_post advent_solve_puzzle_url,
+                params: { puzzle_answer: "hooters" },
+                headers: { "ACCEPT" => "application/json" }
+      assert_response :success
     end
 
     attempts = Adapter::AdventCalendar::Store.instance.puzzle_attempts

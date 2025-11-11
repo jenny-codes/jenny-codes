@@ -27,9 +27,9 @@ const visitAdvent = async (page: Page, target: string) => {
 };
 
 const waitForMainTab = async (page: Page) => {
-  await page.waitForURL((url) => {
+  await page.waitForFunction(() => {
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(window.location.href);
       if (parsed.pathname !== '/advent') return false;
       const tab = parsed.searchParams.get('tab');
       return tab === null || tab === 'main';
@@ -179,7 +179,7 @@ test.describe('Advent Console', () => {
     }
   });
 
-  test('daily puzzle awards an extra star when solved', async ({ page }) => {
+  test('daily puzzle awards an extra star when solved', async ({ page, baseURL }) => {
     const puzzleStatuses: number[] = [];
     const responseListener = (response: any) => {
       if (response.url().includes('/advent/solve_puzzle')) {
@@ -203,14 +203,17 @@ test.describe('Advent Console', () => {
     await actionButton.click();
     await correctResponse;
 
-    await waitForMainTab(page);
-
     await expect(page.getByRole('button', { name: /what happens\?/i })).toHaveCount(0);
 
     page.off('response', responseListener);
-    expect(puzzleStatuses).toEqual([303]);
+    expect(puzzleStatuses).toEqual([200]);
 
-    await page.getByRole('link', { name: 'wah' }).click();
+    const wahTarget = baseURL
+      ? `${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}&tab=wah`
+      : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}&tab=wah`;
+
+    await visitAdvent(page, wahTarget);
+
     const statsLine = page.locator('.advent-section__text').filter({ hasText: /^You have successfully checked in/ }).first();
     await expect(statsLine).toContainText(/collected .*5.* stars/i);
   });
