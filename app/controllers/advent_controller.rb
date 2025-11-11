@@ -67,15 +67,9 @@ class AdventController < ApplicationController
     text_format = @prompt.puzzle_format == :text
 
     result = if text_format
-               attempt_param = params[:puzzle_answer]
-               attempt = attempt_param.to_s
+               attempt = params[:puzzle_answer].to_s
                @check_in.record_puzzle_attempt(attempt)
-
-               if attempt_param.nil? || attempt.strip.empty?
-                 handle_blank_puzzle_attempt(attempt, persist_flash: persist_flash)
-               else
-                 apply_puzzle_attempt(attempt, persist_flash: persist_flash)
-               end
+               apply_puzzle_attempt(attempt, persist_flash: persist_flash)
              else
                button_puzzle_result
              end
@@ -157,10 +151,6 @@ class AdventController < ApplicationController
     "That is not correct. Try again?"
   end
 
-  def puzzle_blank_message
-    "Please enter an answer before submitting."
-  end
-
   def send_puzzle_attempt_email(attempt:, solved: false)
     return unless Rails.env.production?
 
@@ -221,12 +211,6 @@ class AdventController < ApplicationController
     base.change(year: Adapter::AdventCalendar::END_DATE.year)
   rescue ArgumentError
     nil
-  end
-
-  def handle_blank_puzzle_attempt(attempt, persist_flash: true)
-    message = puzzle_blank_message
-    remember_puzzle_error(message, persist_flash: persist_flash)
-    { solved: false, message: message, attempt: attempt }
   end
 
   def button_puzzle_result

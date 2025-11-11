@@ -367,6 +367,28 @@ pre.advent-section__text {
   padding: 0 1.25rem;
 }
 
+.advent-puzzle-form.is-shaking {
+  animation: advent-puzzle-wiggle 260ms ease;
+}
+
+@keyframes advent-puzzle-wiggle {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .advent-puzzle-form__field {
   display: grid;
   gap: 0.45rem;
@@ -391,10 +413,25 @@ pre.advent-section__text {
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
+.advent-input.is-error {
+  border-color: rgba(255, 120, 120, 0.75);
+  box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.22);
+}
+
 .advent-input:focus {
   outline: none;
   border-color: rgba(148, 255, 200, 0.55);
   box-shadow: 0 0 0 2px rgba(116, 255, 124, 0.22);
+}
+
+.advent-puzzle-hint {
+  color: #ffcece;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  display: block;
+  margin-top: 0.25rem;
+  justify-self: start;
 }
 
 .advent-button:hover,

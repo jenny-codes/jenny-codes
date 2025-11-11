@@ -443,6 +443,46 @@ const clearPuzzleError = (form) => {
   }
 };
 
+const clearBlankPuzzleFeedback = (form) => {
+  if (!form) return;
+  const input = form.querySelector('.advent-input');
+  if (input instanceof HTMLInputElement) {
+    input.classList.remove('is-error');
+    input.removeAttribute('aria-invalid');
+  }
+  const field = form.querySelector('.advent-puzzle-form__field');
+  const hint = field?.querySelector('.advent-puzzle-hint');
+  hint?.remove();
+};
+
+const showBlankPuzzleFeedback = (form) => {
+  if (!form) return;
+
+  const input = form.querySelector('.advent-input');
+  if (input instanceof HTMLInputElement) {
+    input.classList.add('is-error');
+    input.setAttribute('aria-invalid', 'true');
+    input.focus();
+  }
+
+  const field = form.querySelector('.advent-puzzle-form__field');
+  let hint = field?.querySelector('.advent-puzzle-hint');
+  if (!hint) {
+    hint = document.createElement('span');
+    hint.className = 'advent-puzzle-hint';
+    hint.textContent = 'eh?';
+    hint.setAttribute('role', 'status');
+    field?.appendChild(hint);
+  }
+
+  form.classList.add('is-shaking');
+  const handleAnimationEnd = () => {
+    form.classList.remove('is-shaking');
+    form.removeEventListener('animationend', handleAnimationEnd);
+  };
+  form.addEventListener('animationend', handleAnimationEnd);
+};
+
 const initializeCheckInButton = (root) => {
   if (!root) return;
 
@@ -489,36 +529,6 @@ const initializeCheckInButton = (root) => {
   });
 };
 
-const initializeResetButton = (root) => {
-  if (!root) return;
-
-  const button = root.querySelector('[data-advent-reset]');
-  if (!button || button.dataset.resetBound === 'true') return;
-
-  button.dataset.resetBound = 'true';
-
-  button.addEventListener('click', (event) => {
-    if (button.dataset.resetPending === 'true') return;
-
-    event.preventDefault();
-
-    button.dataset.resetPending = 'true';
-    button.disabled = true;
-
-    const form = button.closest('form');
-
-    submitAdventForm(form, { skipHeadlineAnimation: true })
-      .catch((error) => {
-        console.error('[advent] reset fallback submission', error);
-        form?.submit();
-      })
-      .finally(() => {
-        button.disabled = false;
-        button.dataset.resetPending = 'false';
-      });
-  });
-};
-
 const initializePuzzleForm = (root) => {
   if (!root) return;
 
@@ -531,6 +541,13 @@ const initializePuzzleForm = (root) => {
     event.preventDefault();
 
     if (form.dataset.puzzlePending === 'true') return;
+
+    const input = form.querySelector('.advent-input');
+    if (input instanceof HTMLInputElement && input.value.trim().length === 0) {
+      showBlankPuzzleFeedback(form);
+      return;
+    }
+
     form.dataset.puzzlePending = 'true';
 
     const submitButton = form.querySelector('[type="submit"]');
@@ -686,7 +703,6 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
     },
   });
   initializeCheckInButton(root);
-  initializeResetButton(root);
   initializePuzzleForm(root);
   initializeVoucherActions(root);
 
