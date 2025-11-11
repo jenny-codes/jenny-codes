@@ -27,7 +27,7 @@ section.advent-section.advent-faq
   dl.advent-faq
     .advent-faq__pair
       - if can_draw
-        dt.advent-faq__question Here is an additional draw! Because...I miss you!
+        dt.advent-faq__question \draw/\draw/\draw/
         dd.advent-faq__answer
           div.advent-section__text.advent-section__text--inline
             = button_to "press me weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }

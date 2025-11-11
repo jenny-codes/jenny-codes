@@ -46,6 +46,3 @@
   section.advent-section.advent-done
     - done_prompts.each do |line|
       p.advent-section__text = line
-
-    div.advent-section__text.advent-section__text--inline
-      = link_to "ah?", advent_path(tab: "wah"), class: "advent-button advent-button--voucher", data: { advent_tab_link: "wah" }
