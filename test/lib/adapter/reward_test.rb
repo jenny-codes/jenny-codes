@@ -109,7 +109,8 @@ module Adapter
               "redeemable_at" => SAMPLE_DAY.iso8601
             }
           ],
-          prompts: base_prompt_payloads
+          prompts: base_prompt_payloads,
+          puzzle_attempts: []
         )
       end
 
@@ -120,7 +121,8 @@ module Adapter
           calendar_days: data,
           vouchers: store.all_vouchers,
           voucher_options: store.voucher_options,
-          prompts: base_prompt_payloads
+          prompts: base_prompt_payloads,
+          puzzle_attempts: store.puzzle_attempts
         )
       end
 

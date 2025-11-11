@@ -41,6 +41,9 @@ module Adapter
         PROMPTS_TAB = "prompts"
         PROMPTS_RANGE = "#{PROMPTS_TAB}!A1:Z".freeze
 
+        PUZZLE_ATTEMPTS_TAB = "puzzle_attempts"
+        PUZZLE_ATTEMPTS_HEADER = %w[day timestamp attempt].freeze
+
         def initialize(spreadsheet_id:, credentials_key:)
           require "google/apis/sheets_v4"
           require "googleauth"
@@ -135,12 +138,26 @@ module Adapter
           prompt_rows.find { |row| row["day"] == day.to_s }
         end
 
+        def append_puzzle_attempt(day:, timestamp:, attempt:)
+          row = [day.to_s, timestamp.to_s, attempt.to_s]
+          value_range = Google::Apis::SheetsV4::ValueRange.new(values: [row])
+          @service.append_spreadsheet_value(
+            @spreadsheet_id,
+            puzzle_attempt_range("A:C"),
+            value_range,
+            value_input_option: "RAW",
+            insert_data_option: "INSERT_ROWS"
+          )
+          row
+        end
+
         private
 
         def ensure_headers!
           set_headers(calendar_range("A1:C1"), CALENDAR_HEADER)
           set_headers(voucher_range("A1:F1"), VOUCHER_HEADER)
           set_headers("voucher_options!A1:D1", OPTIONS_HEADER)
+          set_headers(puzzle_attempt_range("A1:C1"), PUZZLE_ATTEMPTS_HEADER)
         end
 
         def set_headers(range, headers)
@@ -259,12 +276,20 @@ module Adapter
           Rails.env.development? ? "#{VOUCHER_TAB}_dev" : VOUCHER_TAB
         end
 
+        def puzzle_attempt_tab
+          Rails.env.development? ? "#{PUZZLE_ATTEMPTS_TAB}_dev" : PUZZLE_ATTEMPTS_TAB
+        end
+
         def calendar_range(segment = "A2:B")
           "#{calendar_tab}!#{segment}"
         end
 
         def voucher_range(segment = "A2:F")
           "#{voucher_tab}!#{segment}"
+        end
+
+        def puzzle_attempt_range(segment = "A:C")
+          "#{puzzle_attempt_tab}!#{segment}"
         end
 
         def normalize_header_row(values)

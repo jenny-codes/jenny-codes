@@ -22,7 +22,8 @@ module Adapter
           "calendar_days" => {},
           "vouchers" => [],
           "voucher_options" => SAMPLE_VOUCHER_OPTIONS,
-          "prompts" => {}
+          "prompts" => {},
+          "puzzle_attempts" => []
         }.freeze
 
         def initialize(path:)
@@ -31,13 +32,14 @@ module Adapter
           @lock = Mutex.new
         end
 
-        def reset!(calendar_days:, vouchers: [], voucher_options: nil, prompts: nil)
+        def reset!(calendar_days:, vouchers: [], voucher_options: nil, prompts: nil, puzzle_attempts: nil)
           current = read
           payload = {
             "calendar_days" => normalize_calendar_days(calendar_days),
             "vouchers" => normalize_vouchers(vouchers),
             "voucher_options" => normalize_options(voucher_options) || current["voucher_options"],
-            "prompts" => normalize_prompts_payload(prompts) || current["prompts"]
+            "prompts" => normalize_prompts_payload(prompts) || current["prompts"],
+            "puzzle_attempts" => normalize_attempts(puzzle_attempts) || current["puzzle_attempts"]
           }
 
           write(payload)
@@ -118,6 +120,23 @@ module Adapter
           read["prompts"].values.map(&:dup)
         end
 
+        def append_puzzle_attempt(day:, timestamp:, attempt:)
+          entry = nil
+          modify do |data|
+            entry = {
+              "day" => day.to_s,
+              "timestamp" => timestamp.to_s,
+              "attempt" => attempt.to_s
+            }
+            data["puzzle_attempts"] << entry
+          end
+          entry.dup
+        end
+
+        def puzzle_attempts
+          read["puzzle_attempts"].map(&:dup)
+        end
+
         private
 
         def ensure_file!
@@ -138,6 +157,7 @@ module Adapter
           normalized["vouchers"] = normalize_vouchers(normalized["vouchers"])
           normalized["voucher_options"] = normalize_options(normalized["voucher_options"])
           normalized["prompts"] = normalize_prompts_payload(normalized["prompts"]) || {}
+          normalized["puzzle_attempts"] = normalize_attempts(normalized["puzzle_attempts"]) || []
           normalized
         end
 
@@ -202,6 +222,18 @@ module Adapter
           return nil unless prompts
 
           prompts.transform_keys(&:to_s).transform_values { |attrs| normalize_prompt(attrs) }
+        end
+
+        def normalize_attempts(records)
+          return nil unless records
+
+          Array(records).map do |attrs|
+            {
+              "day" => attrs.fetch("day", attrs[:day]).to_s,
+              "timestamp" => attrs.fetch("timestamp", attrs[:timestamp]).to_s,
+              "attempt" => attrs.fetch("attempt", attrs[:attempt]).to_s
+            }
+          end
         end
 
         def next_sequence(data)

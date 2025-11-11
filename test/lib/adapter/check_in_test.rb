@@ -56,6 +56,22 @@ module Adapter
         assert_equal 2, build_check_in.total_stars
       end
 
+      test "record puzzle attempt appends to store" do
+        check_in = build_check_in
+        timestamp = Time.zone.local(2025, 11, 8, 10, 30, 0)
+
+        travel_to timestamp do
+          check_in.record_puzzle_attempt("ember")
+        end
+
+        attempts = store.puzzle_attempts
+        assert_equal 1, attempts.size
+        entry = attempts.first
+        assert_equal SAMPLE_DAY.iso8601, entry["day"]
+        assert_equal "ember", entry["attempt"]
+        assert_equal timestamp.iso8601, entry["timestamp"]
+      end
+
       private
 
       def store
@@ -78,7 +94,8 @@ module Adapter
               "redeemable_at" => SAMPLE_DAY.iso8601
             }
           ],
-          prompts: prompts
+          prompts: prompts,
+          puzzle_attempts: []
         )
       end
 

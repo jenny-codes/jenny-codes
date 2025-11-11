@@ -66,6 +66,7 @@ class AdventController < ApplicationController
     attempt_param = params[:puzzle_answer]
     attempt = attempt_param.to_s
     persist_flash = !request.format.json?
+    @check_in.record_puzzle_attempt(attempt) if params[:auto_complete].blank? && @prompt.puzzle_format == :text
 
     result = if params[:auto_complete].present?
                auto_complete_puzzle_result

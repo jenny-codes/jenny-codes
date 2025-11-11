@@ -207,9 +207,31 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "text puzzle attempts are recorded" do
+    base_time = Time.zone.local(2025, 11, 10, 9, 0, 0)
+
+    travel_to base_time
+    write_calendar_data
+    auth_post advent_check_in_url
+
+    attempt_time = base_time + 5.minutes
+    travel 5.minutes do
+      auth_post advent_solve_puzzle_url, params: { puzzle_answer: "hooters" }
+    end
+
+    attempts = Adapter::AdventCalendar::Store.instance.puzzle_attempts
+    assert_equal 1, attempts.size
+    entry = attempts.first
+    assert_equal base_time.to_date.iso8601, entry["day"]
+    assert_equal "hooters", entry["attempt"]
+    assert_equal attempt_time.iso8601, entry["timestamp"]
+  ensure
+    travel_back
+  end
+
   private
 
-  def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil, prompts: nil)
+  def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil, prompts: nil, puzzle_attempts: [])
     store = Adapter::AdventCalendar::Store.instance
 
     normalized_days = days.each_with_object({}) do |(iso_day, attrs), memo|
@@ -244,7 +266,8 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
       calendar_days: normalized_days,
       vouchers: normalized_vouchers,
       voucher_options: voucher_options || default_options,
-      prompts: normalized_prompts
+      prompts: normalized_prompts,
+      puzzle_attempts: puzzle_attempts
     )
   end
 

@@ -59,6 +59,14 @@ module Adapter
         write_day(stars: 2)
       end
 
+      def record_puzzle_attempt(attempt)
+        store.append_puzzle_attempt(
+          day:,
+          attempt:,
+          timestamp: Time.zone.now.iso8601
+        )
+      end
+
       def total_stars
         all_days.sum { |record| record["stars"].to_i }
       end

@@ -20,7 +20,7 @@ module ActiveSupport
     include ActionMailer::TestHelper
 
     setup do
-      Adapter::AdventCalendar::Store.instance.reset!(calendar_days: {}, vouchers: [])
+      Adapter::AdventCalendar::Store.instance.reset!(calendar_days: {}, vouchers: [], puzzle_attempts: [])
     end
 
     def assert_cache_queries(expected_hits, &block)
