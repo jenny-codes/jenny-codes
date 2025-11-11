@@ -102,14 +102,15 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "draw voucher uses unlocked draw and shows award" do
+    expected_title = Adapter::AdventCalendar::Store.instance.voucher_options.first["title"]
     auth_post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
     auth_get advent_path(tab: "wah")
     assert_response :success
 
-    assert_select ".advent-voucher-card--latest .advent-voucher-card__prize"
+    assert_select ".advent-voucher-card--latest .advent-voucher-card__prize", text: /#{Regexp.escape(expected_title)}/
     assert_select "button", text: /press me weee!/i, count: 0
-    assert_select ".advent-voucher-card--latest form[data-advent-voucher-action='redeem']"
+    assert_select "form[data-advent-voucher-action='redeem']"
   end
 
   test "draw voucher requires enough stars" do

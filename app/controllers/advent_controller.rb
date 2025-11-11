@@ -36,7 +36,7 @@ class AdventController < ApplicationController
   def draw_voucher
     award = @reward.draw!
     send_voucher_drawn_email(award)
-    flash[:voucher_award] = award.to_h
+    flash[:voucher_award] = award.title
     redirect_to_wah
   rescue Adapter::AdventCalendar::NoEligibleDrawsError
     next_goal = @reward.next_milestone
@@ -246,7 +246,7 @@ class AdventController < ApplicationController
       next_milestone: @reward.next_milestone,
       stars_until_next: @reward.stars_until_next_milestone,
       can_draw: @reward.can_draw?,
-      latest_voucher: flash[:voucher_award],
+      latest_voucher_title: flash[:voucher_award],
       voucher_alert: voucher_message,
       vouchers: @reward.vouchers,
       voucher_redeemed: flash[:voucher_redeemed].present?

@@ -3,46 +3,26 @@
 - next_milestone = local_assigns.fetch(:next_milestone)
 - stars_until_next = local_assigns.fetch(:stars_until_next)
 - can_draw = local_assigns.fetch(:can_draw)
-- latest_voucher = local_assigns.fetch(:latest_voucher)
+- latest_voucher_title = local_assigns.fetch(:latest_voucher_title)
 - voucher_alert = local_assigns.fetch(:voucher_alert)
 - vouchers = local_assigns.fetch(:vouchers)
 - voucher_redeemed = local_assigns.fetch(:voucher_redeemed)
 - parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
 - parse_date = ->(value) { Date.iso8601(value.to_s) rescue nil }
 - format_date = ->(date) { date&.strftime('%b %d, %Y') }
-- has_vouchers = latest_voucher.present? || vouchers.any?
 
 - if voucher_redeemed
   = tag.span(nil, class: "advent-voucher-redeemed-flag", hidden: true, data: { voucher_redeemed_flash: true })
 
 section.advent-section.advent-faq
-  - if latest_voucher.present?
-    - voucher_title = latest_voucher[:title] || latest_voucher['title']
-    - voucher_details = latest_voucher[:details] || latest_voucher['details']
-    - redeemed_time = parse_time.call(latest_voucher[:redeemed_at] || latest_voucher['redeemed_at'])
-    - already_redeemed = latest_voucher[:redeemed] || latest_voucher['redeemed']
-    - redeemable = latest_voucher[:redeemable] || latest_voucher['redeemable']
-    - redeemable_at_value = latest_voucher[:redeemable_at] || latest_voucher['redeemable_at']
-    - redeemable_date = parse_date.call(redeemable_at_value)
-    - voucher_id = latest_voucher[:id] || latest_voucher['id']
-    - unless already_redeemed
-      dl.advent-faq
-        .advent-faq__pair
-          dd.advent-faq__answer
-            span.advent-faq__response
-              .advent-voucher-card.advent-voucher-card--latest class=(already_redeemed ? 'is-redeemed' : nil)
-                h3.advent-voucher-card__title Congrats! You drew:
-                p.advent-voucher-card__prize = voucher_title
-                p.advent-voucher-card__details = voucher_details
-                - if already_redeemed
-                  p.advent-voucher-card__status Redeemed
-                  - if redeemed_time
-                    p.advent-voucher-card__time == "on #{redeemed_time.strftime('%b %d, %Y %H:%M')}"
-                - elsif redeemable_date && !redeemable
-                  p.advent-voucher-card__status == "Redeemable on #{format_date.call(redeemable_date)}"
-                .advent-voucher-card__actions
-                  - if !already_redeemed && redeemable
-                    = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id
+  - if latest_voucher_title.present?
+    dl.advent-faq
+      .advent-faq__pair
+        dd.advent-faq__answer
+          span.advent-faq__response
+            .advent-voucher-card.advent-voucher-card--latest
+              h3.advent-voucher-card__title Congrats! You drew:
+              p.advent-voucher-card__prize = latest_voucher_title
 
   dl.advent-faq
     .advent-faq__pair
@@ -74,7 +54,7 @@ section.advent-section.advent-faq
     .advent-faq__pair
       dd.advent-faq__answer
 
-- if has_vouchers
+- if vouchers.any?
   section.advent-section.advent-faq
     h3.advent-section__title Your vouchers
     section.advent-section.advent-faq
