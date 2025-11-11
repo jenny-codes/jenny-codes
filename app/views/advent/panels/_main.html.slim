@@ -51,8 +51,3 @@
   section.advent-section.advent-done
     - done_prompts.each do |line|
       p.advent-section__text = line
-    .advent-done__image
-      - if @seconds_until_midnight > 43200
-        = image_tag "mochi-bread.jpg", alt: "Oreo", class: "advent-done__image-tag"
-      - else
-        = image_tag "oreo.jpg", alt: "Oreo", class: "advent-done__image-tag"
