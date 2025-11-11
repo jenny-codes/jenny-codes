@@ -39,7 +39,7 @@
     - case puzzle_format
     - when :button
       .advent-action
-        = button_to puzzle_prompt, advent_solve_puzzle_path, method: :post, params: { auto_complete: true }, class: "advent-button advent-button--ghost", data: { advent_secondary_action: true }
+        = button_to puzzle_prompt, advent_solve_puzzle_path, method: :post, class: "advent-button advent-button--ghost"
     - when :text
       = form_with url: advent_solve_puzzle_path, method: :post, local: true, html: { class: "advent-puzzle-form" } do |form|
         .advent-puzzle-form__field

@@ -63,17 +63,20 @@ class AdventController < ApplicationController
   end
 
   def solve_puzzle
-    attempt_param = params[:puzzle_answer]
-    attempt = attempt_param.to_s
     persist_flash = !request.format.json?
-    @check_in.record_puzzle_attempt(attempt) if params[:auto_complete].blank? && @prompt.puzzle_format == :text
 
-    result = if params[:auto_complete].present?
-               auto_complete_puzzle_result
-             elsif attempt_param.nil? || attempt.strip.empty?
-               handle_blank_puzzle_attempt(attempt, persist_flash: persist_flash)
+    result = if @prompt.puzzle_format == :button
+               button_puzzle_result
              else
-               apply_puzzle_attempt(attempt, persist_flash: persist_flash)
+               attempt_param = params[:puzzle_answer]
+               attempt = attempt_param.to_s
+               @check_in.record_puzzle_attempt(attempt)
+
+               if attempt_param.nil? || attempt.strip.empty?
+                 handle_blank_puzzle_attempt(attempt, persist_flash: persist_flash)
+               else
+                 apply_puzzle_attempt(attempt, persist_flash: persist_flash)
+               end
              end
 
     send_puzzle_attempt_email(attempt: result[:attempt], solved: result[:solved])
@@ -225,10 +228,10 @@ class AdventController < ApplicationController
     { solved: false, message: message, attempt: attempt }
   end
 
-  def auto_complete_puzzle_result
+  def button_puzzle_result
     @check_in.complete_part2!
     mark_puzzle_completed
-    { solved: true, message: nil, attempt: "[auto]" }
+    { solved: true, message: nil, attempt: "[button]" }
   end
 
   def attempt_redeem_voucher(voucher_id)

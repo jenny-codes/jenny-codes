@@ -188,7 +188,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     inspected_date = Date.new(Adapter::AdventCalendar::END_DATE.year, 11, 8)
     auth_post advent_check_in_url(inspect: "1108")
 
-    auth_post advent_solve_puzzle_url, params: { auto_complete: true, inspect: "1108" }
+    auth_post advent_solve_puzzle_url, params: { inspect: "1108" }
     assert_redirected_to advent_path(inspect: "1108", tab: "main")
 
     assert_equal Adapter::AdventCalendar::CheckIn::STAGE_DONE,
@@ -198,12 +198,12 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: /what happens\?/i, count: 0
   end
 
-  test "auto complete sends notification email" do
-    auth_post advent_check_in_url
+  test "button puzzle sends notification email" do
+    auth_post advent_check_in_url(inspect: "1108")
     ActionMailer::Base.deliveries.clear
 
     assert_no_emails do
-      auth_post advent_solve_puzzle_url, params: { auto_complete: true }
+      auth_post advent_solve_puzzle_url, params: { inspect: "1108" }
     end
   end
 
