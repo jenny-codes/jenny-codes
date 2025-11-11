@@ -9,8 +9,6 @@ require_relative "advent_calendar/reward"
 module Adapter
   module AdventCalendar
     END_DATE = CheckIn::END_DATE
-    VOUCHER_MILESTONES = Reward::VOUCHER_MILESTONES
-
     NoEligibleDrawsError = Class.new(StandardError)
     VoucherNotFoundError = Class.new(StandardError)
     VoucherAlreadyRedeemedError = Class.new(StandardError)

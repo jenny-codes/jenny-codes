@@ -26,6 +26,13 @@ section.advent-section.advent-faq
 
   dl.advent-faq
     .advent-faq__pair
+      - if can_draw
+        dt.advent-faq__question Here is an additional draw! Because...I miss you!
+        dd.advent-faq__answer
+          div.advent-section__text.advent-section__text--inline
+            = button_to "press me weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
+
+    .advent-faq__pair
         dd.advent-faq__answer
         p.advent-section__text == "You have successfully checked in <strong>#{total_check_ins}</strong> day#{'s' if total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
 
@@ -37,12 +44,7 @@ section.advent-section.advent-faq
               = voucher_alert
 
     .advent-faq__pair
-      - if can_draw
-        dt.advent-faq__question Is...Is that a button?
-        dd.advent-faq__answer
-          div.advent-section__text.advent-section__text--inline
-            = button_to "press me weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
-      - else
+      - if !can_draw
         dd.advent-faq__answer
           - if next_milestone == 3
             p.advent-section__text == "Ahh...Something good awaits when you collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} 👀"

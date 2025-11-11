@@ -109,7 +109,7 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_select ".advent-voucher-card--latest .advent-voucher-card__prize", text: /#{Regexp.escape(expected_title)}/
-    assert_select "button", text: /press me weee!/i, count: 0
+    assert_select "button", text: /press me weee!/i, count: 1
     assert_select "form[data-advent-voucher-action='redeem']"
   end
 
@@ -118,8 +118,12 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
 
     auth_post advent_draw_voucher_url
     assert_redirected_to advent_path(tab: "wah")
-    auth_get advent_path(tab: "wah")
 
+    # Special draw consumed; next attempt should surface milestone guidance.
+    auth_post advent_draw_voucher_url
+    assert_redirected_to advent_path(tab: "wah")
+
+    auth_get advent_path(tab: "wah")
     assert_select ".advent-voucher-alert", text: /Next draw unlocks at/i
   end
 

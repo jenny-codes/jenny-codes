@@ -8,6 +8,7 @@ module Adapter
   module AdventCalendar
     class Reward
       VOUCHER_MILESTONES = [3, 13, 23, 33, 43, 53, 63, 73, 83, 94].freeze
+      SPECIAL_DRAWS = 1
 
       VoucherPayload = Data.define(:id, :title, :details, :awarded_at, :redeemable_at, :redeemed_at) do
         def redeemed?
@@ -54,12 +55,8 @@ module Adapter
         @store = store
       end
 
-      def voucher_milestones
-        VOUCHER_MILESTONES
-      end
-
       def draws_unlocked
-        VOUCHER_MILESTONES.count { |threshold| total_stars >= threshold }
+        VOUCHER_MILESTONES.count { |threshold| total_stars >= threshold } + SPECIAL_DRAWS
       end
 
       def draws_claimed

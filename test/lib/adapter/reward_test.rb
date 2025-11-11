@@ -22,7 +22,7 @@ module Adapter
         seed_for_draw(3)
         reward = Reward.for(SAMPLE_DAY)
 
-        assert_equal 1, reward.draws_available
+        assert_equal 2, reward.draws_available
 
         travel_to Time.zone.local(2025, 11, 8, 12, 0, 0) do
           award = reward.draw!(
@@ -34,15 +34,20 @@ module Adapter
         end
 
         reloaded = Reward.for(SAMPLE_DAY)
-        assert_equal 0, reloaded.draws_available
+        assert_equal 1, reloaded.draws_available
         assert_equal 1, reloaded.vouchers.size
         voucher = reloaded.vouchers.first
         assert_equal "massage", voucher[:title]
         refute voucher[:redeemed]
       end
 
-      test "draw raises when no draws available" do
+      test "draw consumes special draw before milestones" do
         reward = Reward.for(SAMPLE_DAY)
+
+        award = reward.draw!(catalog: [{ title: "Massage", details: "relax", chance: 100,
+                                         redeemable_at: SAMPLE_DAY.iso8601 }])
+        assert_equal "Massage", award.title
+        assert_equal 0, reward.draws_available
 
         assert_raises(Adapter::AdventCalendar::NoEligibleDrawsError) do
           reward.draw!
