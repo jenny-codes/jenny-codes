@@ -7,9 +7,7 @@
 - voucher_alert = local_assigns.fetch(:voucher_alert)
 - vouchers = local_assigns.fetch(:vouchers)
 - voucher_redeemed = local_assigns.fetch(:voucher_redeemed)
-- parse_time = ->(value) { Time.zone.parse(value.to_s) rescue nil }
-- parse_date = ->(value) { Date.iso8601(value.to_s) rescue nil }
-- format_date = ->(date) { date&.strftime('%b %d, %Y') }
+- # formatting handled via helpers to keep template lean
 
 - if voucher_redeemed
   = tag.span(nil, class: "advent-voucher-redeemed-flag", hidden: true, data: { voucher_redeemed_flash: true })
@@ -25,15 +23,15 @@ section.advent-section.advent-faq
               p.advent-voucher-card__prize = latest_voucher_title
 
   dl.advent-faq
-    .advent-faq__pair
-      - if can_draw
+    - if can_draw
+      .advent-faq__pair
         dt.advent-faq__question \draw/\draw/\draw/
         dd.advent-faq__answer
           div.advent-section__text.advent-section__text--inline
             = button_to "press me weee!", advent_draw_voucher_path, method: :post, class: "advent-button advent-button--voucher", form: { data: { advent_voucher_action: "draw" }, class: "advent-voucher-form" }
 
     .advent-faq__pair
-        dd.advent-faq__answer
+      dd.advent-faq__answer
         p.advent-section__text == "You have successfully checked in <strong>#{total_check_ins}</strong> day#{'s' if total_check_ins > 1}, and collected <strong>#{total_stars}</strong> stars."
 
     - if voucher_alert.present?
@@ -43,8 +41,8 @@ section.advent-section.advent-faq
             .advent-voucher-alert role="status"
               = voucher_alert
 
-    .advent-faq__pair
-      - if !can_draw
+    - unless can_draw
+      .advent-faq__pair
         dd.advent-faq__answer
           - if next_milestone == 3
             p.advent-section__text == "Ahh...Something good awaits when you collect <strong>#{stars_until_next}</strong> more star#{'s' if stars_until_next != 1} 👀"
@@ -53,35 +51,30 @@ section.advent-section.advent-faq
           - else
             p.advent-section__text You have unlocked every draw milestone.
 
-    .advent-faq__pair
-      dd.advent-faq__answer
-
 - if vouchers.any?
   section.advent-section.advent-faq
     h3.advent-section__title Your vouchers
-    section.advent-section.advent-faq
-      dl.advent-faq
-        - vouchers.each do |voucher|
-          - title = voucher[:title] || voucher['title']
-          - details = voucher[:details] || voucher['details']
-          - redeemed_at = parse_time.call(voucher[:redeemed_at] || voucher['redeemed_at'])
-          - redeemed = voucher[:redeemed] || voucher['redeemed']
-          - redeemable = voucher[:redeemable] || voucher['redeemable']
-          - redeemable_at_value = voucher[:redeemable_at] || voucher['redeemable_at']
-          - redeemable_date = parse_date.call(redeemable_at_value)
-          - voucher_id = voucher[:id] || voucher['id']
-          .advent-faq__pair
-            dd.advent-faq__answer
-              span.advent-faq__response
+    .advent-voucher-carousel(data-advent-carousel="vouchers" data-has-single=(vouchers.one? ? "true" : nil))
+      button.advent-voucher-carousel__control.advent-voucher-carousel__control--prev(type="button" aria-label="Previous voucher" data-advent-carousel-prev="")
+        span «
+      button.advent-voucher-carousel__control.advent-voucher-carousel__control--next(type="button" aria-label="Next voucher" data-advent-carousel-next="")
+        span »
+      .advent-voucher-carousel__viewport(data-advent-carousel-viewport="")
+          .advent-voucher-carousel__track(data-advent-carousel-track="")
+            - vouchers.each_with_index do |voucher, index|
+              - title = voucher[:title]
+              - details = voucher[:details]
+              - redeemed = voucher[:redeemed]
+              - redeemable = voucher[:redeemable]
+              - voucher_id = voucher[:id]
+              .advent-voucher-carousel__slide(data-advent-carousel-slide="" class=(index.zero? ? 'is-active' : nil))
                 .advent-voucher-card class=(redeemed ? 'is-redeemed' : nil)
                   p.advent-voucher-card__prize = title
                   p.advent-voucher-card__details = details
                   - if redeemed
-                    p.advent-voucher-card__status Redeemed
-                    - if redeemed_at
-                      p.advent-voucher-card__time == "on #{redeemed_at.strftime('%b %d, %Y %H:%M')}"
-                  - elsif redeemable_date && !redeemable
-                    p.advent-voucher-card__status == "Redeemable on #{format_date.call(redeemable_date)}"
+                    p.advent-voucher-card__status = advent_voucher_redeemed_label(voucher)
+                  - elsif !redeemable
+                    = advent_voucher_redeemable_label(voucher)
                   .advent-voucher-card__actions
                     - if !redeemed && redeemable
                       = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id

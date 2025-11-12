@@ -613,6 +613,166 @@ const initializePuzzleForm = (root) => {
   });
 };
 
+const initializeVoucherCarousel = (root) => {
+  if (!root) return;
+
+  const carousels = Array.from(root.querySelectorAll('[data-advent-carousel]'));
+  if (carousels.length === 0) return;
+
+  carousels.forEach((carousel) => {
+    if (carousel.dataset.carouselBound === 'true') return;
+    carousel.dataset.carouselBound = 'true';
+
+    const track = carousel.querySelector('[data-advent-carousel-track]');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('[data-advent-carousel-slide]'));
+    if (slides.length === 0) return;
+
+    const viewport = carousel.querySelector('[data-advent-carousel-viewport]');
+    const prevButton = carousel.querySelector('[data-advent-carousel-prev]');
+    const nextButton = carousel.querySelector('[data-advent-carousel-next]');
+
+    const totalSlides = slides.length;
+    let currentIndex = slides.findIndex((slide) => slide.classList.contains('is-active'));
+    if (currentIndex < 0) currentIndex = 0;
+
+    const clampIndex = (index) => Math.max(0, Math.min(index, totalSlides - 1));
+
+    const applyTransform = (index) => {
+      if (!track) return;
+      track.style.transform = `translateX(-${index * 100}%)`;
+    };
+
+    const updateNavState = () => {
+      const atStart = currentIndex === 0;
+      const atEnd = currentIndex === totalSlides - 1;
+
+      if (prevButton) {
+        prevButton.disabled = atStart;
+      }
+      if (nextButton) {
+        nextButton.disabled = atEnd;
+      }
+    };
+
+    const setActiveSlide = (index) => {
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('is-active', slideIndex === index);
+      });
+      if (viewport) {
+        viewport.dataset.carouselIndex = String(index);
+      }
+      applyTransform(index);
+      updateNavState();
+    };
+
+    const goTo = (index) => {
+      const targetIndex = clampIndex(index);
+      currentIndex = targetIndex;
+      setActiveSlide(currentIndex);
+    };
+
+    if (track) {
+      track.style.transition = 'none';
+      applyTransform(currentIndex);
+    }
+
+    setActiveSlide(currentIndex);
+
+    if (track) {
+      requestAnimationFrame(() => {
+        track.style.removeProperty('transition');
+      });
+    }
+
+    if (totalSlides === 1) {
+      carousel.dataset.hasSingle = 'true';
+    } else {
+      delete carousel.dataset.hasSingle;
+    }
+
+    prevButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      goTo(currentIndex - 1);
+    });
+
+    nextButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      goTo(currentIndex + 1);
+    });
+
+    if (totalSlides > 1 && viewport) {
+      let startX = null;
+      let isPointerDown = false;
+      const swipeThreshold = 40;
+
+      const getClientX = (event) => {
+        if (typeof event.clientX === 'number') return event.clientX;
+        if (event.touches && event.touches[0]) return event.touches[0].clientX;
+        if (event.changedTouches && event.changedTouches[0]) return event.changedTouches[0].clientX;
+        return null;
+      };
+
+      const handlePointerDown = (event) => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        const clientX = getClientX(event);
+        if (clientX === null) return;
+        startX = clientX;
+        isPointerDown = true;
+        if (track) {
+          track.style.transition = 'none';
+        }
+      };
+
+      const handlePointerMove = (event) => {
+        if (!isPointerDown || !track) return;
+        const clientX = getClientX(event);
+        if (clientX === null) return;
+        const deltaX = clientX - startX;
+        const viewportWidth = viewport.clientWidth || 1;
+        const offsetPercentage = (deltaX / viewportWidth) * 100;
+        track.style.transform = `translateX(calc(-${currentIndex * 100}% + ${offsetPercentage}%))`;
+      };
+
+      const handlePointerEnd = (event) => {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+
+        const clientX = getClientX(event);
+        const deltaX = clientX !== null && startX !== null ? clientX - startX : 0;
+
+        if (track) {
+          track.style.removeProperty('transition');
+        }
+
+        applyTransform(currentIndex);
+
+        if (Math.abs(deltaX) >= swipeThreshold) {
+          if (deltaX < 0) {
+            goTo(currentIndex + 1);
+          } else if (deltaX > 0) {
+            goTo(currentIndex - 1);
+          }
+        }
+
+        startX = null;
+      };
+
+      viewport.addEventListener('pointerdown', handlePointerDown);
+      viewport.addEventListener('pointermove', handlePointerMove);
+      viewport.addEventListener('pointerup', handlePointerEnd);
+      viewport.addEventListener('pointercancel', handlePointerEnd);
+      viewport.addEventListener('pointerleave', handlePointerEnd);
+
+      viewport.addEventListener('touchstart', handlePointerDown, { passive: true });
+      viewport.addEventListener('touchmove', handlePointerMove, { passive: true });
+      viewport.addEventListener('touchend', handlePointerEnd);
+      viewport.addEventListener('touchcancel', handlePointerEnd);
+    }
+  });
+};
+
 const initializeVoucherActions = (root) => {
   if (!root) return;
 
@@ -624,21 +784,22 @@ const initializeVoucherActions = (root) => {
     const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
 
     const handleSubmit = async (event) => {
-      if (form.dataset.voucherPending === 'true') {
-        event.preventDefault();
-        return;
-      }
-      form.dataset.voucherPending = 'true';
-      if (submitButton) {
-        submitButton.disabled = true;
-      }
-
       const action = form.dataset.adventVoucherAction || 'draw';
 
       if (action === 'redeem') {
         setSessionFlag('adventSkipHeadlineAnimation');
         setSessionFlag('adventRedeemConfetti');
         return;
+      }
+
+      if (form.dataset.voucherPending === 'true') {
+        event.preventDefault();
+        return;
+      }
+
+      form.dataset.voucherPending = 'true';
+      if (submitButton) {
+        submitButton.disabled = true;
       }
 
       event.preventDefault();
@@ -699,6 +860,7 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
   });
   initializeCheckInButton(root);
   initializePuzzleForm(root);
+  initializeVoucherCarousel(root);
   initializeVoucherActions(root);
 
   if (redeemedFromFlash || consumeSessionFlag('adventRedeemConfetti')) {
