@@ -349,17 +349,6 @@ pre.advent-section__text {
   letter-spacing: 0.01em;
 }
 
-.advent-puzzle-alert {
-  background: rgba(255, 120, 120, 0.12);
-  border: 1px solid rgba(255, 120, 120, 0.35);
-  border-radius: 8px;
-  color: #ffcece;
-  font-size: 0.95rem;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-  padding: 0.85rem 1rem;
-}
-
 .advent-puzzle-form {
   display: grid;
   gap: 0.75rem;
@@ -474,16 +463,6 @@ pre.advent-section__text {
   padding: 0.9rem 1.1rem;
 }
 
-.advent-voucher-alert--success {
-  background: rgba(132, 255, 195, 0.16);
-  border-color: rgba(132, 255, 195, 0.45);
-  color: #c9ffe6;
-}
-
-.advent-voucher-draw {
-  margin-bottom: 2rem;
-}
-
 .advent-voucher-card {
   background-color: rgba(12, 32, 28, 0.84);
   border: 1px solid rgba(94, 255, 178, 0.32);
@@ -536,6 +515,7 @@ pre.advent-section__text {
   margin: 0 0 0.6rem;
 }
 
+
 .advent-voucher-card__details {
   color: rgba(218, 254, 228, 0.85);
   font-size: 1rem;
@@ -547,14 +527,6 @@ pre.advent-section__text {
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   margin: 0;
-}
-
-.advent-voucher-card__badge {
-  color: rgba(116, 255, 168, 0.8);
-  font-size: 0.85rem;
-  letter-spacing: 0.16em;
-  margin: 0 0 0.65rem;
-  text-transform: uppercase;
 }
 
 .advent-voucher-card__actions {
