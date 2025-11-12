@@ -424,6 +424,11 @@ pre.advent-section__text {
   box-shadow: 0 0 0 2px rgba(116, 255, 124, 0.22);
 }
 
+.advent-input.is-error:focus {
+  border-color: rgba(255, 120, 120, 0.75);
+  box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.22);
+}
+
 .advent-puzzle-hint {
   color: #ffcece;
   font-size: 0.85rem;

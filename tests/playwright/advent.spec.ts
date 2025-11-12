@@ -205,15 +205,14 @@ test.describe('Advent Console', () => {
 
     await expect(page.getByRole('button', { name: /what happens\?/i })).toHaveCount(0);
 
-    const rewardsLink = page.locator('a.advent-button--voucher');
-    await rewardsLink.waitFor({ state: 'visible' });
-    await Promise.all([
-      page.waitForURL(/tab=wah/),
-      rewardsLink.click(),
-    ]);
+    const wahTarget = baseURL
+      ? `${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}&tab=wah`
+      : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}&tab=wah`;
 
     page.off('response', responseListener);
     expect(puzzleStatuses).toEqual([200]);
+
+    await visitAdvent(page, wahTarget);
 
     const statsLine = page.locator('.advent-section__text').filter({ hasText: /^You have successfully checked in/ }).first();
     await expect(statsLine).toContainText(/collected .*5.* stars/i);

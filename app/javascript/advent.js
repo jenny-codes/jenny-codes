@@ -421,29 +421,7 @@ const refreshAdventConsole = async (targetUrl, options = {}) => {
   swapConsoleContent(currentConsole, nextConsole.innerHTML, { skipHeadlineAnimation });
 };
 
-const showPuzzleError = (form, message) => {
-  if (!form) return;
-
-  let alert = form.previousElementSibling;
-  if (!(alert instanceof HTMLElement) || !alert.classList.contains('advent-puzzle-alert')) {
-    alert = document.createElement('div');
-    alert.className = 'advent-puzzle-alert';
-    form.parentElement?.insertBefore(alert, form);
-  }
-
-  alert.textContent = message;
-  alert.setAttribute('role', 'alert');
-};
-
-const clearPuzzleError = (form) => {
-  if (!form) return;
-  const alert = form.previousElementSibling;
-  if (alert instanceof HTMLElement && alert.classList.contains('advent-puzzle-alert')) {
-    alert.remove();
-  }
-};
-
-const clearBlankPuzzleFeedback = (form) => {
+const clearPuzzleFeedback = (form) => {
   if (!form) return;
   const input = form.querySelector('.advent-input');
   if (input instanceof HTMLInputElement) {
@@ -455,7 +433,7 @@ const clearBlankPuzzleFeedback = (form) => {
   hint?.remove();
 };
 
-const showBlankPuzzleFeedback = (form) => {
+const showPuzzleHint = (form, message) => {
   if (!form) return;
 
   const input = form.querySelector('.advent-input');
@@ -470,9 +448,12 @@ const showBlankPuzzleFeedback = (form) => {
   if (!hint) {
     hint = document.createElement('span');
     hint.className = 'advent-puzzle-hint';
-    hint.textContent = 'eh?';
     hint.setAttribute('role', 'status');
     field?.appendChild(hint);
+  }
+
+  if (hint) {
+    hint.textContent = message;
   }
 
   form.classList.add('is-shaking');
@@ -481,6 +462,10 @@ const showBlankPuzzleFeedback = (form) => {
     form.removeEventListener('animationend', handleAnimationEnd);
   };
   form.addEventListener('animationend', handleAnimationEnd);
+};
+
+const showBlankPuzzleFeedback = (form) => {
+  showPuzzleHint(form, 'eh?');
 };
 
 const initializeCheckInButton = (root) => {
@@ -537,6 +522,15 @@ const initializePuzzleForm = (root) => {
 
   form.dataset.puzzleBound = 'true';
 
+  const inputField = form.querySelector('.advent-input');
+  if (inputField instanceof HTMLInputElement) {
+    inputField.addEventListener('input', () => {
+      if (inputField.value.trim().length > 0) {
+        clearPuzzleFeedback(form);
+      }
+    });
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -548,6 +542,7 @@ const initializePuzzleForm = (root) => {
       return;
     }
 
+    clearPuzzleFeedback(form);
     form.dataset.puzzlePending = 'true';
 
     const submitButton = form.querySelector('[type="submit"]');
@@ -575,7 +570,7 @@ const initializePuzzleForm = (root) => {
 
       if (payload?.status === 'ok') {
         const redirectUrl = payload.redirect_to || `${window.location.pathname}?tab=main`;
-        clearPuzzleError(form);
+        clearPuzzleFeedback(form);
 
         try {
           const url = new URL(redirectUrl, window.location.origin);
@@ -597,7 +592,7 @@ const initializePuzzleForm = (root) => {
         }
         return;
       } else if (payload?.status === 'error') {
-        showPuzzleError(form, payload.message || 'That is not correct. Try again?');
+        showPuzzleHint(form, payload.message || 'That is not correct. Try again?');
         const input = form.querySelector('.advent-input');
         if (input instanceof HTMLInputElement) {
           input.value = '';
@@ -606,7 +601,7 @@ const initializePuzzleForm = (root) => {
       } else if (!response.ok) {
         throw new Error(`Unexpected response status ${response.status}`);
       } else {
-        showPuzzleError(form, 'Something went wrong. Please try again.');
+        showPuzzleHint(form, 'Something went wrong. Please try again.');
       }
     } catch (error) {
       console.error('[advent] puzzle submission fallback', error);
