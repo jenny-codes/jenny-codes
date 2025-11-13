@@ -1,0 +1,9 @@
+section.advent-section.advent-inbox
+  p.advent-section__text In case you regretted your answer and want to say more - Say them here?
+
+  = form_with url: advent_message_path, method: :post, local: true, html: { class: "advent-inbox-form", data: { advent_message_form: true } } do |form|
+    .advent-inbox-form__field
+      = form.text_area :message, rows: 3, class: "advent-input advent-input--inbox", autocomplete: "off"
+    .advent-inbox-form__actions
+      = form.submit "Send!", class: "advent-button advent-button--ghost"
+      span.advent-inbox-form__status data-advent-message-status="true" role="status"

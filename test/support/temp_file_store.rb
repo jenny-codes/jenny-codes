@@ -23,7 +23,8 @@ module Adapter
           "vouchers" => [],
           "voucher_options" => SAMPLE_VOUCHER_OPTIONS,
           "prompts" => {},
-          "puzzle_attempts" => []
+          "puzzle_attempts" => [],
+          "inbox" => []
         }.freeze
 
         def initialize(path:)
@@ -32,18 +33,21 @@ module Adapter
           @lock = Mutex.new
         end
 
-        def reset!(calendar_days:, vouchers: [], voucher_options: nil, prompts: nil, puzzle_attempts: nil)
+        # rubocop:disable Metrics/ParameterLists
+        def reset!(calendar_days:, vouchers: [], voucher_options: nil, prompts: nil, puzzle_attempts: nil, inbox: nil)
           current = read
           payload = {
             "calendar_days" => normalize_calendar_days(calendar_days),
             "vouchers" => normalize_vouchers(vouchers),
             "voucher_options" => normalize_options(voucher_options) || current["voucher_options"],
             "prompts" => normalize_prompts_payload(prompts) || current["prompts"],
-            "puzzle_attempts" => normalize_attempts(puzzle_attempts) || current["puzzle_attempts"]
+            "puzzle_attempts" => normalize_attempts(puzzle_attempts) || current["puzzle_attempts"],
+            "inbox" => normalize_messages(inbox) || current["inbox"]
           }
 
           write(payload)
         end
+        # rubocop:enable Metrics/ParameterLists
 
         def fetch_day(day)
           data = read
@@ -137,6 +141,22 @@ module Adapter
           read["puzzle_attempts"].map(&:dup)
         end
 
+        def append_message(timestamp:, message:)
+          entry = nil
+          modify do |data|
+            entry = {
+              "timestamp" => timestamp.to_s,
+              "message" => message.to_s
+            }
+            data["inbox"] << entry
+          end
+          entry.dup
+        end
+
+        def messages
+          read["inbox"].map(&:dup)
+        end
+
         private
 
         def ensure_file!
@@ -158,6 +178,7 @@ module Adapter
           normalized["voucher_options"] = normalize_options(normalized["voucher_options"])
           normalized["prompts"] = normalize_prompts_payload(normalized["prompts"]) || {}
           normalized["puzzle_attempts"] = normalize_attempts(normalized["puzzle_attempts"]) || []
+          normalized["inbox"] = normalize_messages(normalized["inbox"]) || []
           normalized
         end
 
@@ -197,6 +218,17 @@ module Adapter
 
         def normalize_prompt(attrs)
           attrs.transform_keys(&:to_s).transform_values { |value| value&.to_s }
+        end
+
+        def normalize_messages(entries)
+          return [] if entries.blank?
+
+          Array(entries).map do |entry|
+            {
+              "timestamp" => entry.fetch("timestamp", entry[:timestamp])&.to_s,
+              "message" => entry.fetch("message", entry[:message]).to_s
+            }
+          end
         end
 
         def normalize_calendar_days(calendar_days)

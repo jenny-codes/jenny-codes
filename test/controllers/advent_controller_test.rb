@@ -240,6 +240,20 @@ class AdventControllerTest < ActionDispatch::IntegrationTest
     travel_back
   end
 
+  test "message endpoint records message" do
+    submitted = nil
+    Adapter::AdventCalendar::Message.stub(:submit!, ->(value) { submitted = value }) do
+      auth_post advent_message_url,
+                params: { message: "Hello from the inbox" },
+                headers: { "ACCEPT" => "application/json" }
+    end
+
+    assert_response :success
+    payload = JSON.parse(@response.body)
+    assert_equal "ok", payload["status"]
+    assert_equal "Hello from the inbox", submitted
+  end
+
   private
 
   def write_calendar_data(days: default_days, vouchers: [], voucher_options: nil, prompts: nil, puzzle_attempts: [])

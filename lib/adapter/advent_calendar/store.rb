@@ -44,6 +44,9 @@ module Adapter
         PUZZLE_ATTEMPTS_TAB = "puzzle_attempts"
         PUZZLE_ATTEMPTS_HEADER = %w[day timestamp attempt].freeze
 
+        INBOX_TAB = "inbox"
+        INBOX_HEADER = %w[timestamp message].freeze
+
         def initialize(spreadsheet_id:, credentials_key:)
           require "google/apis/sheets_v4"
           require "googleauth"
@@ -151,6 +154,19 @@ module Adapter
           row
         end
 
+        def append_message(timestamp:, message:)
+          row = [timestamp.to_s, message.to_s]
+          value_range = Google::Apis::SheetsV4::ValueRange.new(values: [row])
+          @service.append_spreadsheet_value(
+            @spreadsheet_id,
+            inbox_range("A:B"),
+            value_range,
+            value_input_option: "RAW",
+            insert_data_option: "INSERT_ROWS"
+          )
+          row
+        end
+
         private
 
         def ensure_headers!
@@ -158,6 +174,7 @@ module Adapter
           set_headers(voucher_range("A1:F1"), VOUCHER_HEADER)
           set_headers("voucher_options!A1:D1", OPTIONS_HEADER)
           set_headers(puzzle_attempt_range("A1:C1"), PUZZLE_ATTEMPTS_HEADER)
+          set_headers(inbox_range("A1:B1"), INBOX_HEADER)
         end
 
         def set_headers(range, headers)
@@ -280,6 +297,10 @@ module Adapter
           Rails.env.development? ? "#{PUZZLE_ATTEMPTS_TAB}_dev" : PUZZLE_ATTEMPTS_TAB
         end
 
+        def inbox_tab
+          Rails.env.development? ? "#{INBOX_TAB}_dev" : INBOX_TAB
+        end
+
         def calendar_range(segment = "A2:B")
           "#{calendar_tab}!#{segment}"
         end
@@ -290,6 +311,10 @@ module Adapter
 
         def puzzle_attempt_range(segment = "A:C")
           "#{puzzle_attempt_tab}!#{segment}"
+        end
+
+        def inbox_range(segment = "A:B")
+          "#{inbox_tab}!#{segment}"
         end
 
         def normalize_header_row(values)

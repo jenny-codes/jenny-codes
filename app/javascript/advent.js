@@ -464,6 +464,22 @@ const showPuzzleHint = (form, message) => {
   form.addEventListener('animationend', handleAnimationEnd);
 };
 
+const clearMessageStatus = (form) => {
+  const status = form?.querySelector('[data-advent-message-status]');
+  if (!status) return;
+  status.textContent = '';
+  status.classList.remove('is-visible', 'is-success', 'is-error');
+};
+
+const showMessageStatus = (form, message, variant) => {
+  const status = form?.querySelector('[data-advent-message-status]');
+  if (!status) return;
+  status.textContent = message;
+  status.classList.add('is-visible');
+  status.classList.toggle('is-success', variant === 'success');
+  status.classList.toggle('is-error', variant === 'error');
+};
+
 const initializeCheckInButton = (root) => {
   if (!root) return;
 
@@ -541,7 +557,7 @@ const initializePuzzleForm = (root) => {
       }
 
       if (/(.)\1{5,}/.test(value)) {
-        showPuzzleHint(form, 'not you trying to fill with repeat characters!');
+        showPuzzleHint(form, 'not you trying to fill with characters');
         return;
       }
     }
@@ -829,6 +845,75 @@ const initializeVoucherActions = (root) => {
     .forEach((form) => bindVoucherActionForm(form));
 };
 
+const initializeMessageForm = (root) => {
+  if (!root) return;
+
+  const forms = Array.from(root.querySelectorAll('[data-advent-message-form]'));
+  forms.forEach((form) => {
+    if (form.dataset.adventMessageBound === 'true') return;
+    form.dataset.adventMessageBound = 'true';
+
+    const input = form.querySelector('textarea');
+    const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+
+    if (input instanceof HTMLTextAreaElement) {
+      input.addEventListener('input', () => {
+        clearMessageStatus(form);
+      });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (form.dataset.adventMessagePending === 'true') return;
+
+      clearMessageStatus(form);
+
+      const value = input instanceof HTMLTextAreaElement ? input.value.trim() : '';
+      if (value.length === 0) {
+        showMessageStatus(form, 'say more? 😗', 'error');
+        return;
+      }
+
+      form.dataset.adventMessagePending = 'true';
+      submitButton?.setAttribute('disabled', 'disabled');
+
+      try {
+        const response = await fetch(form.action, {
+          method: (form.method || 'POST').toUpperCase(),
+          body: new FormData(form),
+          headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          credentials: 'same-origin',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+
+        if (payload?.status === 'ok') {
+          showMessageStatus(form, 'received!', 'success');
+          if (input instanceof HTMLTextAreaElement) {
+            input.value = '';
+          }
+        } else {
+          const message = payload?.message || 'Something went wrong. Please try again.';
+          showMessageStatus(form, message, 'error');
+        }
+      } catch (error) {
+        console.error('[advent] message submission failed', error);
+        showMessageStatus(form, 'Something went wrong. Please try again.', 'error');
+      } finally {
+        form.dataset.adventMessagePending = 'false';
+        submitButton?.removeAttribute('disabled');
+      }
+    });
+  });
+};
+
 const bootstrapAdvent = (rootOverride, options = {}) => {
   document.documentElement.classList.add('has-js');
 
@@ -864,6 +949,7 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
   });
   initializeCheckInButton(root);
   initializePuzzleForm(root);
+  initializeMessageForm(root);
   initializeVoucherCarousel(root);
   initializeVoucherActions(root);
 

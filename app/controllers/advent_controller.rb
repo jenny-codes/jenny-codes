@@ -85,6 +85,13 @@ class AdventController < ApplicationController
     end
   end
 
+  def message
+    Adapter::AdventCalendar::Message.submit!(params[:message])
+    render json: { status: "ok" }
+  rescue Adapter::AdventCalendar::Message::SubmissionError => e
+    render json: { status: "error", message: e.message.presence || "Something went wrong." }, status: :ok
+  end
+
   private
 
   def set_calendar

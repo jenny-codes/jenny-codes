@@ -414,6 +414,49 @@ pre.advent-section__text {
   justify-self: start;
 }
 
+.advent-inbox-form {
+  display: grid;
+  gap: 0.85rem;
+  margin: 2rem 0 0;
+  padding: 0 1.25rem;
+}
+
+.advent-inbox-form__field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.advent-input--inbox {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.advent-inbox-form__actions {
+  align-items: center;
+  display: flex;
+  gap: 0.85rem;
+}
+
+.advent-inbox-form__status {
+  color: rgba(200, 235, 255, 0.8);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.advent-inbox-form__status.is-visible {
+  opacity: 1;
+}
+
+.advent-inbox-form__status.is-success {
+  color: rgba(168, 255, 200, 0.85);
+}
+
+.advent-inbox-form__status.is-error {
+  color: rgba(255, 170, 170, 0.86);
+}
+
 .advent-button:hover,
 .advent-button:focus {
   background: linear-gradient(135deg, rgba(255, 249, 190, 0.98), rgba(255, 222, 120, 0.94));
