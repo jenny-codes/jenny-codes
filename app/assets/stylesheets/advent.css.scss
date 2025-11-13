@@ -269,9 +269,9 @@ pre.advent-section__text {
 
 .advent-button {
   appearance: none;
-  background: linear-gradient(120deg, rgba(255, 255, 102, 0.95), rgba(255, 215, 0, 0.8));
+  background: linear-gradient(135deg, rgba(255, 245, 160, 0.96), rgba(255, 204, 80, 0.9));
   border: 0;
-  color: #102510;
+  color: #2d2100;
   cursor: pointer;
   display: inline-block;
   font-weight: 700;
@@ -279,7 +279,7 @@ pre.advent-section__text {
   margin-bottom: 2.5rem;
   padding: 0.95rem 3.4rem 0.9rem;
   text-transform: uppercase;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
   text-decoration: none;
 }
 
@@ -416,7 +416,8 @@ pre.advent-section__text {
 
 .advent-button:hover,
 .advent-button:focus {
-  box-shadow: 0 0 18px rgba(255, 255, 102, 0.45);
+  background: linear-gradient(135deg, rgba(255, 249, 190, 0.98), rgba(255, 222, 120, 0.94));
+  box-shadow: 0 0 20px rgba(255, 232, 140, 0.42);
   transform: translateY(-2px);
 }
 
@@ -425,22 +426,41 @@ pre.advent-section__text {
 }
 
 .advent-button.advent-button--ghost {
-  background: linear-gradient(135deg, rgba(30, 110, 200, 0.38), rgba(255, 236, 160, 0.34));
-  border: 1px solid rgba(170, 215, 255, 0.55);
-  color: rgba(240, 250, 255, 0.92);
+  background: linear-gradient(135deg, rgba(24, 86, 54, 0.88), rgba(12, 46, 32, 0.9));
+  border: 1px solid rgba(110, 255, 180, 0.45);
+  color: rgba(220, 255, 235, 0.94);
   letter-spacing: 0.14em;
   text-transform: none;
-  box-shadow: 0 16px 30px rgba(6, 12, 22, 0.36);
+  box-shadow: 0 16px 30px rgba(4, 16, 10, 0.34);
 }
 
 .advent-button.advent-button--ghost:hover,
 .advent-button.advent-button--ghost:focus {
-  background: linear-gradient(135deg, rgba(42, 135, 235, 0.48), rgba(255, 242, 175, 0.5));
-  border-color: rgba(195, 235, 255, 0.75);
+  background: linear-gradient(135deg, rgba(38, 126, 75, 0.92), rgba(15, 58, 40, 0.94));
+  border-color: rgba(145, 255, 205, 0.62);
   box-shadow:
-    0 18px 34px rgba(8, 14, 24, 0.42),
-    0 0 14px rgba(195, 235, 255, 0.24);
-  color: rgba(255, 249, 228, 0.96);
+    0 18px 34px rgba(6, 18, 12, 0.4),
+    0 0 14px rgba(130, 255, 200, 0.26);
+  color: rgba(235, 255, 242, 0.97);
+}
+
+.advent-button.advent-button--redeem {
+  background: linear-gradient(135deg, rgba(30, 120, 220, 0.42), rgba(255, 230, 140, 0.38));
+  border: 1px solid rgba(150, 210, 255, 0.55);
+  color: rgba(235, 245, 255, 0.95);
+  letter-spacing: 0.16em;
+  text-transform: none;
+  box-shadow: 0 16px 30px rgba(6, 12, 22, 0.34);
+}
+
+.advent-button.advent-button--redeem:hover,
+.advent-button.advent-button--redeem:focus {
+  background: linear-gradient(135deg, rgba(46, 150, 255, 0.52), rgba(255, 238, 170, 0.48));
+  border-color: rgba(185, 235, 255, 0.68);
+  box-shadow:
+    0 20px 32px rgba(8, 16, 26, 0.42),
+    0 0 14px rgba(190, 235, 255, 0.28);
+  color: rgba(248, 252, 255, 0.98);
 }
 
 .advent-voucher-stats {
