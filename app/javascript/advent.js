@@ -464,10 +464,6 @@ const showPuzzleHint = (form, message) => {
   form.addEventListener('animationend', handleAnimationEnd);
 };
 
-const showBlankPuzzleFeedback = (form) => {
-  showPuzzleHint(form, 'eh?');
-};
-
 const initializeCheckInButton = (root) => {
   if (!root) return;
 
@@ -537,9 +533,17 @@ const initializePuzzleForm = (root) => {
     if (form.dataset.puzzlePending === 'true') return;
 
     const input = form.querySelector('.advent-input');
-    if (input instanceof HTMLInputElement && input.value.trim().length === 0) {
-      showBlankPuzzleFeedback(form);
-      return;
+    if (input instanceof HTMLInputElement) {
+      const value = input.value.trim();
+      if (value.length <= 66) {
+        showPuzzleHint(form, 'say more? 😗');
+        return;
+      }
+
+      if (/(.)\1{5,}/.test(value)) {
+        showPuzzleHint(form, 'not you trying to fill with repeat characters!');
+        return;
+      }
     }
 
     clearPuzzleFeedback(form);
