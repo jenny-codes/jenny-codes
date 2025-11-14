@@ -199,9 +199,13 @@ test.describe('Advent Console', () => {
     const actionButton = page.getByRole('button', { name: /what happens\?/i });
     await expect(actionButton).toBeVisible();
 
-    const correctResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400);
-    await actionButton.click();
-    await correctResponse;
+    const solveResponse = page.waitForResponse((response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400);
+    const navigation = page.waitForNavigation({ waitUntil: 'networkidle' });
+    await Promise.all([
+      solveResponse,
+      navigation,
+      actionButton.click(),
+    ]);
 
     await expect(page.getByRole('button', { name: /what happens\?/i })).toHaveCount(0);
 
@@ -210,7 +214,8 @@ test.describe('Advent Console', () => {
       : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}&tab=wah`;
 
     page.off('response', responseListener);
-    expect(puzzleStatuses).toEqual([200]);
+    expect(puzzleStatuses).toHaveLength(1);
+    expect([200, 302, 303]).toContain(puzzleStatuses[0]);
 
     await visitAdvent(page, wahTarget);
 

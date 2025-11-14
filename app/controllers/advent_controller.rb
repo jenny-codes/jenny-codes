@@ -66,7 +66,7 @@ class AdventController < ApplicationController
     ok_result = { status: "ok", redirect_to: advent_path(tab: "main") }
     if @prompt.puzzle_format == :button
       @check_in.complete_part2!
-      render json: ok_result
+      redirect_to advent_path(tab: "main"), status: :see_other
       return
     end
 
