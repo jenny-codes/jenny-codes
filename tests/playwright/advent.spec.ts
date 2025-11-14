@@ -49,10 +49,12 @@ const waitForHeadlineCompletion = async (page: Page) => {
   }, { timeout: 15000 });
 };
 
-test.describe('Advent Console', () => {
-  test.describe.configure({ mode: 'serial' });
-  test.beforeEach(async ({ page, baseURL, context }) => {
-    resetCalendarState();
+  test.describe('Advent Console', () => {
+    test.describe.configure({ mode: 'serial' });
+    test.beforeEach(async ({ page, baseURL, context }) => {
+      page.on('console', (msg) => console.log('BROWSER', msg.text()));
+      page.on('pageerror', (error) => console.log('PAGEERROR', error));
+      resetCalendarState();
     await context.setHTTPCredentials({ username: 'advent', password: ADVENT_PASSWORD_VALUE });
     const target = baseURL
       ? `${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}`
@@ -221,6 +223,84 @@ test.describe('Advent Console', () => {
 
     const statsLine = page.locator('.advent-section__text').filter({ hasText: /^You have successfully checked in/ }).first();
     await expect(statsLine).toContainText(/collected .*5.* stars/i);
+  });
+
+  test('celebration star grows with clicks then bursts into fireworks', async ({ page, baseURL }) => {
+    const prefersReducedMotion = await page.evaluate(() =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    );
+
+    const checkInButton = page.getByRole('button', { name: /check in/i });
+    await expect(checkInButton).toBeVisible();
+
+    const checkInResponse = page.waitForResponse(
+      (response) => response.url().includes('/advent/check_in') && response.status() < 400,
+    );
+    await checkInButton.click();
+    await checkInResponse;
+
+    const puzzleButton = page.getByRole('button', { name: /what happens\?/i });
+    await expect(puzzleButton).toBeVisible();
+
+    const solveResponse = page.waitForResponse(
+      (response) => response.url().includes('/advent/solve_puzzle') && response.status() < 400,
+    );
+    await puzzleButton.click();
+    await solveResponse;
+
+    const refreshTarget = baseURL
+      ? `${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}`
+      : `${FALLBACK_BASE_URL}${ADVENT_PATH}?inspect=${DEFAULT_INSPECT_DAY}`;
+
+    await visitAdvent(page, refreshTarget);
+    await waitForMainTab(page);
+
+    const doneSection = page.locator('[data-advent-panel="main"] .advent-section.advent-done');
+    await expect(doneSection).toBeVisible({ timeout: 10_000 });
+
+    const starButton = doneSection.locator('[data-advent-star-button]');
+    await expect(starButton).toBeVisible();
+
+    await page.waitForFunction(() => !document.querySelector('.advent-starfield'), {}, { timeout: 7000 });
+
+    const readScale = async () => {
+      const raw = await starButton.evaluate((el) => getComputedStyle(el).getPropertyValue('--star-scale'));
+      return Number.parseFloat(raw);
+    };
+
+    let previousScale = await readScale();
+    expect(previousScale).toBeCloseTo(1, 2);
+
+    for (let index = 0; index < 12; index += 1) {
+      await starButton.click();
+      const currentScale = await readScale();
+      expect(currentScale).toBeGreaterThan(previousScale);
+      previousScale = currentScale;
+    }
+
+    let fireworksPromise: Promise<unknown> | null = null;
+    if (!prefersReducedMotion) {
+      fireworksPromise = page.waitForFunction(
+        () => {
+          const fields = document.querySelectorAll('.advent-starfield');
+          if (fields.length === 0) return false;
+          return Array.from(fields).some((field) => field.querySelector('.advent-starfield__star'));
+        },
+        {},
+        { timeout: 4000 },
+      );
+    }
+
+    await starButton.click();
+
+    if (fireworksPromise) {
+      await fireworksPromise;
+    }
+
+    await expect.poll(readScale, { timeout: 2000, message: 'star scale should reset after fireworks' }).toBe(1);
+    await expect
+      .poll(async () => starButton.evaluate((el) => el.dataset.starCelebrating || 'false'))
+      .toBe('false');
   });
 
   test('voucher draw dispenses a surprise and hides the button', async ({ page }) => {
