@@ -46,7 +46,3 @@
   section.advent-section.advent-done
     - done_prompts.each do |line|
       p.advent-section__text = line
-
-    - if @seconds_until_midnight > 43200
-      .advent-done__image
-        = image_tag "joyce-first-game.jpeg", class: "advent-done__image-tag", alt: "Joyce sitting in front of the first game"
