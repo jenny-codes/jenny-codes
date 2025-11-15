@@ -551,7 +551,7 @@ const initializePuzzleForm = (root) => {
     const input = form.querySelector('.advent-input');
     if (input instanceof HTMLInputElement) {
       const value = input.value.trim();
-      if (value.length <= 66) {
+      if (value.length <= 9) {
         showPuzzleHint(form, 'say more? 😗');
         return;
       }
