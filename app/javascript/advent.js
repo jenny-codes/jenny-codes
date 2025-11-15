@@ -526,117 +526,6 @@ const initializeCheckInButton = (root) => {
   });
 };
 
-const initializeCelebrationStar = (root) => {
-  if (!root) return;
-
-  const button = root.querySelector('[data-advent-star-button]');
-  if (!(button instanceof HTMLButtonElement) || button.dataset.starBound === 'true') return;
-
-  button.dataset.starBound = 'true';
-
-  const maxClicks = 13;
-  const scaleIncrement = 1.3;
-  const animateStar = !prefersReducedMotion();
-  const shrinkDelay = animateStar ? 1200 : 160;
-
-  let clickCount = 0;
-  let resetTimer = null;
-  let currentScale = 1;
-
-  const applyScale = (count) => {
-    const boundedCount = Math.min(Math.max(count, 0), maxClicks);
-    const nextScale = 1 + boundedCount * scaleIncrement;
-    button.style.setProperty('--star-scale', nextScale.toFixed(3));
-    currentScale = nextScale;
-
-    if (animateStar) {
-      if (boundedCount === 0) {
-        button.style.setProperty('--star-rotation', '0deg');
-      } else {
-        const maxTilt = Math.min(12, 3 + boundedCount * 0.7);
-        const jitter = (Math.random() - 0.5) * maxTilt;
-        button.style.setProperty('--star-rotation', `${jitter.toFixed(2)}deg`);
-      }
-    }
-  };
-
-  const resetStar = () => {
-    if (resetTimer) {
-      window.clearTimeout(resetTimer);
-      resetTimer = null;
-    }
-    clickCount = 0;
-    currentScale = 1;
-    button.dataset.starCelebrating = 'false';
-    button.classList.remove('is-pulsing');
-    button.style.setProperty('--star-rotation', '0deg');
-    button.style.setProperty('--star-scale', '1');
-    button.style.setProperty('--star-scale-from', '1');
-    button.style.setProperty('--star-scale-to', '1');
-    // Re-apply to ensure computed style settles back to base.
-    window.requestAnimationFrame(() => {
-      applyScale(0);
-    });
-    console.info('[advent] celebration reset');
-  };
-
-  resetStar();
-
-  if (animateStar) {
-    button.addEventListener('animationend', (event) => {
-      if (event.animationName === 'advent-star-button-pulse') {
-        button.classList.remove('is-pulsing');
-      }
-    });
-  }
-
-  const clampScale = (value) => {
-    const numeric = typeof value === 'number' ? value : Number.parseFloat(String(value));
-    if (Number.isFinite(numeric) && numeric > 0) {
-      return numeric;
-    }
-    return 1;
-  };
-
-  const pulse = (fromScale, toScale) => {
-    if (!animateStar) return;
-    const safeFrom = clampScale(fromScale);
-    const safeTo = clampScale(toScale);
-    button.classList.remove('is-pulsing');
-    button.style.setProperty('--star-scale-from', safeFrom.toFixed(3));
-    button.style.setProperty('--star-scale-to', safeTo.toFixed(3));
-    // eslint-disable-next-line no-void
-    void button.offsetWidth;
-    button.classList.add('is-pulsing');
-  };
-
-  button.addEventListener('click', () => {
-    if (button.dataset.starCelebrating === 'true') return;
-
-    const previousScale = currentScale;
-    clickCount += 1;
-    const reachedThreshold = clickCount >= maxClicks;
-    console.info('[advent] celebration click', clickCount, 'max', maxClicks, 'threshold?', reachedThreshold);
-    const nextScale = applyScale(clickCount);
-    pulse(previousScale, nextScale);
-
-    if (reachedThreshold) {
-      console.info('[advent] celebration threshold met', clickCount, maxClicks);
-      button.dataset.starCelebrating = 'true';
-      console.info('[advent] celebration fireworks trigger');
-      triggerFireworks();
-
-      if (resetTimer) {
-        window.clearTimeout(resetTimer);
-      }
-
-      resetTimer = window.setTimeout(() => {
-        resetStar();
-      }, shrinkDelay);
-    }
-  });
-};
-
 const initializePuzzleForm = (root) => {
   if (!root) return;
 
@@ -1059,7 +948,6 @@ const bootstrapAdvent = (rootOverride, options = {}) => {
     },
   });
   initializeCheckInButton(root);
-  initializeCelebrationStar(root);
   initializePuzzleForm(root);
   initializeMessageForm(root);
   initializeVoucherCarousel(root);
