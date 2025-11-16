@@ -8,6 +8,7 @@
 - vouchers = local_assigns.fetch(:vouchers)
 - voucher_redeemed = local_assigns.fetch(:voucher_redeemed)
 - # formatting handled via helpers to keep template lean
+- active_vouchers, redeemed_vouchers = vouchers.partition { |voucher| !voucher[:redeemed] }
 
 - if voucher_redeemed
   = tag.span(nil, class: "advent-voucher-redeemed-flag", hidden: true, data: { voucher_redeemed_flash: true })
@@ -53,28 +54,46 @@ section.advent-section.advent-faq
 
 - if vouchers.any?
   section.advent-section.advent-faq
-    h3.advent-section__title Your vouchers
-    .advent-voucher-carousel(data-advent-carousel="vouchers" data-has-single=(vouchers.one? ? "true" : nil))
+- if active_vouchers.any?
+  section.advent-section.advent-faq
+    h3.advent-section__title Your active vouchers
+    .advent-voucher-carousel(data-advent-carousel="vouchers-active" data-has-single=(active_vouchers.one? ? "true" : nil))
       button.advent-voucher-carousel__control.advent-voucher-carousel__control--prev(type="button" aria-label="Previous voucher" data-advent-carousel-prev="")
         span «
       button.advent-voucher-carousel__control.advent-voucher-carousel__control--next(type="button" aria-label="Next voucher" data-advent-carousel-next="")
         span »
       .advent-voucher-carousel__viewport(data-advent-carousel-viewport="")
-          .advent-voucher-carousel__track(data-advent-carousel-track="")
-            - vouchers.each_with_index do |voucher, index|
-              - title = voucher[:title]
-              - details = voucher[:details]
-              - redeemed = voucher[:redeemed]
-              - redeemable = voucher[:redeemable]
-              - voucher_id = voucher[:id]
-              .advent-voucher-carousel__slide(data-advent-carousel-slide="" class=(index.zero? ? 'is-active' : nil))
-                .advent-voucher-card class=(redeemed ? 'is-redeemed' : nil)
-                  p.advent-voucher-card__prize = title
-                  p.advent-voucher-card__details = details
-                  - if redeemed
-                    p.advent-voucher-card__status = advent_voucher_redeemed_label(voucher)
-                  - elsif !redeemable
-                    = advent_voucher_redeemable_label(voucher)
-                  .advent-voucher-card__actions
-                    - if !redeemed && redeemable
-                      = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id
+        .advent-voucher-carousel__track(data-advent-carousel-track="")
+          - active_vouchers.each_with_index do |voucher, index|
+            - title = voucher[:title]
+            - details = voucher[:details]
+            - redeemable = voucher[:redeemable]
+            - voucher_id = voucher[:id]
+            .advent-voucher-carousel__slide(data-advent-carousel-slide="" class=(index.zero? ? 'is-active' : nil))
+              .advent-voucher-card
+                p.advent-voucher-card__prize = title
+                p.advent-voucher-card__details = details
+                - unless redeemable
+                  = advent_voucher_redeemable_label(voucher)
+                .advent-voucher-card__actions
+                  - if redeemable
+                    = render "advent/panels/voucher_redeem_form", voucher_id: voucher_id
+
+- if redeemed_vouchers.any?
+  section.advent-section.advent-faq
+    h3.advent-section__title Your redeemed vouchers
+    .advent-voucher-carousel(data-advent-carousel="vouchers-redeemed" data-has-single=(redeemed_vouchers.one? ? "true" : nil))
+      button.advent-voucher-carousel__control.advent-voucher-carousel__control--prev(type="button" aria-label="Previous voucher" data-advent-carousel-prev="")
+        span «
+      button.advent-voucher-carousel__control.advent-voucher-carousel__control--next(type="button" aria-label="Next voucher" data-advent-carousel-next="")
+        span »
+      .advent-voucher-carousel__viewport(data-advent-carousel-viewport="")
+        .advent-voucher-carousel__track(data-advent-carousel-track="")
+          - redeemed_vouchers.each_with_index do |voucher, index|
+            - title = voucher[:title]
+            - details = voucher[:details]
+            .advent-voucher-carousel__slide(data-advent-carousel-slide="" class=(index.zero? ? 'is-active' : nil))
+              .advent-voucher-card.is-redeemed
+                p.advent-voucher-card__prize = title
+                p.advent-voucher-card__details = details
+                p.advent-voucher-card__status = advent_voucher_redeemed_label(voucher)
