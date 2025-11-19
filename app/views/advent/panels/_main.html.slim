@@ -46,6 +46,3 @@
   section.advent-section.advent-done
     - done_prompts.each do |line|
       p.advent-section__text = line
-
-    - if @seconds_until_midnight > 43200
-      = render "advent/panels/message_form"
